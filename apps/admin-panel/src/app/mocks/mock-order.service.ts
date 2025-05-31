@@ -62,8 +62,6 @@ const MOCK_USERS: User[] = [
 
 /**
  * Przykładowe zamówienia z danymi pozwalającymi na grupowanie po bucie (shoeCode).
- * W zamówieniu nr 1 znajdziemy dwa wpisy dla tego samego kodu "AIRMAX",
- * ale różnych rozmiarów — dzięki temu demo grupowania po shoeCode będzie widoczne.
  */
 const MOCK_ORDERS: Order[] = [
   {
@@ -146,6 +144,121 @@ const MOCK_ORDERS: Order[] = [
       },
     ],
     totalAmount: 10 * 349,
+  },
+  // ---- DODATKOWE PRZYKŁADY ----
+  {
+    id: 4,
+    userId: 2,
+    user: MOCK_USERS.find((u) => u.id === 2),
+    date: new Date('2025-05-18T10:45:00Z').toISOString(),
+    status: 'placed',
+    items: [
+      {
+        shoeId: 4,
+        shoeCode: 'RUNSTAR',
+        shoeName: 'Puma Run Star',
+        size: 38,
+        quantity: 25,
+        unitPrice: 289,
+      },
+    ],
+    totalAmount: 25 * 289,
+  },
+  {
+    id: 5,
+    userId: 1,
+    user: MOCK_USERS.find((u) => u.id === 1),
+    date: new Date('2025-05-20T08:20:00Z').toISOString(),
+    status: 'processing',
+    items: [
+      // Dwa wpisy dla SUPERSTAR: różne rozmiary
+      {
+        shoeId: 1,
+        shoeCode: 'SUPERSTAR',
+        shoeName: 'Adidas Superstar',
+        size: 36,
+        quantity: 40,
+        unitPrice: 319,
+      },
+      {
+        shoeId: 1,
+        shoeCode: 'SUPERSTAR',
+        shoeName: 'Adidas Superstar',
+        size: 38,
+        quantity: 20,
+        unitPrice: 319,
+      },
+      // Jeden wpis dla AIRMAX
+      {
+        shoeId: 2,
+        shoeCode: 'AIRMAX',
+        shoeName: 'Nike Air Max',
+        size: 40,
+        quantity: 30,
+        unitPrice: 329,
+      },
+    ],
+    totalAmount: 40 * 319 + 20 * 319 + 30 * 329,
+  },
+  {
+    id: 6,
+    userId: 2,
+    user: MOCK_USERS.find((u) => u.id === 2),
+    date: new Date('2025-05-22T16:10:00Z').toISOString(),
+    status: 'completed',
+    items: [
+      {
+        shoeId: 3,
+        shoeCode: 'SUEDE',
+        shoeName: 'Puma Suede',
+        size: 37,
+        quantity: 5,
+        unitPrice: 279,
+      },
+      {
+        shoeId: 3,
+        shoeCode: 'SUEDE',
+        shoeName: 'Puma Suede',
+        size: 39,
+        quantity: 10,
+        unitPrice: 279,
+      },
+      {
+        shoeId: 5,
+        shoeCode: 'TOKYO',
+        shoeName: 'Nike Tokyo Runner',
+        size: 41,
+        quantity: 8,
+        unitPrice: 359,
+      },
+    ],
+    totalAmount: 5 * 279 + 10 * 279 + 8 * 359,
+  },
+  {
+    id: 7,
+    userId: 1,
+    user: MOCK_USERS.find((u) => u.id === 1),
+    date: new Date('2025-05-25T12:00:00Z').toISOString(),
+    status: 'cancelled',
+    items: [
+      {
+        shoeId: 4,
+        shoeCode: 'RUNSTAR',
+        shoeName: 'Puma Run Star',
+        size: 39,
+        quantity: 12,
+        unitPrice: 289,
+      },
+      {
+        shoeId: 4,
+        shoeCode: 'RUNSTAR',
+        shoeName: 'Puma Run Star',
+        size: 40,
+        quantity: 5,
+        unitPrice: 289,
+      },
+    ],
+    totalAmount: 12 * 289 + 5 * 289,
   },
 ];
 

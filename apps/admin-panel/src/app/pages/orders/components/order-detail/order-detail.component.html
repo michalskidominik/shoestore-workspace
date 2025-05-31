@@ -1,0 +1,137 @@
+<!-- eslint-disable @angular-eslint/template/elements-content -->
+<div class="mx-auto p-6" *ngIf="order() as o">
+  <button
+    pButton
+    label="Powrót do listy"
+    icon="pi pi-arrow-left"
+    class="mb-4"
+    (click)="goBack()"
+  ></button>
+
+  <p-card>
+    <ng-template pTemplate="header">
+      <div class="flex justify-between items-center p-6">
+        <h2 class="text-2xl font-semibold">Zamówienie #{{ o.id }}</h2>
+        <p-tag
+          [value]="o.status"
+          [severity]="statusSeverity(o.status)"
+          class="text-capitalize"
+        ></p-tag>
+      </div>
+    </ng-template>
+
+    <div class="mb-6">
+      <h3 class="text-lg font-medium mb-2">Dane klienta</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <p class="font-semibold">E-mail:</p>
+          <p>{{ o.user?.email }}</p>
+        </div>
+        <div>
+          <p class="font-semibold">Osoba kontaktowa:</p>
+          <p>{{ o.user?.contactName }}</p>
+        </div>
+        <div>
+          <p class="font-semibold">Telefon:</p>
+          <p>{{ o.user?.phone }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-6">
+      <h3 class="text-lg font-medium mb-2">Adres wysyłki</h3>
+      <p>
+        {{ o.user?.shippingAddress?.street }},
+        {{ o.user?.shippingAddress?.city }},
+        {{ o.user?.shippingAddress?.postalCode }},
+        {{ o.user?.shippingAddress?.country }}
+      </p>
+    </div>
+
+    <div class="mb-6">
+      <h3 class="text-lg font-medium mb-2">Dane do faktury</h3>
+      <p class="font-semibold">{{ o.user?.invoiceInfo?.companyName }}</p>
+      <p>VAT: {{ o.user?.invoiceInfo?.vatNumber }}</p>
+      <p *ngIf="o.user?.invoiceInfo?.taxId">
+        NIP: {{ o.user?.invoiceInfo?.taxId }}
+      </p>
+      <p class="mt-2 font-semibold">Adres rozliczeniowy:</p>
+      <p>
+        {{ o.user?.billingAddress?.street }},
+        {{ o.user?.billingAddress?.city }},
+        {{ o.user?.billingAddress?.postalCode }},
+        {{ o.user?.billingAddress?.country }}
+      </p>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-medium mb-2">Pozycje zamówienia</h3>
+      <p-table
+        [value]="orderItems()"
+        rowGroupMode="subheader"
+        [groupRowsBy]="'shoeCode'"
+        [sortField]="'shoeCode'"
+        sortMode="single"
+        [sortOrder]="1"
+        [tableStyle]="{ 'min-width': '40rem' }"
+        class="m-3"
+      >
+        <!-- Nagłówek kolumn dla danych szczegółowych (rozmiar / ilość / cena / wartość) -->
+        <ng-template pTemplate="header">
+          <tr>
+            <th class="text-center text-sm font-medium text-gray-700 px-4 py-2">
+              Rozmiar
+            </th>
+            <th class="text-center text-sm font-medium text-gray-700 px-4 py-2">
+              Ilość
+            </th>
+            <th class="text-right text-sm font-medium text-gray-700 px-4 py-2">
+              Cena jedn.
+            </th>
+            <th class="text-right text-sm font-medium text-gray-700 px-4 py-2">
+              Wartość
+            </th>
+          </tr>
+        </ng-template>
+
+        <!-- Wiersz grupy: wyświetla kod i nazwę buta jako nagłówek grupy -->
+        <ng-template #groupheader let-item>
+          <tr pRowGroupHeader class="bg-gray-100">
+            <td colspan="4" class="font-semibold text-gray-800 px-4 py-2">
+              {{ item.shoeCode }}&nbsp;–&nbsp;{{ item.shoeName }}
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-- Wiersz danych: pokazuje rozmiar, ilość, cenę i wartość (cena*ilość) -->
+        <ng-template pTemplate="body" let-item>
+          <tr class="hover:bg-gray-50">
+            <td class="text-center px-4 py-2">{{ item.size }}</td>
+            <td class="text-center px-4 py-2">{{ item.quantity }}</td>
+            <td class="text-right px-4 py-2">
+              {{ item.unitPrice | currency : 'PLN' }}
+            </td>
+            <td class="text-right px-4 py-2">
+              {{ item.unitPrice * item.quantity | currency : 'PLN' }}
+            </td>
+          </tr>
+        </ng-template>
+
+        <!-- Stopka: łącznie suma całkowita zamówienia -->
+        <ng-template pTemplate="footer">
+          <tr>
+            <td
+              colspan="3"
+              class="text-right font-semibold text-gray-800 px-4 py-2"
+            >
+              Razem:
+            </td>
+            <td class="text-right font-semibold text-gray-800 px-4 py-2">
+              {{ order()?.totalAmount | currency : 'PLN' }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-card>
+</div>

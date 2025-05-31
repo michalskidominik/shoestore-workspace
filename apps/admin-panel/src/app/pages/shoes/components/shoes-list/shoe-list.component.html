@@ -111,7 +111,7 @@
           <div class="p-ml-4">
             <p>
               Cena bazowa:
-              {{ rowData.basePrice | currency : 'PLN' : 'symbol' : '1.2-2' }}
+              {{ rowData.basePrice | currency : 'EUR' : 'symbol' : '1.2-2' }}
             </p>
             <table
               class="p-datatable-sm p-mt-2"
@@ -152,7 +152,7 @@
                 <tr *ngFor="let s of rowData.sizes">
                   <td style="padding: 0.5rem">{{ s.size }}</td>
                   <td style="padding: 0.5rem; text-align: right">
-                    {{ s.price | currency : 'PLN' : 'symbol' : '1.2-2' }}
+                    {{ s.price | currency : 'EUR' : 'symbol' : '1.2-2' }}
                   </td>
                   <td style="padding: 0.5rem; text-align: right">
                     {{ s.quantity }}
