@@ -1,31 +1,48 @@
-import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter, withEnabledBlockingInitialNavigation, withInMemoryScrolling } from '@angular/router';
-import { appRoutes } from './app.routes';
-import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { providePrimeNG } from 'primeng/config';
-import Aura from '@primeng/themes/aura';
 import { provideHttpClient, withFetch } from '@angular/common/http';
-import { ShoeService } from './pages/shoes/service/shoe.service';
+import { ApplicationConfig, provideZoneChangeDetection } from '@angular/core';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import {
+  provideRouter,
+  withEnabledBlockingInitialNavigation,
+  withInMemoryScrolling,
+} from '@angular/router';
+import Aura from '@primeng/themes/aura';
+import { providePrimeNG } from 'primeng/config';
+import { appRoutes } from './app.routes';
 import { MockShoeService } from './mocks/mock-shoe.service';
+import { MockSizeTemplateService } from './mocks/mock-size-template.service';
+import { ShoeService } from './pages/shoes/service/shoe.service';
+import { SizeTemplateService } from './pages/shoes/service/size-template.service';
 
 const useMocks = true; // Set to true to use mock services
 
 export const appConfig: ApplicationConfig = {
   providers: [
-    provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
+    provideRouter(
+      appRoutes,
+      withInMemoryScrolling({
+        anchorScrolling: 'enabled',
+        scrollPositionRestoration: 'enabled',
+      }),
+      withEnabledBlockingInitialNavigation()
+    ),
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
         preset: Aura,
-        options: { darkModeSelector: '.app-dark' }
+        options: { darkModeSelector: '.app-dark' },
       },
     }),
     provideHttpClient(withFetch()),
     {
       provide: ShoeService,
-      useClass: useMocks ? MockShoeService : ShoeService
-    }
+      useClass: useMocks ? MockShoeService : ShoeService,
+    },
+    {
+      provide: SizeTemplateService,
+      useClass: useMocks ? MockSizeTemplateService : SizeTemplateService,
+    },
   ],
 };
 

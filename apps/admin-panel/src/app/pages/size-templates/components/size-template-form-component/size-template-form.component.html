@@ -1,0 +1,93 @@
+<!-- eslint-disable @angular-eslint/template/elements-content -->
+<div class="p-4 max-w-lg mx-auto">
+  <h1 class="text-xl font-bold mb-4">
+    {{ isEdit() ? 'Edytuj szablon' : 'Nowy szablon' }}
+  </h1>
+
+  <p-toast></p-toast>
+
+  <form [formGroup]="form" (ngSubmit)="onSave()" class="space-y-6">
+    <!-- ID -->
+    <div>
+      <label for="id" class="block text-sm font-medium">ID</label>
+      <input
+        pInputText
+        id="id"
+        type="number"
+        formControlName="id"
+        class="w-full bg-gray-100 text-gray-500"
+        aria-disabled="true"
+      />
+    </div>
+
+    <!-- Nazwa -->
+    <div>
+      <label for="name" class="block text-sm font-medium">Nazwa *</label>
+      <input
+        pInputText
+        id="name"
+        formControlName="name"
+        class="w-full"
+        [ngClass]="{ 'p-invalid': f.name.invalid && f.name.touched }"
+        aria-required="true"
+      />
+      <small *ngIf="f.name.invalid && f.name.touched" class="text-red-500">
+        Nazwa jest wymagana
+      </small>
+    </div>
+
+    <!-- Rozmiary -->
+    <div formArrayName="sizes">
+      <span class="block text-sm font-medium mb-2">Rozmiary *</span>
+
+      <div
+        *ngFor="let ctrl of sizes.controls; let i = index"
+        class="flex items-center space-x-2 mb-2"
+      >
+        <input
+          pInputNumber
+          type="text"
+          [formControlName]="i"
+          [min]="1"
+          class="w-24"
+          [ngClass]="{ 'p-invalid': ctrl.invalid && ctrl.touched }"
+          aria-required="true"
+        />
+        <button
+          pButton
+          icon="pi pi-times"
+          class="p-button-danger p-button-sm"
+          type="button"
+          (click)="removeSize(i)"
+          aria-label="Usuń rozmiar"
+        ></button>
+      </div>
+
+      <button
+        pButton
+        label="Dodaj rozmiar"
+        icon="pi pi-plus"
+        type="button"
+        class="mt-2"
+        (click)="addSize()"
+      ></button>
+    </div>
+
+    <!-- Przyciski -->
+    <div class="flex space-x-2 mt-4">
+      <button
+        pButton
+        label="Zapisz"
+        type="submit"
+        [disabled]="form.invalid"
+      ></button>
+      <button
+        pButton
+        label="Anuluj"
+        class="p-button-secondary"
+        type="button"
+        (click)="onCancel()"
+      ></button>
+    </div>
+  </form>
+</div>

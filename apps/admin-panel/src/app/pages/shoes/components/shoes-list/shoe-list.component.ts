@@ -4,8 +4,10 @@ import {
   ChangeDetectionStrategy,
   Component,
   effect,
+  inject,
   signal,
 } from '@angular/core';
+import { Router, RouterLink, RouterModule } from '@angular/router';
 import { PagedResult, Shoe, ShoeQueryParams } from '@shoestore/shared-models';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -25,12 +27,14 @@ import { ShoeService } from '../../service/shoe.service';
     InputTextModule,
     ButtonModule,
     TooltipModule,
+    RouterLink
   ],
   templateUrl: './shoe-list.component.html',
   styleUrls: ['./shoe-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ShoeListComponent {
+  private readonly router = inject(Router);
   // Reactive state using signals
   queryParams = signal<ShoeQueryParams>({
     page: 1,
@@ -105,6 +109,10 @@ export class ShoeListComponent {
     this.triggerReload();
   }
 
+  onEdit(shoeId: number): void {
+    this.router.navigate(['shoes', shoeId, 'edit']);
+  }
+
   confirmDelete(shoe: Shoe): void {
     this.confirmation.confirm({
       header: 'Potwierdzenie usunięcia',
@@ -133,6 +141,7 @@ export class ShoeListComponent {
   }
 
   onRowExpand(event: { data: Shoe }) {
+    console.log('Row expanded:', event.data);
     this.expandedRows.update((m) => ({ ...m, [event.data.code]: true }));
   }
 

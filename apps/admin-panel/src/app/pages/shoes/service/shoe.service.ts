@@ -4,11 +4,15 @@ import {
   HttpParams,
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { PagedResult, Shoe, ShoeQueryParams } from '@shoestore/shared-models';
+import {
+  PagedResult,
+  Shoe,
+  ShoeCreateDto,
+  ShoeQueryParams,
+  ShoeUpdateDto,
+} from '@shoestore/shared-models';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
-
-
 
 @Injectable({ providedIn: 'root' })
 export class ShoeService {
@@ -52,6 +56,35 @@ export class ShoeService {
   }
 
   /**
+   * Pobiera pojedynczy model buta po jego ID.
+   */
+  getShoeById(id: number): Observable<Shoe> {
+    return this.http
+      .get<Shoe>(`${this.apiUrl}/${id}`)
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Tworzy nowy model buta. DTO wysyłane jako multipart/form-data.
+   */
+  createShoe(dto: ShoeCreateDto): Observable<Shoe> {
+    const formData = this.buildFormData(dto);
+    return this.http
+      .post<Shoe>(this.apiUrl, formData)
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
+   * Aktualizuje istniejący model buta (PUT). DTO jako multipart/form-data.
+   */
+  updateShoe(id: number, dto: ShoeUpdateDto): Observable<Shoe> {
+    const formData = this.buildFormData(dto);
+    return this.http
+      .put<Shoe>(`${this.apiUrl}/${id}`, formData)
+      .pipe(catchError(this.handleError));
+  }
+
+  /**
    * Usuwa model buta o podanym ID.
    */
   deleteShoe(id: number): Observable<void> {
@@ -61,10 +94,37 @@ export class ShoeService {
   }
 
   /**
+   * Buduje obiekt FormData z ShoeCreateDto/ShoeUpdateDto,
+   * aby móc wysłać obraz + pola tekstowe w jednym zapytaniu multipart.
+   */
+  private buildFormData(dto: ShoeCreateDto | ShoeUpdateDto): FormData {
+    const formData = new FormData();
+    formData.append('code', dto.code);
+    formData.append('name', dto.name);
+    formData.append('visible', dto.visible ? 'true' : 'false');
+
+    // Dodaj templateId jako pole tekstowe
+    formData.append('templateId', dto.templateId.toString());
+
+    // Jeśli w DTO jest plik (File), dołącz go
+    if ((dto as ShoeCreateDto).imageFile) {
+      formData.append(
+        'image',
+        (dto as ShoeCreateDto).imageFile!,
+        (dto as ShoeCreateDto).imageFile!.name
+      );
+    }
+
+    // Rozmiary serializujemy jako JSON
+    formData.append('sizes', JSON.stringify(dto.sizes));
+
+    return formData;
+  }
+
+  /**
    * Obsługa błędów HTTP.
    */
   private handleError(error: HttpErrorResponse) {
-    // Można dodać globalny serwis logowania błędów
     let errorMsg = 'Nieznany błąd sieciowy';
     if (error.error instanceof ErrorEvent) {
       // Błąd po stronie klienta
@@ -73,7 +133,6 @@ export class ShoeService {
       // Błąd po stronie serwera
       errorMsg = `Kod ${error.status}: ${error.message}`;
     }
-    // Dodatkowo można skorzystać z serwisu Toast do wyświetlenia
     return throwError(() => new Error(errorMsg));
   }
 }

@@ -1,42 +1,52 @@
+import { NgClass } from '@angular/common';
 import { Component, OnDestroy, Renderer2, ViewChild } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
+import { ConfirmationService, MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
 import { filter, Subscription } from 'rxjs';
 import { LayoutService } from '../service/layout.service';
 import { AppTopbarComponent } from './app-topbar.component';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
+import { AppSidebarComponent } from './app-sidebar.component';
 
 @Component({
   selector: 'app-layout',
   standalone: true,
-  imports: [RouterModule, AppTopbarComponent, ConfirmDialogModule, ToastModule],
+  imports: [
+    RouterModule,
+    AppTopbarComponent,
+    AppSidebarComponent,
+    ConfirmDialogModule,
+    ToastModule,
+    NgClass,
+  ],
   providers: [ConfirmationService, MessageService],
-  template: `<div class="layout-wrapper">
-    <!-- [ngClass]="containerClass" -->
-    <app-topbar></app-topbar>
-    <div class="layout-main-container">
-      <div class="layout-main">
-        <p-confirmDialog
-          icon="pi pi-exclamation-triangle"
-          acceptLabel="Tak"
-          rejectLabel="Nie"
-          acceptIcon="pi pi-check"
-          rejectIcon="pi pi-times"
-          acceptButtonStyleClass="p-button-danger"
-          rejectButtonStyleClass="p-button-secondary"
-          defaultFocus="reject"
-        ></p-confirmDialog>
-        <p-toast></p-toast>
-        <router-outlet></router-outlet>
+  template: ` <p-confirmDialog
+      icon="pi pi-exclamation-triangle"
+      acceptLabel="Tak"
+      rejectLabel="Nie"
+      acceptIcon="pi pi-check"
+      rejectIcon="pi pi-times"
+      acceptButtonStyleClass="p-button-danger"
+      rejectButtonStyleClass="p-button-secondary"
+      defaultFocus="reject"
+    ></p-confirmDialog>
+    <p-toast></p-toast>
+    <div class="layout-wrapper" [ngClass]="containerClass">
+      <app-topbar></app-topbar>
+      <app-sidebar></app-sidebar>
+      <div class="layout-main-container">
+        <div class="layout-main">
+          <router-outlet></router-outlet>
+        </div>
       </div>
-    </div>
-    <div class="layout-mask animate-fadein"></div>
-  </div>`,
+      <div class="layout-mask animate-fadein"></div>
+    </div>`,
 })
 export class AppLayoutComponent implements OnDestroy {
   overlayMenuOpenSubscription: Subscription;
   menuOutsideClickListener: any;
+  @ViewChild(AppSidebarComponent) appSidebar!: AppSidebarComponent;
   @ViewChild(AppTopbarComponent) appTopBar!: AppTopbarComponent;
 
   constructor(
@@ -115,21 +125,20 @@ export class AppLayoutComponent implements OnDestroy {
     }
   }
 
-  // sidebar
-  // get containerClass() {
-  //   return {
-  //     'layout-overlay':
-  //       this.layoutService.layoutConfig().menuMode === 'overlay',
-  //     'layout-static': this.layoutService.layoutConfig().menuMode === 'static',
-  //     'layout-static-inactive':
-  //       this.layoutService.layoutState().staticMenuDesktopInactive &&
-  //       this.layoutService.layoutConfig().menuMode === 'static',
-  //     'layout-overlay-active':
-  //       this.layoutService.layoutState().overlayMenuActive,
-  //     'layout-mobile-active':
-  //       this.layoutService.layoutState().staticMenuMobileActive,
-  //   };
-  // }
+  get containerClass() {
+    return {
+      'layout-overlay':
+        this.layoutService.layoutConfig().menuMode === 'overlay',
+      'layout-static': this.layoutService.layoutConfig().menuMode === 'static',
+      'layout-static-inactive':
+        this.layoutService.layoutState().staticMenuDesktopInactive &&
+        this.layoutService.layoutConfig().menuMode === 'static',
+      'layout-overlay-active':
+        this.layoutService.layoutState().overlayMenuActive,
+      'layout-mobile-active':
+        this.layoutService.layoutState().staticMenuMobileActive,
+    };
+  }
 
   ngOnDestroy() {
     if (this.overlayMenuOpenSubscription) {
