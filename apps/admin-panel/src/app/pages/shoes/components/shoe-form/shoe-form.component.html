@@ -163,89 +163,85 @@
       <h4 class="text-lg font-semibold text-gray-800">
         Stany i ceny wg rozmiarów
       </h4>
-      <p-table
-        [value]="sizes.controls"
-        [tableStyle]="{ 'min-width': '30rem' }"
-        class="border border-gray-200 rounded-md"
-      >
-        <ng-template pTemplate="header">
-          <tr class="bg-gray-100">
-            <th
-              class="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b border-gray-200"
-            >
-              Rozmiar
-            </th>
-            <th
-              class="px-4 py-2 text-right text-sm font-medium text-gray-700 border-b border-gray-200"
-            >
-              Cena (&euro;) <span class="text-red-500">*</span>
-            </th>
-            <th
-              class="px-4 py-2 text-right text-sm font-medium text-gray-700 border-b border-gray-200"
-            >
-              Dostępność (szt.) <span class="text-red-500">*</span>
-            </th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
-          <tr class="hover:bg-gray-50">
-            <!-- Kolumna: Rozmiar (tylko do odczytu) -->
-            <td class="px-4 py-2">
-              <input
-                type="text"
-                pInputText
-                [value]="row.get('size')!.value"
-                readonly
-                class="w-full border border-gray-300 bg-gray-100 rounded-md px-2 py-1 text-sm"
-              />
-            </td>
-
-            <!-- Kolumna: Cena -->
-            <td class="px-4 py-2 text-right">
-              <p-inputNumber
-                [min]="0"
-                [mode]="'currency'"
-                currency="EUR"
-                locale="pl-PL"
-                [formControl]="row.get('price')"
-                [ngClass]="{
-                  'border-red-500':
-                    row.get('price')?.invalid && row.get('price')?.touched
-                }"
-                class="w-full"
-              ></p-inputNumber>
-              <p
-                *ngIf="row.get('price')?.invalid && row.get('price')?.touched"
-                class="mt-1 text-xs text-red-600 text-right"
+      <div class="my-2">
+        <p-table
+          [value]="sizes.controls"
+          [tableStyle]="{ 'min-width': '30rem' }"
+        >
+          <ng-template pTemplate="header">
+            <tr class="bg-gray-100">
+              <th
+                class="px-4 py-2 text-left text-sm font-medium text-gray-700 border-b border-gray-200"
               >
-                Cena ≥ 0.
-              </p>
-            </td>
+                Rozmiar
+              </th>
+              <th
+                class="px-4 py-2 text-right text-sm font-medium text-gray-700 border-b border-gray-200"
+              >
+                Cena (&euro;) <span class="text-red-500">*</span>
+              </th>
+              <th
+                class="px-4 py-2 text-right text-sm font-medium text-gray-700 border-b border-gray-200"
+              >
+                Dostępność (szt.) <span class="text-red-500">*</span>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-row let-rowIndex="rowIndex">
+            <tr class="hover:bg-gray-50">
+              <!-- Kolumna: Rozmiar (tylko do odczytu) -->
+              <td class="px-4 py-2">
+                {{ row.get('size')!.value }}
+              </td>
 
-            <!-- Kolumna: Dostępność -->
-            <td class="px-4 py-2 text-right">
-              <p-inputNumber
-                [min]="0"
-                [mode]="'decimal'"
-                [formControl]="row.get('quantity')"
-                [ngClass]="{
-                  'border-red-500':
+              <!-- Kolumna: Cena -->
+              <td class="px-4 py-2 text-right">
+                <p-inputNumber
+                  [min]="0"
+                  [mode]="'currency'"
+                  currency="EUR"
+                  locale="pl-PL"
+                  [formControl]="row.get('price')"
+                  [ngClass]="{
+                    'border-red-500':
+                      row.get('price')?.invalid && row.get('price')?.touched
+                  }"
+                  class="w-full"
+                ></p-inputNumber>
+                <p
+                  *ngIf="row.get('price')?.invalid && row.get('price')?.touched"
+                  class="mt-1 text-xs text-red-600 text-right"
+                >
+                  Cena ≥ 0.
+                </p>
+              </td>
+
+              <!-- Kolumna: Dostępność -->
+              <td class="px-4 py-2 text-right">
+                <p-inputNumber
+                  [min]="0"
+                  [mode]="'decimal'"
+                  [formControl]="row.get('quantity')"
+                  [ngClass]="{
+                    'border-red-500':
+                      row.get('quantity')?.invalid &&
+                      row.get('quantity')?.touched
+                  }"
+                  class="w-full"
+                ></p-inputNumber>
+                <p
+                  *ngIf="
                     row.get('quantity')?.invalid && row.get('quantity')?.touched
-                }"
-                class="w-full"
-              ></p-inputNumber>
-              <p
-                *ngIf="
-                  row.get('quantity')?.invalid && row.get('quantity')?.touched
-                "
-                class="mt-1 text-xs text-red-600 text-right"
-              >
-                Ilość ≥ 0.
-              </p>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+                  "
+                  class="mt-1 text-xs text-red-600 text-right"
+                >
+                  Ilość ≥ 0.
+                </p>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
     </div>
 
     <!-- Przyciski akcji -->

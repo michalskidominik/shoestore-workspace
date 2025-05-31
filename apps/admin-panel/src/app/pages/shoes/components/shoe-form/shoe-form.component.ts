@@ -18,6 +18,7 @@ import {
   ShoeUpdateDto,
   SizeTemplate,
   SizeAvailability,
+  SizePair,
 } from '@shoestore/shared-models';
 
 import { ConfirmationService, MessageService } from 'primeng/api';
@@ -230,28 +231,32 @@ export class ShoeFormComponent implements OnInit {
    *    size (liczba), price (domyślnie 0), quantity (domyślnie 0)
    */
   private buildSizesFromTemplate(templateId: number): void {
-    const template = this.sizeTemplates().find((t) => t.id === templateId);
-    if (!template) {
-      this.clearSizesArray();
-      return;
-    }
+  const template = this.sizeTemplates().find((t) => t.id === templateId);
+  if (!template) {
     this.clearSizesArray();
-    template.sizes.forEach((sizeValue: number) => {
-      this.sizes.push(
-        this.fb.group({
-          size: new FormControl<number>(sizeValue, { nonNullable: true }),
-          price: new FormControl<number>(0, {
-            validators: [Validators.required, Validators.min(0)],
-            nonNullable: true,
-          }),
-          quantity: new FormControl<number>(0, {
-            validators: [Validators.required, Validators.min(0)],
-            nonNullable: true,
-          }),
-        })
-      );
-    });
+    return;
   }
+  this.clearSizesArray();
+
+  // Teraz template.pairs: SizePair[] = [{eu, us?}, ...]
+  template.pairs.forEach((pair: SizePair) => {
+    this.sizes.push(
+      this.fb.group({
+        // Zapisujemy wyłącznie EU w polu `size`
+        size: new FormControl<number>(pair.eu, { nonNullable: true }),
+        price: new FormControl<number>(0, {
+          validators: [Validators.required, Validators.min(0)],
+          nonNullable: true,
+        }),
+        quantity: new FormControl<number>(0, {
+          validators: [Validators.required, Validators.min(0)],
+          nonNullable: true,
+        }),
+      })
+    );
+  });
+}
+
 
   /** Usuń wszystkie kontrolki z FormArray "sizes" */
   private clearSizesArray(): void {

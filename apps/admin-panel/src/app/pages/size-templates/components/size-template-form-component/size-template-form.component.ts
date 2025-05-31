@@ -12,12 +12,13 @@ import {
   FormArray,
   FormBuilder,
   FormControl,
+  FormGroup,
   FormsModule,
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { SizeTemplate } from '@shoestore/shared-models';
+import { SizePair, SizeTemplate } from '@shoestore/shared-models';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { InputNumberModule } from 'primeng/inputnumber';
@@ -53,54 +54,96 @@ export class SizeTemplateFormComponent {
   private idParam = signal(this.route.snapshot.paramMap.get('id'));
   isEdit = computed(() => !!this.idParam());
 
-  // form
+  // form: zamiast "sizes", mamy "pairs" = FormArray<FormGroup<{eu, us}>>
   form = this.fb.group({
     id: new FormControl<number | null>({ value: null, disabled: true }),
     name: new FormControl<string | null>('', Validators.required),
-    sizes: this.fb.array([
-      this.fb.control<number | null>(null, Validators.required),
+    pairs: this.fb.array<
+      FormGroup<{
+        eu: FormControl<number | null>;
+        us: FormControl<number | null>;
+      }>
+    >([
+      // domyślnie jedna para (eu obowiązkowe, us opcjonalne)
+      this.createPairGroup(),
     ]),
   });
 
-  get sizes(): FormArray {
-    return this.form.get('sizes') as FormArray;
+  /** Getter do łatwego dostępu */
+  get pairs(): FormArray<
+    FormGroup<{
+      eu: FormControl<number | null>;
+      us: FormControl<number | null>;
+    }>
+  > {
+    return this.form.get('pairs') as FormArray;
   }
-
   get f() {
     return this.form.controls;
   }
 
   constructor() {
-    // Ładowanie danych w trybie edycji
+    // Jeśli edycja, ładujemy istniejący szablon
     effect(() => {
-      const idRaw = this.idParam();
-      if (idRaw) {
-        const id = +idRaw;
+      const rawId = this.idParam();
+      if (rawId) {
+        const id = +rawId;
         this.service
           .getTemplateById(id)
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe((template) => {
             if (template) {
+              // Wypełniamy pola "id" i "name"
               this.form.patchValue({
                 id: template.id,
                 name: template.name,
               });
-              this.sizes.clear();
-              template.sizes.forEach((sz) =>
-                this.sizes.push(this.fb.control(sz, Validators.required))
-              );
+              // Odbudowujemy pairs
+              this.pairs.clear();
+              template.pairs.forEach((pair: SizePair) => {
+                this.pairs.push(
+                  this.fb.group({
+                    eu: new FormControl<number | null>(pair.eu, [
+                      Validators.required,
+                      Validators.min(1),
+                    ]),
+                    us: new FormControl<number | null>(pair.us ?? null, [
+                      Validators.min(1),
+                    ]),
+                  })
+                );
+              });
             }
           });
       }
     });
   }
 
-  addSize(): void {
-    this.sizes.push(this.fb.control(null, Validators.required));
+  /** Tworzy pustą grupę FormGroup dla jednej pary rozmiarów (eu obowiązkowy, us opcjonalny) */
+  private createPairGroup(
+    euValue: number | null = null,
+    usValue: number | null = null
+  ): FormGroup<{
+    eu: FormControl<number | null>;
+    us: FormControl<number | null>;
+  }> {
+    return this.fb.group({
+      eu: new FormControl<number | null>(euValue, [
+        Validators.required,
+        Validators.min(1),
+      ]),
+      us: new FormControl<number | null>(usValue, [Validators.min(1)]),
+    });
   }
 
-  removeSize(index: number): void {
-    this.sizes.removeAt(index);
+  /** Dodaje nową parę (domyślnie z null/null) */
+  addPair(): void {
+    this.pairs.push(this.createPairGroup());
+  }
+
+  /** Usuwa parę o indeksie i */
+  removePair(index: number): void {
+    this.pairs.removeAt(index);
   }
 
   onSave(): void {
@@ -109,7 +152,16 @@ export class SizeTemplateFormComponent {
       return;
     }
 
-    const data: SizeTemplate = this.form.getRawValue() as SizeTemplate;
+    // Kompilujemy obiekt SizeTemplate
+    const raw = this.form.getRawValue();
+    const data: SizeTemplate = {
+      id: raw.id!,
+      name: raw.name!,
+      pairs: raw.pairs.map((p: any) => ({
+        eu: p.eu!,
+        us: p.us === null ? undefined : p.us!,
+      })),
+    };
 
     if (this.isEdit()) {
       const id = Number(this.idParam());
@@ -122,6 +174,8 @@ export class SizeTemplateFormComponent {
         this.router.navigate(['/size-templates']);
       });
     } else {
+      // Backend nada ID
+      // delete data.id;
       this.service.createTemplate(data).subscribe(() => {
         this.messageService.add({
           severity: 'success',

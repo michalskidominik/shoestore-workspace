@@ -15,7 +15,7 @@
       <tr>
         <th>ID</th>
         <th>Nazwa</th>
-        <th>Rozmiary</th>
+        <th>Rozmiary (EU)</th>
         <th>Akcje</th>
       </tr>
     </ng-template>
@@ -25,7 +25,10 @@
         <td>{{ item.id }}</td>
         <td>{{ item.name }}</td>
         <td>
-          {{ item.sizes && item.sizes.length ? item.sizes.join(', ') : '–' }}
+          <span *ngFor="let p of item.pairs; let last = last">
+            {{ p.eu }}
+            <span *ngIf="!last">, </span>
+          </span>
         </td>
         <td>
           <button
