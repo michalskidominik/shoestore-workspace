@@ -13,6 +13,8 @@ import { MockShoeService } from './mocks/mock-shoe.service';
 import { MockSizeTemplateService } from './mocks/mock-size-template.service';
 import { ShoeService } from './pages/shoes/service/shoe.service';
 import { SizeTemplateService } from './pages/shoes/service/size-template.service';
+import { OrderService } from './pages/orders/services/order.service';
+import { MockOrderService } from './mocks/mock-order.service';
 
 const useMocks = true; // Set to true to use mock services
 
@@ -43,6 +45,10 @@ export const appConfig: ApplicationConfig = {
       provide: SizeTemplateService,
       useClass: useMocks ? MockSizeTemplateService : SizeTemplateService,
     },
+    {
+      provide: OrderService,
+      useClass: useMocks ? MockOrderService : OrderService,
+    }
   ],
 };
 

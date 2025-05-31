@@ -1,0 +1,109 @@
+<!-- eslint-disable @angular-eslint/template/elements-content -->
+<div class="p-4">
+  <h1 class="text-xl font-bold mb-4">Lista zamówień</h1>
+  <p-table
+    [value]="orders()"
+    [paginator]="true"
+    [rows]="queryParams().pageSize"
+    [totalRecords]="totalRecords()"
+    [lazy]="true"
+    (onSort)="onSort($event)"
+    (onPage)="onPageChange($event)"
+    [loading]="loading()"
+    dataKey="id"
+    [tableStyle]="{ 'min-width': '60rem' }"
+  >
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="id" class="text-left">
+          ID zamówienia <p-sortIcon field="id" />
+        </th>
+        <th pSortableColumn="date" class="text-left">
+          Data <p-sortIcon field="date" />
+        </th>
+        <th pSortableColumn="user.email" class="text-left">
+          Klient <p-sortIcon field="user.email" />
+        </th>
+        <th pSortableColumn="totalAmount" class="text-right">
+          Kwota <p-sortIcon field="totalAmount" />
+        </th>
+        <th pSortableColumn="status" class="text-center">
+          Status <p-sortIcon field="status" />
+        </th>
+        <th class="text-center">Akcje</th>
+      </tr>
+      <tr>
+        <th colspan="2">
+          <input
+            pInputText
+            type="text"
+            placeholder="Szukaj..."
+            (input)="onSearch($any($event.target).value)"
+          />
+        </th>
+        <th colspan="3">
+          <p-select
+            [options]="statuses"
+            [(ngModel)]="selectedStatus"
+            [appendTo]="'body'"
+            (onChange)="onStatusFilterChange($event.value)"
+            placeholder="Filtruj po statusie"
+            class="w-48"
+            [showClear]="true"
+            clearIcon="pi pi-times"
+          ></p-select>
+        </th>
+        <th></th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-order>
+      <tr>
+        <td>{{ order.id }}</td>
+        <td>{{ order.date | date : 'short' }}</td>
+        <td>{{ order.user?.email }}</td>
+        <td class="text-right">{{ order.totalAmount | currency : 'PLN' }}</td>
+        <td class="text-center">
+          <p-tag
+            [value]="getStatusLabel(order.status)"
+            [severity]="statusSeverity(order.status)"
+          ></p-tag>
+        </td>
+        <td class="text-center">
+          <!-- Wyświetl status + TieredMenu do szybkiej zmiany -->
+          <button
+            type="button"
+            pButton
+            icon="pi pi-ellipsis-v"
+            class="p-button-text p-button-sm"
+            (click)="statusMenu.toggle($event)"
+          ></button>
+          <p-tieredMenu
+            #statusMenu
+            [appendTo]="'body'"
+            [model]="getStatusMenuItems(order)"
+            (click)="onStatusSelect($any($event), order.id)"
+            pTooltip="Zmień status"
+            [popup]="true"
+          ></p-tieredMenu>
+          <button
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-text p-button-sm"
+            (click)="onViewDetails(order.id)"
+            pTooltip="Zobacz szczegóły"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center p-4">
+          Brak zamówień do wyświetlenia.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

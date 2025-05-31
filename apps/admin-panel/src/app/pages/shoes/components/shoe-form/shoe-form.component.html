@@ -150,16 +150,6 @@
 
     <!-- Tabela rozmiarów (size + price + quantity) -->
     <div *ngIf="sizes.length > 0" class="space-y-4">
-      <div class="flex justify-end">
-        <button
-          pButton
-          icon="pi pi-euro"
-          label="Ustaw cenę dla wszystkich"
-          class="p-button-sm p-button-outlined"
-          type="button"
-          (click)="showSetPriceDialog.set(true)"
-        ></button>
-      </div>
       <h4 class="text-lg font-semibold text-gray-800">
         Stany i ceny wg rozmiarów
       </h4>
@@ -178,7 +168,19 @@
               <th
                 class="px-4 py-2 text-right text-sm font-medium text-gray-700 border-b border-gray-200"
               >
-                Cena (&euro;) <span class="text-red-500">*</span>
+                <div class="flex justify-between items-center">
+                  <span>
+                    Cena (&euro;) <span class="text-red-500">*</span>
+                  </span>
+                   <button
+                    pButton
+                    icon="pi pi-euro"
+                    label="Ustaw cenę dla wszystkich"
+                    class="p-button-sm p-button-outlined"
+                    type="button"
+                    (click)="showSetPriceDialog.set(true)"
+                  ></button>
+                </div>
               </th>
               <th
                 class="px-4 py-2 text-right text-sm font-medium text-gray-700 border-b border-gray-200"

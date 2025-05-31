@@ -5,6 +5,7 @@ import { NotfoundComponent } from './pages/shoes/notfound/notfound.component';
 import { ShoeFormComponent } from './pages/shoes/components/shoe-form/shoe-form.component';
 import { SizeTemplateListComponent } from './pages/size-templates/components/size-template-list.component';
 import { SizeTemplateFormComponent } from './pages/size-templates/components/size-template-form-component/size-template-form.component';
+import { OrdersComponent } from './pages/orders/orders.component';
 
 export const appRoutes: Route[] = [
   {
@@ -17,6 +18,8 @@ export const appRoutes: Route[] = [
       { path: 'size-templates', component: SizeTemplateListComponent },
       { path: 'size-templates/new', component: SizeTemplateFormComponent },
       { path: 'size-templates/:id/edit', component: SizeTemplateFormComponent },
+      { path: 'orders', component: OrdersComponent },
+      // { path: 'orders/:id', component: OrderDetailComponent },
     ],
   },
   { path: 'notfound', component: NotfoundComponent },
