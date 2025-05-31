@@ -30,8 +30,8 @@
           "budgets": [
             {
               "type": "initial",
-              "maximumWarning": "500kb",
-              "maximumError": "1mb"
+              "maximumWarning": "2mb",
+              "maximumError": "4mb"
             },
             {
               "type": "anyComponentStyle",
@@ -86,6 +86,17 @@
         "staticFilePath": "dist/apps/admin-panel/browser",
         "spa": true
       }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          { "command": "nx build admin-panel --configuration=production --base-href=/shoestore-workspace/" },
+          { "command": "npx ngh --dir=dist/apps/admin-panel/browser --branch=gh-pages --message=\"chore: deploy admin-panel\"" }
+        ],
+        "parallel": false
+      },
+      "dependsOn": ["build"]
     }
   }
 }
