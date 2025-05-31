@@ -4,9 +4,16 @@ import { appRoutes } from './app.routes';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeng/themes/aura';
+import { provideHttpClient, withFetch } from '@angular/common/http';
+import { ShoeService } from './pages/shoes/service/shoe.service';
+import { MockShoeService } from './mocks/mock-shoe.service';
+
+const useMocks = true; // Set to true to use mock services
 
 export const appConfig: ApplicationConfig = {
   providers: [
+    provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
+    provideZoneChangeDetection({ eventCoalescing: true }),
     provideAnimationsAsync(),
     providePrimeNG({
       theme: {
@@ -14,8 +21,11 @@ export const appConfig: ApplicationConfig = {
         options: { darkModeSelector: '.app-dark' }
       },
     }),
-    provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
+    provideHttpClient(withFetch()),
+    {
+      provide: ShoeService,
+      useClass: useMocks ? MockShoeService : ShoeService
+    }
   ],
 };
 

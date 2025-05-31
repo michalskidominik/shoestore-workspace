@@ -1,3 +1,2 @@
-export function sharedModels(): string {
-  return 'shared-models';
-}
+export * from './paged-result.model'
+export * from './shoe.model';

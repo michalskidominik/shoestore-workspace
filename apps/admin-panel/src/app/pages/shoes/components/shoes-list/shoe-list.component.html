@@ -1,0 +1,154 @@
+<p-table
+  [value]="shoes()"
+  [paginator]="true"
+  [rows]="queryParams().pageSize"
+  [totalRecords]="totalRecords()"
+  [lazy]="true"
+  (onRowExpand)="onRowExpand($event)"
+  (onRowCollapse)="onRowCollapse($event)"
+  (onSort)="onSort($event)"
+  (onPage)="onPageChange($event)"
+  [loading]="loading()"
+  dataKey="code"
+>
+  <!-- Nagłówek tabeli -->
+  <ng-template pTemplate="header">
+    <tr>
+      <th style="width: 3rem"></th>
+      <th pSortableColumn="code">
+        Kod
+        <p-sortIcon field="code"></p-sortIcon>
+      </th>
+      <th pSortableColumn="name">
+        Nazwa
+        <p-sortIcon field="name"></p-sortIcon>
+      </th>
+      <th>Rozmiary</th>
+      <th>Akcje</th>
+    </tr>
+    <tr>
+      <th></th>
+      <th colspan="2">
+        <input
+          pInputText
+          type="text"
+          placeholder="Szukaj..."
+          (input)="onSearch($any($event.target).value)"
+        />
+      </th>
+      <th></th>
+      <th></th>
+    </tr>
+  </ng-template>
+
+  <!-- Ciało tabeli: każdy wiersz ma rozwijany panel -->
+  <ng-template pTemplate="body" let-shoe let-expanded="expanded">
+    <tr>
+      <!-- Kolumna rozwijania -->
+      <td>
+        <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+        <button
+          type="button"
+          pButton
+          pRipple
+          [pRowToggler]="shoe"
+          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"
+          class="p-button-text p-button-sm"
+        ></button>
+      </td>
+
+      <!-- Kolumna: Kod -->
+      <td>{{ shoe.code }}</td>
+
+      <!-- Kolumna: Nazwa -->
+      <td>{{ shoe.name }}</td>
+
+      <!-- Kolumna: Rozmiary (skrótowo) -->
+      <td>
+        <span *ngFor="let s of shoe.sizes; let last = last">
+          {{ s.size }}({{ s.quantity }})<span *ngIf="!last">, </span>
+        </span>
+      </td>
+
+      <!-- Kolumna: Akcje -->
+      <td>
+        <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+        <button
+          pButton
+          pRipple
+          icon="pi pi-pencil"
+          class="p-button-text p-button-sm"
+        ></button>
+        <!-- eslint-disable-next-line @angular-eslint/template/elements-content -->
+        <button
+          pButton
+          pRipple
+          icon="pi pi-trash"
+          class="p-button-text p-button-danger p-button-sm"
+          (click)="confirmDelete(shoe)"
+        ></button>
+      </td>
+    </tr>
+  </ng-template>
+
+  <!-- Szablon dla rozwiniętych wierszy -->
+  <ng-template pTemplate="rowexpansion" let-rowData>
+    <tr>
+      <td colspan="5">
+        <div class="p-ml-4">
+          <p>
+            Cena bazowa:
+            {{ rowData.basePrice | currency : 'PLN' : 'symbol' : '1.2-2' }}
+          </p>
+          <table
+            class="p-datatable-sm p-mt-2"
+            style="width: 100%; border-collapse: collapse"
+          >
+            <thead>
+              <tr>
+                <th
+                  style="
+                    border-bottom: 1px solid #ccc;
+                    text-align: left;
+                    padding: 0.5rem;
+                  "
+                >
+                  Rozmiar
+                </th>
+                <th
+                  style="
+                    border-bottom: 1px solid #ccc;
+                    text-align: right;
+                    padding: 0.5rem;
+                  "
+                >
+                  Cena
+                </th>
+                <th
+                  style="
+                    border-bottom: 1px solid #ccc;
+                    text-align: right;
+                    padding: 0.5rem;
+                  "
+                >
+                  Dostępność
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let s of rowData.sizes">
+                <td style="padding: 0.5rem">{{ s.size }}</td>
+                <td style="padding: 0.5rem; text-align: right">
+                  {{ s.price | currency : 'PLN' : 'symbol' : '1.2-2' }}
+                </td>
+                <td style="padding: 0.5rem; text-align: right">
+                  {{ s.quantity }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </ng-template>
+</p-table>
