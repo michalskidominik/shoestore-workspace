@@ -113,7 +113,7 @@ export class MockUserService {
   getUserById(id: number): Observable<User> {
     const found = this.data.find((u) => u.id === id);
     if (!found) {
-      return throwError(() => new Error(`Użytkownik o id ${id} nie istnieje`));
+      return throwError(() => new Error(`Klient o id ${id} nie istnieje`));
     }
     return of({ ...found }).pipe(delay(100));
   }

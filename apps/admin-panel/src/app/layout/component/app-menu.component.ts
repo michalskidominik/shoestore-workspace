@@ -32,7 +32,7 @@ export class AppMenuComponent implements OnInit {
           { label: 'Dashboard', icon: 'pi pi-fw pi-home', routerLink: ['/'] },
           { label: 'Rozmiarówki', icon: 'pi pi-fw pi-list', routerLink: ['/size-templates'] },
           { label: 'Zamówienia', icon: 'pi pi-fw pi-shopping-cart', routerLink: ['/orders'] },
-          { label: 'Użytkownicy', icon: 'pi pi-fw pi-users', routerLink: ['/users'] },
+          { label: 'Klienci', icon: 'pi pi-fw pi-users', routerLink: ['/users'] },
         ],
       }
     ];
