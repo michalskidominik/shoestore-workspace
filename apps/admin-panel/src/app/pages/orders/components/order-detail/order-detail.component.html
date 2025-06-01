@@ -25,7 +25,11 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <p class="font-semibold">E-mail:</p>
-          <p>{{ o.user?.email }}</p>
+            <p>
+            <a class="underline" [routerLink]="['/users', o.user?.id]" *ngIf="o.user?.id" pTooltip="Przejdź do profilu użytkownika">
+              {{ o.user?.email }}
+            </a>
+            </p>
         </div>
         <div>
           <p class="font-semibold">Osoba kontaktowa:</p>
@@ -52,16 +56,13 @@
       <h3 class="text-lg font-medium mb-2">Dane do faktury</h3>
       <p class="font-semibold">{{ o.user?.invoiceInfo?.companyName }}</p>
       <p>VAT: {{ o.user?.invoiceInfo?.vatNumber }}</p>
-      <p *ngIf="o.user?.invoiceInfo?.taxId">
-        NIP: {{ o.user?.invoiceInfo?.taxId }}
-      </p>
-      <p class="mt-2 font-semibold">Adres rozliczeniowy:</p>
+      <!-- <p class="mt-2 font-semibold">Adres rozliczeniowy:</p>
       <p>
         {{ o.user?.billingAddress?.street }},
         {{ o.user?.billingAddress?.city }},
         {{ o.user?.billingAddress?.postalCode }},
         {{ o.user?.billingAddress?.country }}
-      </p>
+      </p> -->
     </div>
 
     <div>
@@ -109,10 +110,10 @@
             <td class="text-center px-4 py-2">{{ item.size }}</td>
             <td class="text-center px-4 py-2">{{ item.quantity }}</td>
             <td class="text-right px-4 py-2">
-              {{ item.unitPrice | currency : 'PLN' }}
+              {{ item.unitPrice | currency : 'EUR' }}
             </td>
             <td class="text-right px-4 py-2">
-              {{ item.unitPrice * item.quantity | currency : 'PLN' }}
+              {{ item.unitPrice * item.quantity | currency : 'EUR' }}
             </td>
           </tr>
         </ng-template>
@@ -127,7 +128,7 @@
               Razem:
             </td>
             <td class="text-right font-semibold text-gray-800 px-4 py-2">
-              {{ order()?.totalAmount | currency : 'PLN' }}
+              {{ order()?.totalAmount | currency : 'EUR' }}
             </td>
           </tr>
         </ng-template>

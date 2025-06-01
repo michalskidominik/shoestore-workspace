@@ -1,0 +1,91 @@
+<!-- eslint-disable @angular-eslint/template/elements-content -->
+<div class="p-4 sm:p-0 mx-auto" *ngIf="user() as u; else loadingTpl">
+  <div class="flex justify-between items-center mb-4">
+    <button
+    pButton
+    label="Powrót do listy"
+    icon="pi pi-arrow-left"
+    class="mb-4"
+    (click)="goBack()"
+  ></button>
+  <!-- nowy przycisk: Zobacz zamówienia klienta -->
+  <button
+    pButton
+    label="Zobacz zamówienia"
+    icon="pi pi-shopping-cart"
+    class="p-button-outlined p-button-sm mb-4 ml-4"
+    (click)="goToUserOrders()"
+  ></button>
+
+  </div>
+
+  <p-card class="shadow-lg rounded-lg">
+    <ng-template pTemplate="header">
+      <div class="px-6 py-4">
+        <h2 class="text-2xl font-semibold text-gray-800">Szczegóły klienta</h2>
+      </div>
+    </ng-template>
+
+    <div class="px-6 py-4 space-y-6">
+      <!-- Ustawiamy dwie kolumny na sm+ i jedną na węższych ekranach -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <!-- Nazwa firmy -->
+        <div>
+          <p class="text-sm font-medium text-gray-600">Nazwa firmy</p>
+          <p class="mt-1 text-lg text-gray-800">
+            {{ u.invoiceInfo.companyName }}
+          </p>
+        </div>
+
+        <!-- Numer VAT -->
+        <div>
+          <p class="text-sm font-medium text-gray-600">Numer VAT</p>
+          <p class="mt-1 text-lg text-gray-800">
+            {{ u.invoiceInfo.vatNumber }}
+          </p>
+        </div>
+
+        <!-- Telefon -->
+        <div>
+          <p class="text-sm font-medium text-gray-600">Telefon</p>
+          <p class="mt-1 text-lg text-gray-800">{{ u.phone }}</p>
+        </div>
+
+        <!-- E-mail -->
+        <div>
+          <p class="text-sm font-medium text-gray-600">E-mail</p>
+          <p class="mt-1 text-lg text-gray-800">{{ u.email }}</p>
+        </div>
+      </div>
+
+      <!-- Adresy: rozliczeniowy i dostaw -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <!-- Adres rozliczeniowy -->
+        <div>
+          <p class="text-sm font-medium text-gray-600">
+            Adres firmowy (rozliczeniowy)
+          </p>
+          <p class="mt-1 text-gray-800">
+            {{ u.billingAddress.street }}, {{ u.billingAddress.city }}<br />
+            {{ u.billingAddress.postalCode }}, {{ u.billingAddress.country }}
+          </p>
+        </div>
+
+        <!-- Adres dostawy -->
+        <div>
+          <p class="text-sm font-medium text-gray-600">Adres dostawy</p>
+          <p class="mt-1 text-gray-800">
+            {{ u.shippingAddress.street }}, {{ u.shippingAddress.city }}<br />
+            {{ u.shippingAddress.postalCode }}, {{ u.shippingAddress.country }}
+          </p>
+        </div>
+      </div>
+    </div>
+  </p-card>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="flex justify-center items-center p-6">
+    <i class="pi pi-spin pi-spinner pi-2x text-gray-500"></i>
+  </div>
+</ng-template>

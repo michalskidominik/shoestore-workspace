@@ -5,11 +5,11 @@ import {
   Component,
   effect,
   inject,
-  signal,
-  ViewChild,
+  OnInit,
+  signal
 } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms'; // potrzebne dla ngModel
+import { ActivatedRoute, Router } from '@angular/router';
 import {
   Order,
   OrderQueryParams,
@@ -19,11 +19,10 @@ import {
 import { MenuItem, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { MenuModule } from 'primeng/menu';
+import { Menu, MenuModule } from 'primeng/menu';
 import { SelectModule } from 'primeng/select';
 import { TableModule, TablePageEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { TieredMenu, TieredMenuModule } from 'primeng/tieredmenu';
 import { TooltipModule } from 'primeng/tooltip';
 import { OrderService } from '../../services/order.service';
 
@@ -43,7 +42,6 @@ interface StatusOption {
     ButtonModule,
     MenuModule,
     TooltipModule,
-    TieredMenuModule,
     FormsModule,
     TagModule,
   ],
@@ -51,12 +49,15 @@ interface StatusOption {
   styleUrls: ['./order-list.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class OrderListComponent {
+export class OrderListComponent implements OnInit {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly orderService = inject(OrderService);
   private readonly message = inject(MessageService);
 
-  // Reactive state
+  // --- SYGNAŁY I STANY ---
+
+  /** Parametry zapytania do serwera (status / search / strona / sort) */
   queryParams = signal<OrderQueryParams>({
     page: 1,
     pageSize: 10,
@@ -65,11 +66,18 @@ export class OrderListComponent {
   });
   private reloadTrigger = signal(0);
 
+  /** Lista zamówień pobrana z serwera */
   orders = signal<Order[]>([]);
   totalRecords = signal(0);
   loading = signal(false);
 
-  // Przykładowe statusy:
+  /** Ustawione filtrowanie po statusie */
+  selectedStatus: OrderStatus | undefined = undefined;
+
+  /** Sygnał przechowujący bieżące słowo wyszukiwania */
+  searchTerm = signal<string>('');
+
+  /** Możliwe statusy do filtrowania i do TieredMenu */
   statuses: StatusOption[] = [
     { label: 'Złożone', value: 'placed' },
     { label: 'W realizacji', value: 'processing' },
@@ -77,17 +85,25 @@ export class OrderListComponent {
     { label: 'Anulowane', value: 'cancelled' },
   ];
 
-  // Referencja do TieredMenu
-  @ViewChild('statusMenu') statusMenu!: TieredMenu;
-
-  selectedStatus: OrderStatus | undefined = undefined;
-
-  // Effect: odświeżaj, gdy queryParams lub reloadTrigger się zmienią
+  /** Efekt: kiedy zmienia się queryParams lub reloadTrigger, pobieramy na nowo listę */
   private dataEffect = effect(() => {
     const _q = this.queryParams();
     const _t = this.reloadTrigger();
     this.loadOrders();
   });
+
+  ngOnInit(): void {
+    // 1) Odczyt parametru ?search=z cURL i nadanie wartości sygnałowi oraz queryParams
+    this.route.queryParamMap.subscribe((params) => {
+      const search = params.get('search') ?? '';
+      this.searchTerm.set(search); // sygnał trzyma teraz tekst w polu
+      this.queryParams.update((q) => ({
+        ...q,
+        search: search || undefined,
+        page: 1,
+      }));
+    });
+  }
 
   private loadOrders(): void {
     this.loading.set(true);
@@ -108,8 +124,17 @@ export class OrderListComponent {
     });
   }
 
+  /**
+   * Wywoływane przy zmianie wartości w polu „Szukaj...”.
+   * Ustawiamy sygnał searchTerm oraz aktualizujemy queryParams.search.
+   */
   onSearch(value: string) {
-    this.queryParams.update((q) => ({ ...q, search: value, page: 1 }));
+    this.searchTerm.set(value);
+    this.queryParams.update((q) => ({
+      ...q,
+      search: value || undefined,
+      page: 1,
+    }));
     this.triggerReload();
   }
 
@@ -136,7 +161,11 @@ export class OrderListComponent {
     const first = event.first!;
     const rows = event.rows!;
     const newPage = Math.floor(first / rows) + 1;
-    this.queryParams.update((q) => ({ ...q, page: newPage, pageSize: rows }));
+    this.queryParams.update((q) => ({
+      ...q,
+      page: newPage,
+      pageSize: rows,
+    }));
     this.triggerReload();
   }
 
@@ -144,20 +173,13 @@ export class OrderListComponent {
     this.router.navigate(['/orders', orderId]);
   }
 
-  onChangeStatus(order: Order, menu: any) {
-    // Otwórz TieredMenu
-    menu.toggle(event);
-  }
-
-  /**
-   * Buduje tablicę MenuItem[] dla danego zamówienia.
-   * Założenie: do `order` chcemy przekazać wybrany status.
-   */
-  getStatusMenuItems(order: any): MenuItem[] {
-    // Pomijamy pierwszy element statuses[0], bo to „Wszystkie”
-    return this.statuses.slice(1).map((st) => ({
+  getStatusMenuItems(menu: Menu, order: Order): MenuItem[] {
+    return this.statuses.map((st) => ({
       label: st.label,
-      command: () => this.onStatusSelect(order, st.value),
+      command: () => {
+        menu.hide();
+        this.onStatusSelect(order, st.value)
+      },
     }));
   }
 
@@ -199,11 +221,6 @@ export class OrderListComponent {
     }
   }
 
-  /**
-   * Zwraca odpowiednią etykietę (label) dla statusu.
-   * Można zamiast tego użyć built-in titlecase lub zdefiniować tablicę
-   * statuses = [ { label: 'Złożone', value: 'placed' }, … ]
-   */
   getStatusLabel(status: string): string {
     switch (status) {
       case 'placed':

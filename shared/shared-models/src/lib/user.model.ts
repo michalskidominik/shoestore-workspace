@@ -8,7 +8,6 @@ export interface Address {
 export interface InvoiceInfo {
   companyName: string;
   vatNumber: string;
-  taxId?: string;
 }
 
 export interface User {

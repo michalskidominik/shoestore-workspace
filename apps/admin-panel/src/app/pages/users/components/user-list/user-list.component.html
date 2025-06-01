@@ -1,0 +1,111 @@
+<!-- eslint-disable @angular-eslint/template/elements-content -->
+<div class="p-4">
+  <h1 class="text-xl font-bold mb-4">Lista klientów (Firmy B2B)</h1>
+
+  <p-table
+    [value]="users()"
+    [paginator]="true"
+    [rows]="queryParams().pageSize"
+    [totalRecords]="totalRecords()"
+    [lazy]="true"
+    (onPage)="onPageChange($event)"
+    [loading]="loading()"
+    dataKey="id"
+    [responsiveLayout]="'stack'"
+    [tableStyle]="{ 'min-width': '40rem' }"
+    class="shadow rounded-lg overflow-hidden"
+  >
+    <!-- NAGŁÓWEK TABELI -->
+    <ng-template pTemplate="header">
+      <tr>
+        <th
+          pSortableColumn="companyName"
+          class="text-left text-sm font-medium text-gray-700 py-2 px-3"
+        >
+          Firma <p-sortIcon field="companyName" />
+        </th>
+        <th
+          pSortableColumn="email"
+          class="hidden sm:table-cell text-left text-sm font-medium text-gray-700 py-2 px-3"
+        >
+          E-mail <p-sortIcon field="email" />
+        </th>
+        <th
+          pSortableColumn="phone"
+          class="hidden md:table-cell text-left text-sm font-medium text-gray-700 py-2 px-3"
+        >
+          Telefon <p-sortIcon field="phone" />
+        </th>
+        <th class="text-center text-sm font-medium text-gray-700 py-2 px-3">
+          Akcje
+        </th>
+      </tr>
+      <!-- Rząd z polem wyszukiwania -->
+      <tr>
+        <th colspan="3" class="py-2 px-3">
+          <input
+            pInputText
+            type="text"
+            placeholder="Wyszukaj po nazwie lub e-mailu..."
+            (input)="onSearch($any($event.target).value)"
+            class="w-full sm:w-72 text-sm px-3 py-2 border border-gray-300 rounded"
+          />
+        </th>
+        <th class="py-2 px-3"></th>
+      </tr>
+    </ng-template>
+
+    <!-- CIAŁO TABELI -->
+    <ng-template pTemplate="body" let-user>
+      <tr
+        (click)="onViewDetail(user.id)"
+        class="cursor-pointer hover:bg-gray-50 transition-colors"
+      >
+        <!-- Firma -->
+        <td
+          data-label="Firma"
+          class="text-sm text-gray-800 py-2 px-3"
+        >
+          {{ user.invoiceInfo.companyName }}
+        </td>
+
+        <!-- E-mail (ukryty na xs, pokazany od sm+) -->
+        <td
+          data-label="E-mail"
+          class="hidden sm:table-cell text-sm text-gray-700 py-2 px-3"
+        >
+          {{ user.email }}
+        </td>
+
+        <!-- Telefon (ukryty na < md) -->
+        <td
+          data-label="Telefon"
+          class="hidden md:table-cell text-sm text-gray-700 py-2 px-3"
+        >
+          {{ user.phone }}
+        </td>
+
+        <!-- Kolumna Akcje: tutaj np. ikona "oko" -->
+        <td data-label="Akcje" class="text-center py-2 px-3">
+          <button
+            pButton
+            pRipple
+            icon="pi pi-eye"
+            class="p-button-text p-button-sm"
+            (click)="onViewDetail(user.id); $event.stopPropagation()"
+            pTooltip="Szczegóły"
+          ></button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <!-- Gdy brak wpisów -->
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="4" class="text-center p-4 text-gray-500">
+          Brak klientów do wyświetlenia.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

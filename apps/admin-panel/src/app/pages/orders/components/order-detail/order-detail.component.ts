@@ -2,7 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, RouterModule } from '@angular/router';
 import { Order, OrderStatus } from '@shoestore/shared-models';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -11,6 +11,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { OrderService } from '../../services/order.service';
+import { TooltipModule } from 'primeng/tooltip';
 
 @Component({
   selector: 'app-order-detail',
@@ -23,6 +24,8 @@ import { OrderService } from '../../services/order.service';
     TagModule,
     ButtonModule,
     InputNumberModule,
+    RouterLink,
+    TooltipModule
   ],
   templateUrl: './order-detail.component.html',
   styleUrls: ['./order-detail.component.scss'],

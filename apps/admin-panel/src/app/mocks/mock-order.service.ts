@@ -33,7 +33,6 @@ const MOCK_USERS: User[] = [
     invoiceInfo: {
       companyName: 'Hurtownia XYZ Sp. z o.o.',
       vatNumber: 'PL1234567890',
-      taxId: '987654321',
     },
   },
   {

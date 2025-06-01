@@ -33,14 +33,16 @@
         <td>
           <button
             pButton
+            pRipple
             icon="pi pi-pencil"
-            class="mr-2 p-button-sm"
+            class="p-button-text p-button-sm"
             [routerLink]="['/size-templates', item.id, 'edit']"
           ></button>
           <button
             pButton
+            pRipple
             icon="pi pi-trash"
-            class="p-button-danger p-button-sm"
+            class="p-button-text p-button-danger p-button-sm"
             (click)="onDelete(item)"
           ></button>
         </td>

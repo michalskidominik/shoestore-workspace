@@ -1,6 +1,7 @@
 <!-- eslint-disable @angular-eslint/template/elements-content -->
 <div class="p-4">
   <h1 class="text-xl font-bold mb-4">Lista zamówień</h1>
+
   <p-table
     [value]="orders()"
     [paginator]="true"
@@ -14,6 +15,7 @@
     dataKey="id"
     [tableStyle]="{ 'min-width': '60rem' }"
   >
+    <!-- Nagłówek tabeli -->
     <ng-template pTemplate="header">
       <tr>
         <th pSortableColumn="id" class="text-left">
@@ -39,7 +41,9 @@
             pInputText
             type="text"
             placeholder="Szukaj..."
-            (input)="onSearch($any($event.target).value)"
+            [ngModel]="searchTerm()"
+            (ngModelChange)="onSearch($event)"
+            class="w-full"
           />
         </th>
         <th colspan="3">
@@ -58,12 +62,13 @@
       </tr>
     </ng-template>
 
+    <!-- Ciało tabeli: każdy wiersz swoje menu -->
     <ng-template pTemplate="body" let-order>
       <tr>
         <td>{{ order.id }}</td>
         <td>{{ order.date | date : 'short' }}</td>
         <td>{{ order.user?.email }}</td>
-        <td class="text-right">{{ order.totalAmount | currency : 'EUR' }}</td>
+        <td class="text-right">{{ order.totalAmount | currency : 'PLN' }}</td>
         <td class="text-center">
           <p-tag
             [value]="getStatusLabel(order.status)"
@@ -71,22 +76,22 @@
           ></p-tag>
         </td>
         <td class="text-center">
-          <!-- Wyświetl status + TieredMenu do szybkiej zmiany -->
+          <!-- 1) Każdy wiersz ma swój lokalny ref="#menu" -->
           <button
-            type="button"
             pButton
+            type="button"
             icon="pi pi-ellipsis-v"
             class="p-button-text p-button-sm"
-            (click)="statusMenu.toggle($event)"
+            (click)="menu.toggle($event)"
           ></button>
-          <p-tieredMenu
-            #statusMenu
-            [appendTo]="'body'"
-            [model]="getStatusMenuItems(order)"
-            (click)="onStatusSelect($any($event), order.id)"
-            pTooltip="Zmień status"
+          <p-menu
+            #menu
             [popup]="true"
-          ></p-tieredMenu>
+            [appendTo]="'body'"
+            [model]="getStatusMenuItems(menu, order)"
+            pTooltip="Zmień status"
+          ></p-menu>
+
           <button
             pButton
             pRipple
@@ -99,6 +104,7 @@
       </tr>
     </ng-template>
 
+    <!-- Gdy brak rekordów -->
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="6" class="text-center p-4">
