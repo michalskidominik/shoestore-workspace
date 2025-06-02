@@ -5,6 +5,7 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import {
+  BulkStockUpdateDto,
   PagedResult,
   Shoe,
   ShoeCreateDto,
@@ -19,6 +20,11 @@ export class ShoeService {
   private readonly apiUrl = '/api/shoes';
 
   constructor(private http: HttpClient) {}
+
+  // Mocking
+  getRawData(): Shoe[] {
+    return [];
+  }
 
   /**
    * Pobiera listę modeli butów z serwera, z opcjonalnymi filtrami, sortowaniem i paginacją.
@@ -119,6 +125,12 @@ export class ShoeService {
     formData.append('sizes', JSON.stringify(dto.sizes));
 
     return formData;
+  }
+
+  bulkUpdateStock(dto: BulkStockUpdateDto): Observable<void> {
+    return this.http
+      .put<void>(`${this.apiUrl}/bulk‐stock‐update`, dto)
+      .pipe(catchError(this.handleError));
   }
 
   /**

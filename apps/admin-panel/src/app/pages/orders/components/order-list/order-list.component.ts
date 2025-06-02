@@ -25,6 +25,7 @@ import { TableModule, TablePageEvent } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { TooltipModule } from 'primeng/tooltip';
 import { OrderService } from '../../services/order.service';
+import { ExternalOrderModalComponent } from '../external-order-modal/external-order-modal.component';
 
 interface StatusOption {
   label: string;
@@ -44,6 +45,7 @@ interface StatusOption {
     TooltipModule,
     FormsModule,
     TagModule,
+    ExternalOrderModalComponent
   ],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.scss'],
@@ -236,7 +238,7 @@ export class OrderListComponent implements OnInit {
     }
   }
 
-  private triggerReload() {
+  protected triggerReload() {
     this.reloadTrigger.set(this.reloadTrigger() + 1);
   }
 }

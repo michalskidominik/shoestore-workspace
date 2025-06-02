@@ -1,6 +1,16 @@
 <!-- eslint-disable @angular-eslint/template/elements-content -->
+<app-external-order-modal #externalOrderModal (orderPlaced)="triggerReload()" />
+
 <div class="p-4">
   <h1 class="text-xl font-bold mb-4">Lista zamówień</h1>
+
+   <button
+      pButton
+      icon="pi pi-shopping-cart"
+      class="mb-4"
+      label="Wprowadź zamówienie zewnętrzne"
+      (click)="externalOrderModal.openModal()"
+    ></button>
 
   <p-table
     [value]="orders()"

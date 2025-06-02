@@ -22,7 +22,23 @@ export interface Order {
 }
 
 export interface OrderCreateDto {
-  userId: number;
+  userId?: number;
+  // gdy nie podamy userId, serwer spodziewa się dodatkowych danych klienta:
+  guestName?: string;
+  guestEmail?: string;
+  guestPhone?: string;
+  guestShippingAddress?: {
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
+  guestBillingAddress?: {
+    street: string;
+    city: string;
+    postalCode: string;
+    country: string;
+  };
   items: { shoeId: number; size: number; quantity: number }[];
 }
 

@@ -7,7 +7,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import { Router, RouterLink, RouterModule } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { PagedResult, Shoe, ShoeQueryParams } from '@shoestore/shared-models';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -16,6 +16,7 @@ import { PaginatorModule } from 'primeng/paginator';
 import { TableModule, TablePageEvent } from 'primeng/table';
 import { TooltipModule } from 'primeng/tooltip';
 import { ShoeService } from '../../service/shoe.service';
+import { BulkDeliveryComponent } from '../bulk‐delivery/bulk‐delivery.component';
 
 @Component({
   selector: 'app-shoe-list',
@@ -27,7 +28,8 @@ import { ShoeService } from '../../service/shoe.service';
     InputTextModule,
     ButtonModule,
     TooltipModule,
-    RouterLink
+    RouterLink,
+    BulkDeliveryComponent,
   ],
   templateUrl: './shoe-list.component.html',
   styleUrls: ['./shoe-list.component.scss'],

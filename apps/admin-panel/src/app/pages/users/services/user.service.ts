@@ -34,6 +34,16 @@ export class UserService {
   }
 
   /**
+   * Pobiera wszystkich użytkowników (bez paginacji).
+   * Używane do autouzupełniania lub innych operacji wymagających pełnej listy.
+   */
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.apiUrl).pipe(
+      catchError(this.handleError)
+    );
+  }
+
+  /**
    * Pobiera szczegóły pojedynczego użytkownika.
    */
   getUserById(id: number): Observable<User> {

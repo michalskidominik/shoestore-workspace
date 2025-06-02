@@ -1,3 +1,4 @@
+// apps/admin-panel/src/app/services/mock-shoe.service.ts
 import { Injectable } from '@angular/core';
 import {
   PagedResult,
@@ -5,11 +6,12 @@ import {
   ShoeCreateDto,
   ShoeQueryParams,
   ShoeUpdateDto,
+  BulkStockUpdateDto,
 } from '@shoestore/shared-models';
 import { Observable, of, throwError } from 'rxjs';
 import { delay } from 'rxjs/operators';
 
-let NEXT_ID = 4; // Zakładamy, że w MOCK_SHOES są id: 1,2,3
+let NEXT_ID = 4; // Zakładamy, że w MOCK_SHOES mają id: 1,2,3
 
 const MOCK_SHOES: Shoe[] = [
   {
@@ -52,6 +54,13 @@ const MOCK_SHOES: Shoe[] = [
 @Injectable()
 export class MockShoeService {
   private data = [...MOCK_SHOES];
+
+  /**
+   * Umożliwia dostęp do wewnętrznej tablicy butów (do modyfikacji stanów przez mock-order).
+   */
+  getRawData(): Shoe[] {
+    return this.data;
+  }
 
   getShoes(params: ShoeQueryParams = {}): Observable<PagedResult<Shoe>> {
     let items = this.data;
@@ -172,5 +181,25 @@ export class MockShoeService {
     }
     this.data.splice(idx, 1);
     return of(void 0).pipe(delay(200));
+  }
+
+  /**
+   * Masowa aktualizacja stanów magazynowych.
+   * Dla każdego wpisu w dto.items odejmujemy lub dodajemy ilość.
+   */
+  bulkUpdateStock(dto: BulkStockUpdateDto): Observable<void> {
+    dto.items.forEach((item) => {
+      const shoe = this.data.find((s) => s.id === item.shoeId);
+      if (shoe) {
+        const sizeEntry = shoe.sizes.find((sz) => sz.size === item.size);
+        if (sizeEntry) {
+          sizeEntry.quantity += item.deltaQuantity;
+          if (sizeEntry.quantity < 0) {
+            sizeEntry.quantity = 0; // nie schodzimy poniżej zera
+          }
+        }
+      }
+    });
+    return of(undefined).pipe(delay(300));
   }
 }

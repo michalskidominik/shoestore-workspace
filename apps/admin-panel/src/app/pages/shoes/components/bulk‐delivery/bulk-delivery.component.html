@@ -1,0 +1,114 @@
+<!-- eslint-disable @angular-eslint/template/elements-content -->
+<p-dialog
+  header="Masowa aktualizacja stanów magazynowych"
+  [visible]="displayModal()"
+  (onHide)="cancel()"
+  [modal]="true"
+  [style]="{ width: '90%', maxWidth: '800px', minHeight: '200px' }"
+  [closeOnEscape]="false"
+  [closable]="true"
+>
+  <form [formGroup]="form" class="flex flex-col h-full">
+    <div class="p-fluid p-formgrid p-grid mb-4">
+      <div class="p-field p-col-12">
+        <label for="shoeMulti">Wybierz modele butów</label>
+        <p-multiSelect
+          inputId="shoeMulti"
+          [appendTo]="'body'"
+          [options]="shoeOptions()"
+          formControlName="selectedShoes"
+          placeholder="Zacznij pisać nazwę/kod..."
+          display="chip"
+          class="w-full"
+        ></p-multiSelect>
+        <small
+          *ngIf="
+            form.get('selectedShoes')?.invalid &&
+            form.get('selectedShoes')?.touched
+          "
+          class="text-red-600 block mt-1"
+        >
+          Wybierz przynajmniej jeden model.
+        </small>
+      </div>
+    </div>
+
+    <div *ngFor="let shoeGrp of details.controls; let idx = index" class="mb-4">
+      <p-panel
+        [header]="
+          'Produkt ' +
+          getShoeNameById(shoeGrp.get('shoeId')?.value) +
+          ' (ID: ' +
+          shoeGrp.get('shoeId')?.value +
+          ')'
+        "
+        [toggleable]="true"
+        class="mb-4"
+      >
+        <p-table
+          [value]="getSizeLinesControls(shoeGrp)"
+          [autoLayout]="true"
+          class="w-full"
+        >
+          <ng-template #header>
+            <tr>
+              <th class="px-4 py-2 text-left">Rozmiar</th>
+              <th class="px-4 py-2 text-left">Aktualny stan</th>
+              <th class="px-4 py-2 text-left">Dodaj / odejmij</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-lineCtrl>
+            <tr>
+              <td class="px-4 py-2 text-sm">
+                {{ lineCtrl.get('size')?.value }}
+              </td>
+              <td class="px-4 py-2 text-sm">
+                {{ lineCtrl.get('currentQuantity')?.value }}
+              </td>
+              <td class="px-4 py-2">
+                <div class="flex items-center space-x-4">
+                  <p-selectButton
+                    [allowEmpty]="false"
+                    [options]="opOptions"
+                    [formControl]="lineCtrl.get('op')"
+                    class="p-button-sm"
+                  >
+                <ng-template #item let-item>
+                  <span [pTooltip]="item.tooltip">{{item.label}}</span>
+                </ng-template>
+                </p-selectButton>
+
+                  <p-inputNumber
+                    [min]="1"
+                    [mode]="'decimal'"
+                    [formControl]="lineCtrl.get('quantityToChange')"
+                    class="w-20"
+                  ></p-inputNumber>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </p-panel>
+    </div>
+  </form>
+
+  <ng-template #footer>
+    <div class="flex justify-end gap-2 mt-4">
+      <button
+        pButton
+        type="button"
+        label="Anuluj"
+        class="p-button-text"
+        (click)="cancel()"
+      ></button>
+      <button
+        pButton
+        type="button"
+        label="Zapisz zmiany"
+        [disabled]="form.invalid || details.length === 0"
+        (click)="confirmBulkUpdate()"
+      ></button>
+    </div>
+  </ng-template>
+</p-dialog>

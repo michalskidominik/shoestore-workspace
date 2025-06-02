@@ -110,6 +110,10 @@ export class MockUserService {
     return of(result).pipe(delay(200));
   }
 
+  getAllUsers(): Observable<User[]> {
+    return of(this.data.map((u) => ({ ...u }))).pipe(delay(200));
+  }
+
   getUserById(id: number): Observable<User> {
     const found = this.data.find((u) => u.id === id);
     if (!found) {

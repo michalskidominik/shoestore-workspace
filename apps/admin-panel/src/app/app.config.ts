@@ -57,6 +57,3 @@ export const appConfig: ApplicationConfig = {
     }
   ],
 };
-
-// todo:
-// - dodać stronę empty, notfound, liste produktów, dodawanie-edycje produktu, autoryzacje

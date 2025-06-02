@@ -1,14 +1,25 @@
+<app-bulk-delivery #bulkDelivery></app-bulk-delivery>
+
 <!-- eslint-disable @angular-eslint/template/elements-content -->
 <div class="p-4">
   <h1 class="text-xl font-bold mb-4">Dostępne produkty</h1>
 
-  <button
-    pButton
-    label="Nowy produkt"
-    icon="pi pi-plus"
-    class="mb-4"
-    routerLink="/shoes/new"
-  ></button>
+  <div class="flex gap-5">
+    <button
+      pButton
+      label="Nowy produkt"
+      icon="pi pi-plus"
+      class="mb-4"
+      routerLink="/shoes/new"
+    ></button>
+    <button
+      pButton
+      label="Aktualizuj stany magazynowe"
+      icon="pi pi-sync"
+      class="mb-4"
+      (click)="bulkDelivery.openModal()"
+    ></button>
+  </div>
 
   <p-table
     [value]="shoes()"
