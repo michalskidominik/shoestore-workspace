@@ -19,7 +19,7 @@
         "assets": [
           {
             "glob": "**/*",
-            "input": "apps/client-shop/public"
+            "input": "apps/client-shop/src/assets"
           }
         ],
         "styles": ["apps/client-shop/src/styles.scss"],
@@ -86,6 +86,17 @@
         "staticFilePath": "dist/apps/client-shop/browser",
         "spa": true
       }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "commands": [
+          { "command": "nx build client-shop --configuration=production --base-href=/shoestore-workspace/" },
+          { "command": "npx ngh --dir=dist/apps/client-shop/browser --branch=gh-pages --message=\"chore: deploy client-shop\"" }
+        ],
+        "parallel": false
+      },
+      "dependsOn": ["build"]
     }
   }
 }

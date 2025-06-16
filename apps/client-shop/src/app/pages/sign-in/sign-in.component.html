@@ -1,0 +1,283 @@
+<div class="sign-in-container min-h-screen flex">
+    <!-- Left Branding Section (40%) - Hidden on mobile -->
+  <div class="branding-section hidden md:flex w-2/5 bg-slate-900 flex-col justify-center items-center text-white p-12 relative overflow-hidden">
+    <!-- Background Pattern -->
+    <div class="absolute inset-0 opacity-10">
+      <div class="absolute top-10 left-10 w-32 h-32 border border-white/20 rounded-full"></div>
+      <div class="absolute bottom-20 right-10 w-24 h-24 border border-white/20 rounded-full"></div>
+      <div class="absolute top-1/2 left-1/4 w-16 h-16 border border-white/20 rounded-full"></div>
+    </div>
+
+    <!-- Company Logo Area -->
+    <div class="text-center z-10">
+      <div class="mb-8">
+        <!-- Logo Placeholder - Replace with actual logo -->
+        <div class="w-64 h-64 flex items-center justify-center mb-4 mx-auto">
+          <img src="logo.svg" alt="MANDRAIME Logo" class="mx-auto" />
+        </div>
+        <h1 class="text-3xl font-bold tracking-wide">MANDRAIME</h1>
+      </div>
+
+      <!-- Business Tagline -->
+      <div class="space-y-4">
+        <h2 class="text-xl font-semibold text-slate-300">Wholesale Partner Portal</h2>
+        <p class="text-slate-400 text-lg leading-relaxed max-w-sm">
+          Sign in to your partner account and manage wholesale orders
+        </p>
+      </div>
+    </div>
+  </div>
+  <!-- Right Form Section (60%) - Full width on mobile -->
+  <div class="form-section w-full md:w-3/5 bg-slate-50 flex items-center justify-center p-12">
+    <div class="w-full max-w-md">
+
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Sign In</h2>
+        <p class="text-slate-600">Enter your login credentials to access the partner portal</p>
+      </div>
+
+      <!-- Login Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6" novalidate>
+
+        <!-- Success Message -->
+        <p-message
+          *ngIf="successMessage()"
+          severity="success"
+          [text]="successMessage()!"
+          class="mb-4 w-full">
+        </p-message>
+
+        <!-- Error Message -->
+        <p-message
+          *ngIf="errorMessage()"
+          severity="error"
+          [text]="errorMessage()!"
+          class="mb-4 w-full">
+        </p-message>        <!-- Email Field -->
+        <div class="field">
+          <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
+            Email Address
+          </label>
+          <input
+            pInputText
+            id="email"
+            type="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            autocomplete="email"
+            class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg focus:border-slate-700 focus:ring-1 focus:ring-slate-700"
+            [class.border-red-500]="isFieldInvalid(loginForm, 'email')" />
+          <small
+            *ngIf="isFieldInvalid(loginForm, 'email')"
+            class="text-red-500 block mt-1">
+            {{ getFieldError(loginForm, 'email') }}
+          </small>
+        </div>
+
+        <!-- Password Field -->
+        <div class="field">
+          <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">
+            Password
+          </label>
+          <p-password
+            inputId="password"
+            formControlName="password"
+            placeholder="Enter your password"
+            [feedback]="false"
+            [toggleMask]="true"
+            autocomplete="current-password"
+            inputStyleClass="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg focus:border-slate-700 focus:ring-1 focus:ring-slate-700"
+            styleClass="w-full">
+          </p-password>
+          <small
+            *ngIf="isFieldInvalid(loginForm, 'password')"
+            class="text-red-500 block mt-1">
+            {{ getFieldError(loginForm, 'password') }}
+          </small>
+        </div>
+
+        <!-- Sign In Button -->
+        <div class="mt-6">
+          <p-button
+            type="submit"
+            label="Sign In"
+            icon="pi pi-sign-in"
+            [loading]="loading()"
+            [disabled]="loginForm.invalid"
+            styleClass="w-full corporate-button"
+            size="large">
+          </p-button>
+        </div>
+
+        <!-- Divider -->
+        <div class="relative my-6">
+          <div class="absolute inset-0 flex items-center">
+            <div class="w-full border-t border-slate-300"></div>
+          </div>          <div class="relative flex justify-center text-sm">
+            <span class="px-2 bg-slate-50 text-slate-500">or</span>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="space-y-3">
+          <p-button
+            label="Forgot your password?"
+            icon="pi pi-question-circle"
+            severity="secondary"
+            [text]="true"
+            styleClass="w-full text-slate-600 hover:text-slate-900"
+            (onClick)="onShowPasswordReset()">
+          </p-button>
+
+          <p-button
+            label="Request Access"
+            icon="pi pi-user-plus"
+            severity="secondary"
+            [outlined]="true"
+            styleClass="w-full border-slate-300 text-slate-700 hover:border-slate-700 hover:text-slate-900"
+            (onClick)="onShowAccessRequest()">
+          </p-button>
+        </div>
+
+        <!-- Demo Info -->
+        <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <p class="text-xs text-blue-700 text-center mb-2">
+            <i class="pi pi-info-circle mr-1"></i>
+            Demo Credentials
+          </p>
+          <div class="text-xs text-blue-600 space-y-1">
+            <p class="text-center"><strong>Option 1:</strong> Any email with password: <strong>password</strong></p>
+            <p class="text-center"><strong>Option 2:</strong> admin&#64;mandraime.com / admin123</p>
+            <p class="text-center"><strong>Option 3:</strong> user&#64;mandraime.com / user123</p>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Password Reset Dialog -->
+<p-dialog
+  header="Reset Password"
+  [modal]="true"
+  [visible]="showPasswordResetDialog()"
+  (onHide)="showPasswordResetDialog.set(false)"
+  [dismissableMask]="true"
+  styleClass="w-full max-w-md">
+
+  <form [formGroup]="passwordResetForm" (ngSubmit)="onPasswordReset()" class="p-4" novalidate>
+    <p class="text-slate-600 mb-4">
+      Enter your email address and we'll send you instructions to reset your password.
+    </p>
+
+    <div class="field mb-4">
+      <label for="resetEmail" class="block text-sm font-semibold text-slate-700 mb-2">
+        Email Address
+      </label>
+      <input
+        pInputText
+        id="resetEmail"
+        type="email"
+        formControlName="email"
+        placeholder="Enter your email"
+        class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg focus:border-slate-700"
+        [class.border-red-500]="isFieldInvalid(passwordResetForm, 'email')" />
+      <small
+        *ngIf="isFieldInvalid(passwordResetForm, 'email')"
+        class="text-red-500 block mt-1">
+        {{ getFieldError(passwordResetForm, 'email') }}
+      </small>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        [text]="true"
+        styleClass="text-slate-600 hover:text-slate-900"
+        (onClick)="showPasswordResetDialog.set(false)">
+      </p-button>
+      <p-button
+        type="submit"
+        label="Send Instructions"
+        icon="pi pi-send"
+        [loading]="resetPasswordLoading()"
+        [disabled]="passwordResetForm.invalid"
+        styleClass="corporate-button">
+      </p-button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Access Request Dialog -->
+<p-dialog
+  header="Request Access"
+  [modal]="true"
+  [visible]="showAccessRequestDialog()"
+  (onHide)="showAccessRequestDialog.set(false)"
+  [dismissableMask]="true"
+  styleClass="w-full max-w-md">
+
+  <form [formGroup]="accessRequestForm" (ngSubmit)="onAccessRequest()" class="p-4" novalidate>
+    <p class="text-slate-600 mb-4">
+      Request access to MANDRAIME. Our team will review your request and contact you soon.
+    </p>
+
+    <div class="field mb-4">
+      <label for="accessEmail" class="block text-sm font-semibold text-slate-700 mb-2">
+        Email Address
+      </label>
+      <input
+        pInputText
+        id="accessEmail"
+        type="email"
+        formControlName="email"
+        placeholder="Enter your email"
+        class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg focus:border-slate-700"
+        [class.border-red-500]="isFieldInvalid(accessRequestForm, 'email')" />
+      <small
+        *ngIf="isFieldInvalid(accessRequestForm, 'email')"
+        class="text-red-500 block mt-1">
+        {{ getFieldError(accessRequestForm, 'email') }}
+      </small>
+    </div>
+
+    <div class="field mb-4">
+      <label for="company" class="block text-sm font-semibold text-slate-700 mb-2">
+        Company Name
+      </label>
+      <input
+        pInputText
+        id="company"
+        type="text"
+        formControlName="company"
+        placeholder="Enter company name"
+        class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg focus:border-slate-700"
+        [class.border-red-500]="isFieldInvalid(accessRequestForm, 'company')" />
+      <small
+        *ngIf="isFieldInvalid(accessRequestForm, 'company')"
+        class="text-red-500 block mt-1">
+        {{ getFieldError(accessRequestForm, 'company') }}
+      </small>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        [text]="true"
+        styleClass="text-slate-600 hover:text-slate-900"
+        (onClick)="showAccessRequestDialog.set(false)">
+      </p-button>
+      <p-button
+        type="submit"
+        label="Send Request"
+        icon="pi pi-send"
+        [loading]="accessRequestLoading()"
+        [disabled]="accessRequestForm.invalid"
+        styleClass="corporate-button">
+      </p-button>
+    </div>
+  </form>
+</p-dialog>

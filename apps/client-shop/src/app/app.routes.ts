@@ -1,6 +1,14 @@
 import { Route } from '@angular/router';
+import { authGuard, guestGuard } from './core/guards/auth.guard';
 
 export const appRoutes: Route[] = [
+  // Sign in page (for guests only)
+  {
+    path: 'sign-in',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./pages/sign-in/sign-in.component').then(m => m.SignInComponent)
+  },
+  // Main layout with auth protection for some routes
   {
     path: '',
     loadComponent: () => import('./layout/client-panel-layout.component').then(m => m.ClientPanelLayoutComponent),
@@ -20,11 +28,22 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'orders',
+        canActivate: [authGuard],
         loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent)
       },
       {
         path: 'profile',
+        canActivate: [authGuard],
         loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)
+      },
+      // Placeholder routes for header navigation
+      {
+        path: 'about-us',
+        loadComponent: () => import('./pages/about-us/about-us.component').then(m => m.AboutUsComponent)
+      },
+      {
+        path: 'contact',
+        loadComponent: () => import('./pages/contact/contact.component').then(m => m.ContactComponent)
       }
     ]
   },

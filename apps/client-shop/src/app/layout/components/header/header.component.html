@@ -1,36 +1,32 @@
  <header class="app-header bg-white border-b border-gray-200">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-16">      <!-- Logo and Brand -->
+    <div class="flex items-center justify-between h-16">
+      <!-- Logo and Brand -->
       <div class="flex items-center gap-3">
         <div class="bg-purple-600 p-2 rounded-lg">
           <i class="pi pi-shopping-bag text-white text-xl"></i>
         </div>
         <div class="flex flex-col">
-          <span class="text-lg font-bold text-gray-900">SGATS</span>
-          <span class="text-xs text-gray-600 -mt-1">SHOES SHOP</span>
+          <span class="text-lg font-bold text-gray-900">{{ companyName().split(' ')[0] }}</span>
+          <span class="text-xs text-gray-600 -mt-1">{{ companyName().split(' ').slice(1).join(' ') }}</span>
         </div>
       </div>
 
       <!-- Navigation Menu -->
       <nav class="hidden md:flex items-center space-x-8">
-        <a [routerLink]="['/products']" class="text-purple-600 font-medium border-b-2 border-purple-600 pb-1">
-          Catalog
-        </a>
-        <a href="/delivery" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
-          Delivery
-        </a>
-        <a [routerLink]="['/orders/history']" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
-          Orders History
-        </a>
-        <a href="/contacts" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
-          Contacts
+        <a
+          *ngFor="let item of navigationItems(); let first = first"
+          [routerLink]="item.route"
+          [class]="first && !isAuthenticated() ? 'text-purple-600 font-medium border-b-2 border-purple-600 pb-1' : 'text-gray-700 hover:text-purple-600 font-medium transition-colors'">
+          {{ item.label }}
         </a>
       </nav>
 
       <!-- Right Side Actions -->
       <div class="flex items-center gap-3">
-        <!-- Search Button -->
+        <!-- Search Button (only for authenticated users) -->
         <p-button
+          *ngIf="isAuthenticated()"
           icon="pi pi-search"
           severity="secondary"
           [text]="true"
@@ -39,6 +35,47 @@
           class="text-gray-600 hover:text-purple-600"
           aria-label="Search">
         </p-button>
+
+        <!-- User Actions -->
+        <div *ngIf="isAuthenticated(); else guestActions" class="flex items-center gap-2">
+          <!-- User Profile Button -->
+          <p-button
+            icon="pi pi-user"
+            severity="secondary"
+            [text]="true"
+            [rounded]="true"
+            size="large"
+            class="text-gray-600 hover:text-purple-600"
+            [routerLink]="['/profile']"
+            aria-label="User Profile">
+          </p-button>
+
+          <!-- Logout Button -->
+          <p-button
+            icon="pi pi-sign-out"
+            severity="secondary"
+            [text]="true"
+            [rounded]="true"
+            size="large"
+            class="text-gray-600 hover:text-purple-600"
+            (onClick)="onLogout()"
+            aria-label="Logout">
+          </p-button>
+        </div>
+
+        <!-- Guest Actions -->
+        <ng-template #guestActions>
+          <p-button
+            label="Sign In"
+            icon="pi pi-sign-in"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            class="text-purple-600 border-purple-600 hover:bg-purple-600 hover:text-white"
+            (onClick)="onSignIn()"
+            aria-label="Sign In">
+          </p-button>
+        </ng-template>
 
         <!-- Mobile Menu Toggle -->
         <p-button
