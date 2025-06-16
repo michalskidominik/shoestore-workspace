@@ -1,51 +1,27 @@
-<div class="sign-in-container min-h-screen flex">
-    <!-- Left Branding Section (40%) - Hidden on mobile -->
-  <div class="branding-section hidden md:flex w-2/5 bg-slate-900 flex-col justify-center items-center text-white p-12 relative overflow-hidden">
-    <!-- Background Pattern -->
-    <div class="absolute inset-0 opacity-10">
-      <div class="absolute top-10 left-10 w-32 h-32 border border-white/20 rounded-full"></div>
-      <div class="absolute bottom-20 right-10 w-24 h-24 border border-white/20 rounded-full"></div>
-      <div class="absolute top-1/2 left-1/4 w-16 h-16 border border-white/20 rounded-full"></div>
-    </div>
-
-    <!-- Company Logo Area -->
-    <div class="text-center z-10">
-      <div class="mb-8">
-        <!-- Logo Placeholder - Replace with actual logo -->
-        <div class="w-48 h-48 flex items-center justify-center mb-4 mx-auto">
-          <img src="logo.svg" alt="MANDRAIME Logo" class="mx-auto" />
-        </div>
-        <h1 class="text-3xl font-bold tracking-wide">MANDRAIME</h1>
+<div class="sign-in-container min-h-screen flex flex-col items-center justify-center bg-transparent p-6 md:p-12 font-sans">
+  <!-- Logo is now inside form-section -->
+  <div class="form-section w-full max-w-md bg-white px-6 md:px-12 py-8 md:py-12 ">
+    <div class="w-full">
+      <!-- Logo -->
+      <div class="mb-6 text-center hidden md:block">
+        <img src="logo.svg" alt="MANDRAIME Logo" class="h-16 w-auto inline-block" />
       </div>
-
-      <!-- Business Tagline -->
-      <div class="space-y-4">
-        <h2 class="text-xl font-semibold text-slate-300">Wholesale Partner Portal</h2>
-        <p class="text-slate-400 text-lg leading-relaxed max-w-sm">
-          Sign in to your partner account and manage wholesale orders
-        </p>
-      </div>
-    </div>
-  </div>
-  <!-- Right Form Section (60%) - Full width on mobile -->
-  <div class="form-section w-full md:w-3/5 bg-slate-50 flex items-center justify-center p-12">
-    <div class="w-full max-w-md">
 
       <!-- Header -->
       <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold text-slate-900 mb-2">Sign In</h2>
-        <p class="text-slate-600">Enter your login credentials to access the partner portal</p>
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Sign in</h2>
+        <p class="text-slate-600">Enter your credentials below to sign in</p>
       </div>
 
       <!-- Login Form -->
-      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="space-y-6" novalidate>
+      <form [formGroup]="loginForm" (ngSubmit)="onLogin()" novalidate>
 
         <!-- Success Message -->
         <p-message
           *ngIf="successMessage()"
           severity="success"
           [text]="successMessage()!"
-          class="mb-4 w-full">
+          class="block mb-4 w-full">
         </p-message>
 
         <!-- Error Message -->
@@ -53,10 +29,12 @@
           *ngIf="errorMessage()"
           severity="error"
           [text]="errorMessage()!"
-          class="mb-4 w-full">
-        </p-message>        <!-- Email Field -->
-        <div class="field">
-          <label for="email" class="block text-sm font-semibold text-slate-700 mb-2">
+          class="block mb-4 w-full">
+        </p-message>
+
+        <!-- Email Field -->
+        <div class="field mb-6">
+          <label for="email" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
             Email Address
           </label>
           <input
@@ -66,7 +44,7 @@
             formControlName="email"
             placeholder="Enter your email"
             autocomplete="email"
-            class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg focus:border-slate-700 focus:ring-1 focus:ring-slate-700"
+            class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
             [class.border-red-500]="isFieldInvalid(loginForm, 'email')" />
           <small
             *ngIf="isFieldInvalid(loginForm, 'email')"
@@ -76,8 +54,8 @@
         </div>
 
         <!-- Password Field -->
-        <div class="field">
-          <label for="password" class="block text-sm font-semibold text-slate-700 mb-2">
+        <div class="field mb-6">
+          <label for="password" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
             Password
           </label>
           <p-password
@@ -87,7 +65,7 @@
             [feedback]="false"
             [toggleMask]="true"
             autocomplete="current-password"
-            inputStyleClass="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg focus:border-slate-700 focus:ring-1 focus:ring-slate-700"
+            inputStyleClass="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
             styleClass="w-full">
           </p-password>
           <small
@@ -98,7 +76,7 @@
         </div>
 
         <!-- Sign In Button -->
-        <div class="mt-6">
+        <div class="mt-8 mb-6">
           <p-button
             type="submit"
             label="Sign In"
@@ -110,47 +88,37 @@
           </p-button>
         </div>
 
-        <!-- Divider -->
-        <div class="relative my-6">
-          <div class="absolute inset-0 flex items-center">
-            <div class="w-full border-t border-slate-300"></div>
-          </div>          <div class="relative flex justify-center text-sm">
-            <span class="px-2 bg-slate-50 text-slate-500">or</span>
-          </div>
+        <!-- Terms of Service and Privacy Policy -->
+        <p class="text-xs text-slate-500 text-center mb-6">
+          By clicking sign in, you agree to our
+          <a href="#" class="font-medium text-slate-700 hover:text-slate-900 underline">Terms of Service</a> and
+          <a href="#" class="font-medium text-slate-700 hover:text-slate-900 underline">Privacy Policy</a>.
+        </p>
+
+        <!-- Forgot Password Button -->
+        <div class="text-center mb-6">
+            <p-button
+                label="Forgot your password?"
+                icon="pi pi-question-circle"
+                severity="secondary"
+                [text]="true"
+                styleClass="text-slate-600 hover:text-slate-900 !justify-center"
+                (onClick)="onShowPasswordReset()">
+            </p-button>
         </div>
 
-        <!-- Action Buttons -->
-        <div class="space-y-3">
+        <!-- "Don't have access yet?" section -->
+        <div class="text-center mt-6 border-t border-slate-200" style="padding-top: 1rem;">
+          <p class="text-xl font-bold text-slate-800 mb-2">Don't have access yet ?</p>
+          <p class="text-sm text-slate-600 mb-4">Request for one below</p>
           <p-button
-            label="Forgot your password?"
-            icon="pi pi-question-circle"
-            severity="secondary"
-            [text]="true"
-            styleClass="w-full text-slate-600 hover:text-slate-900"
-            (onClick)="onShowPasswordReset()">
-          </p-button>
-
-          <p-button
-            label="Request Access"
+            label="Request for Account"
             icon="pi pi-user-plus"
             severity="secondary"
             [outlined]="true"
             styleClass="w-full border-slate-300 text-slate-700 hover:border-slate-700 hover:text-slate-900"
             (onClick)="onShowAccessRequest()">
           </p-button>
-        </div>
-
-        <!-- Demo Info -->
-        <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <p class="text-xs text-blue-700 text-center mb-2">
-            <i class="pi pi-info-circle mr-1"></i>
-            Demo Credentials
-          </p>
-          <div class="text-xs text-blue-600 space-y-1">
-            <p class="text-center"><strong>Option 1:</strong> Any email with password: <strong>password</strong></p>
-            <p class="text-center"><strong>Option 2:</strong> admin&#64;mandraime.com / admin123</p>
-            <p class="text-center"><strong>Option 3:</strong> user&#64;mandraime.com / user123</p>
-          </div>
         </div>
       </form>
     </div>
@@ -172,7 +140,7 @@
     </p>
 
     <div class="field mb-4">
-      <label for="resetEmail" class="block text-sm font-semibold text-slate-700 mb-2">
+      <label for="resetEmail" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
         Email Address
       </label>
       <input
@@ -181,7 +149,7 @@
         type="email"
         formControlName="email"
         placeholder="Enter your email"
-        class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg focus:border-slate-700"
+        class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
         [class.border-red-500]="isFieldInvalid(passwordResetForm, 'email')" />
       <small
         *ngIf="isFieldInvalid(passwordResetForm, 'email')"
@@ -225,7 +193,7 @@
     </p>
 
     <div class="field mb-4">
-      <label for="accessEmail" class="block text-sm font-semibold text-slate-700 mb-2">
+      <label for="accessEmail" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
         Email Address
       </label>
       <input
@@ -234,7 +202,7 @@
         type="email"
         formControlName="email"
         placeholder="Enter your email"
-        class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg focus:border-slate-700"
+        class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
         [class.border-red-500]="isFieldInvalid(accessRequestForm, 'email')" />
       <small
         *ngIf="isFieldInvalid(accessRequestForm, 'email')"
@@ -244,7 +212,7 @@
     </div>
 
     <div class="field mb-4">
-      <label for="company" class="block text-sm font-semibold text-slate-700 mb-2">
+      <label for="company" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
         Company Name
       </label>
       <input
@@ -253,7 +221,7 @@
         type="text"
         formControlName="company"
         placeholder="Enter company name"
-        class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg focus:border-slate-700"
+        class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
         [class.border-red-500]="isFieldInvalid(accessRequestForm, 'company')" />
       <small
         *ngIf="isFieldInvalid(accessRequestForm, 'company')"

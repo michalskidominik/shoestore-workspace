@@ -1,178 +1,61 @@
-/* Contact Page Styles */
+/* Styles for the contact page are now primarily handled by TailwindCSS in the HTML template. */
+/* This file is kept for any future component-specific styles or PrimeNG overrides. */
 
-.contact-page {
-  min-height: 100vh;
+/* Styling for the contact cards to ensure consistent appearance and hover effects */
+.contact-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1.5rem; /* p-6 */
+  background-color: white;
+  border-radius: 0.5rem; /* rounded-lg */
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+  text-align: center;
 }
 
-/* Hero Section */
-.hero-section {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
-  position: relative;
-  overflow: hidden;
+.contact-card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
 }
 
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
+.contact-card-icon-wrapper {
+  width: 4rem; /* w-16 */
+  height: 4rem; /* h-16 */
+  border-radius: 9999px; /* rounded-full */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem; /* mb-4 */
+  transition-property: background-color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }
 
-/* Form styling */
-.field {
-  transition: all 0.3s ease;
+.contact-card-title {
+  font-size: 1.25rem; /* text-xl */
+  font-weight: 600; /* font-semibold */
+  color: #1e293b; /* text-slate-800 */
+  margin-bottom: 0.25rem; /* mb-1 */
 }
 
-.field input:focus,
-.field textarea:focus,
-.field .p-dropdown:focus-within {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.15);
+.contact-card-detail {
+  color: #475569; /* text-slate-600 */
+  margin-bottom: 0.75rem; /* mb-3 */
+  word-break: break-all;
+  transition-property: color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
 }
 
-/* Error state styling */
-.ng-invalid.ng-dirty {
-  border-color: #ef4444 !important;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1) !important;
-}
-
-/* Card hover effects */
-p-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-p-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 20px 40px -10px rgba(0, 0, 0, 0.1);
-}
-
-/* Contact info icons */
-.contact-info-item {
-  animation: fadeInUp 0.6s ease-out;
-  animation-fill-mode: backwards;
-}
-
-.contact-info-item:nth-child(1) { animation-delay: 0.1s; }
-.contact-info-item:nth-child(2) { animation-delay: 0.2s; }
-.contact-info-item:nth-child(3) { animation-delay: 0.3s; }
-
-/* Social media links */
-.social-links a {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.social-links a:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(147, 51, 234, 0.15);
-}
-
-/* FAQ cards */
-.faq-grid p-card {
-  animation: fadeInUp 0.6s ease-out;
-  animation-fill-mode: backwards;
-}
-
-.faq-grid p-card:nth-child(1) { animation-delay: 0.1s; }
-.faq-grid p-card:nth-child(2) { animation-delay: 0.2s; }
-.faq-grid p-card:nth-child(3) { animation-delay: 0.3s; }
-.faq-grid p-card:nth-child(4) { animation-delay: 0.4s; }
-
-/* Button hover effects */
-p-button button {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-p-button button:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-/* Form validation messages */
-p-message.p-message-success {
-  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, rgba(22, 163, 74, 0.1) 100%);
-  border: 1px solid rgba(34, 197, 94, 0.2);
-  border-radius: 8px;
-}
-
-p-message.p-message-error {
-  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, rgba(220, 38, 38, 0.1) 100%);
-  border: 1px solid rgba(239, 68, 68, 0.2);
-  border-radius: 8px;
-}
-
-/* Loading state */
-.p-button.p-button-loading {
-  pointer-events: none;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .hero-section {
-    padding: 3rem 0;
-  }
-
-  .hero-section h1 {
-    font-size: 2.5rem;
-  }
-
-  .hero-section p {
-    font-size: 1.125rem;
-  }
-
-  section {
-    padding: 2rem 0;
-  }
-
-  .grid {
-    gap: 1rem;
-  }
-
-  .contact-form {
-    margin-bottom: 2rem;
-  }
-}
-
-@media (max-width: 640px) {
-  .field {
-    margin-bottom: 1rem;
-  }
-
-  .grid.md\\:grid-cols-2 {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Form focus states */
-.p-inputtext:focus,
-.p-inputtextarea:focus {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
-}
-
-/* Dropdown styling */
-.p-dropdown:not(.p-disabled):hover {
-  border-color: #8b5cf6;
-}
-
-.p-dropdown:not(.p-disabled).p-focus {
-  border-color: #8b5cf6;
-  box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+.contact-card-action {
+  font-size: 0.875rem; /* text-sm */
+  font-weight: 500; /* font-medium */
+  color: #64748b; /* text-slate-500 */
+  transition-property: color;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 300ms;
+  display: flex;
+  align-items: center;
 }
