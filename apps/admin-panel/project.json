@@ -86,13 +86,12 @@
         "staticFilePath": "dist/apps/admin-panel/browser",
         "spa": true
       }
-    },
-    "deploy": {
+    },    "deploy": {
       "executor": "nx:run-commands",
       "options": {
         "commands": [
-          { "command": "nx build admin-panel --configuration=production --base-href=/shoestore-workspace/" },
-          { "command": "npx ngh --dir=dist/apps/admin-panel/browser --branch=gh-pages --message=\"chore: deploy admin-panel\"" }
+          { "command": "nx build admin-panel --configuration=production --base-href=/shoestore-workspace/admin-panel/" },
+          { "command": "node scripts/deploy-admin-panel.js" }
         ],
         "parallel": false
       },

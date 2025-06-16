@@ -4,6 +4,9 @@
 dist
 tmp
 out-tsc
+temp-deploy
+temp-admin-panel-deploy
+temp-client-shop-deploy
 
 # dependencies
 node_modules

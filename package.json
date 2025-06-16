@@ -1,8 +1,11 @@
 {
   "name": "@shoestore-workspace/source",
   "version": "0.0.0",
-  "license": "MIT",
-  "scripts": {},
+  "license": "MIT",  "scripts": {
+    "deploy:client-shop": "nx deploy client-shop",
+    "deploy:admin-panel": "nx deploy admin-panel",
+    "deploy:all": "npm run deploy:client-shop && npm run deploy:admin-panel"
+  },
   "private": true,
   "devDependencies": {
     "@angular-devkit/build-angular": "~19.2.0",
