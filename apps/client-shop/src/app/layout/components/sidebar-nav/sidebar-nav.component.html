@@ -1,0 +1,52 @@
+<nav class="sidebar-nav bg-white h-full w-64 border-r border-gray-200">
+  <div class="p-6">
+    <!-- Categories Header -->
+    <h3 class="text-lg font-semibold text-gray-900 mb-6">
+      Categories
+    </h3>
+
+    <!-- Category Items -->
+    <ul class="space-y-2">
+      <li *ngFor="let item of menuItems(); let i = index">
+        <a
+          [routerLink]="item.routerLink"
+          routerLinkActive="bg-purple-100 text-purple-700"
+          class="flex items-center gap-3 px-4 py-3 text-sm font-medium text-gray-700 rounded-lg hover:bg-gray-50 transition-colors group"
+        >
+          <!-- Custom Icon based on category -->
+          <div class="flex items-center justify-center w-5 h-5">
+            <ng-container [ngSwitch]="item.label">
+              <!-- Sneakers Icon - Purple crown/hat -->
+              <div *ngSwitchCase="'Sneakers'" class="w-5 h-5 bg-purple-600 rounded flex items-center justify-center">
+                <i class="pi pi-star-fill text-white text-xs"></i>
+              </div>
+
+              <!-- Shoes Icon - Black formal shoe -->
+              <div *ngSwitchCase="'Shoes'" class="w-5 h-5 bg-gray-800 rounded flex items-center justify-center">
+                <i class="pi pi-briefcase text-white text-xs"></i>
+              </div>
+
+              <!-- Heels Icon - Pink high heel -->
+              <div *ngSwitchCase="'Heels'" class="w-5 h-5 bg-pink-600 rounded flex items-center justify-center">
+                <i class="pi pi-angle-up text-white text-xs"></i>
+              </div>
+
+              <!-- Slippers Icon - Brown/tan comfort -->
+              <div *ngSwitchCase="'Slippers'" class="w-5 h-5 bg-amber-600 rounded flex items-center justify-center">
+                <i class="pi pi-home text-white text-xs"></i>
+              </div>
+
+              <!-- Default icon -->
+              <i *ngSwitchDefault
+                 [class]="item.icon"
+                 class="text-gray-600 group-hover:text-gray-900"></i>
+            </ng-container>
+          </div>
+
+          <!-- Label -->
+          <span class="text-gray-800 group-hover:text-gray-900">{{ item.label }}</span>
+        </a>
+      </li>
+    </ul>
+  </div>
+</nav>

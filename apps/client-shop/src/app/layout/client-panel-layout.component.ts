@@ -1,5 +1,8 @@
-import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, computed } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { filter, map, startWith } from 'rxjs/operators';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { UiStateService } from '../core/services/ui-state.service';
 import { HeaderComponent } from './components/header/header.component';
 import { SidebarNavComponent } from './components/sidebar-nav/sidebar-nav.component';
@@ -8,152 +11,79 @@ import { MenuItem } from '../shared/models/menu-item.interface';
 @Component({
   selector: 'app-client-panel-layout',
   standalone: true,
-  imports: [RouterOutlet, HeaderComponent, SidebarNavComponent],  template: `
-    <div class="app-layout" [class.sidebar-collapsed]="!isSidebarVisible()">
-      <!-- Semantic Header -->
-      <header>
-        <app-header
-          [companyName]="companyName"
-          (logout)="onLogout()">
-        </app-header>
-      </header>
-
-      <div class="layout-content">
-        <!-- Semantic Sidebar Navigation -->
-        <aside
-          class="app-sidebar"
-          [class.hidden]="!isSidebarVisible()">
-          <app-sidebar-nav [menuItems]="menuItems"></app-sidebar-nav>
-        </aside>
-
-        <!-- Semantic Main content area -->
-        <main class="app-main">
-          <router-outlet></router-outlet>
-        </main>
-      </div>
-    </div>
-  `,
-  styles: [`
-    .app-layout {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .layout-content {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-    }
-
-    .app-sidebar {
-      width: 280px;
-      background: var(--surface-card);
-      border-right: 1px solid var(--surface-border);
-      transition: all 0.3s ease;
-      overflow: hidden;
-    }
-
-    .app-sidebar.hidden {
-      width: 0;
-      min-width: 0;
-    }
-
-    .app-main {
-      flex: 1;
-      overflow: auto;
-      background: var(--surface-ground);
-      padding: 1rem;
-    }
-
-    /* Responsive behavior */
-    @media (max-width: 768px) {
-      .app-sidebar {
-        position: fixed;
-        top: 60px;
-        left: 0;
-        height: calc(100vh - 60px);
-        z-index: 999;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        transform: translateX(-100%);
-      }
-
-      .app-sidebar:not(.hidden) {
-        transform: translateX(0);
-      }
-
-      .app-main {
-        width: 100%;
-        margin-left: 0;
-      }
-    }
-  `]
+  imports: [
+    CommonModule,
+    RouterOutlet,
+    HeaderComponent,
+    SidebarNavComponent
+  ],
+  templateUrl: './client-panel-layout.component.html',
+  styleUrl: './client-panel-layout.component.scss',
 })
 export class ClientPanelLayoutComponent {
   private uiStateService = inject(UiStateService);
+  private router = inject(Router);
 
   readonly isSidebarVisible = this.uiStateService.isSidebarVisible;
-  readonly companyName = 'ShoeStore Client';
+  readonly companyName = 'SGATS SHOES SHOP';
 
+  // Track current route to show sidebar only on /products page
+  private currentUrl = toSignal(
+    this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd),
+      map(event => (event as NavigationEnd).url),
+      startWith(this.router.url)
+    ),
+    { initialValue: this.router.url }
+  );
+
+  readonly showSidebar = computed(() => {
+    const url = this.currentUrl();
+    return url === '/products' || url.startsWith('/products/');
+  });
+
+  // Categories for product filtering - shown only on products page
   readonly menuItems: MenuItem[] = [
     {
-      label: 'Dashboard',
+      label: 'Sneakers',
+      icon: 'pi pi-star',
+      routerLink: '/products?category=sneakers',
+    },
+    {
+      label: 'Shoes',
+      icon: 'pi pi-briefcase',
+      routerLink: '/products?category=shoes',
+    },
+    {
+      label: 'Heels',
+      icon: 'pi pi-angle-up',
+      routerLink: '/products?category=heels',
+    },
+    {
+      label: 'Slippers',
       icon: 'pi pi-home',
-      routerLink: '/dashboard'
+      routerLink: '/products?category=slippers',
     },
-    {
-      label: 'Products',
-      icon: 'pi pi-shopping-bag',
-      items: [
-        {
-          label: 'Browse Shoes',
-          icon: 'pi pi-list',
-          routerLink: '/products'
-        },
-        {
-          label: 'My Favorites',
-          icon: 'pi pi-heart',
-          routerLink: '/favorites'
-        }
-      ]
-    },
-    {
-      label: 'Orders',
-      icon: 'pi pi-shopping-cart',
-      items: [
-        {
-          label: 'My Orders',
-          icon: 'pi pi-list',
-          routerLink: '/orders'
-        },
-        {
-          label: 'Order History',
-          icon: 'pi pi-history',
-          routerLink: '/orders/history'
-        }
-      ]
-    },
-    {
-      label: 'Account',
-      icon: 'pi pi-user',
-      items: [
-        {
-          label: 'Profile',
-          icon: 'pi pi-user-edit',
-          routerLink: '/profile'
-        },
-        {
-          label: 'Settings',
-          icon: 'pi pi-cog',
-          routerLink: '/settings'
-        }
-      ]
-    }
   ];
+  // Computed class for content wrapper based on current route
+  readonly contentWrapperClass = computed(() => {
+    const url = this.currentUrl();
+
+    if (url === '/products' || url.startsWith('/products/')) {
+      return 'p-6 max-w-none'; // Products page with sidebar - full width content
+    } else if (url === '/dashboard') {
+      return 'p-8 max-w-7xl mx-auto'; // Dashboard - centered with max width
+    } else {
+      return 'p-6 max-w-6xl mx-auto'; // Other pages - centered with moderate width
+    }
+  });
 
   onLogout(): void {
     // Implement logout logic here
     console.log('Logout requested');
+  }
+
+  closeSidebar(): void {
+    this.uiStateService.setSidebarVisibility(false);
   }
 }

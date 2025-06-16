@@ -1,0 +1,57 @@
+ <header class="app-header bg-white border-b border-gray-200">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center justify-between h-16">      <!-- Logo and Brand -->
+      <div class="flex items-center gap-3">
+        <div class="bg-purple-600 p-2 rounded-lg">
+          <i class="pi pi-shopping-bag text-white text-xl"></i>
+        </div>
+        <div class="flex flex-col">
+          <span class="text-lg font-bold text-gray-900">SGATS</span>
+          <span class="text-xs text-gray-600 -mt-1">SHOES SHOP</span>
+        </div>
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="hidden md:flex items-center space-x-8">
+        <a [routerLink]="['/products']" class="text-purple-600 font-medium border-b-2 border-purple-600 pb-1">
+          Catalog
+        </a>
+        <a href="/delivery" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+          Delivery
+        </a>
+        <a [routerLink]="['/orders/history']" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+          Orders History
+        </a>
+        <a href="/contacts" class="text-gray-700 hover:text-purple-600 font-medium transition-colors">
+          Contacts
+        </a>
+      </nav>
+
+      <!-- Right Side Actions -->
+      <div class="flex items-center gap-3">
+        <!-- Search Button -->
+        <p-button
+          icon="pi pi-search"
+          severity="secondary"
+          [text]="true"
+          [rounded]="true"
+          size="large"
+          class="text-gray-600 hover:text-purple-600"
+          aria-label="Search">
+        </p-button>
+
+        <!-- Mobile Menu Toggle -->
+        <p-button
+          icon="pi pi-bars"
+          severity="secondary"
+          [text]="true"
+          [rounded]="true"
+          size="large"
+          class="md:hidden text-gray-600 hover:text-purple-600"
+          (onClick)="onToggleSidebar()"
+          aria-label="Toggle mobile menu">
+        </p-button>
+      </div>
+    </div>
+  </div>
+</header>

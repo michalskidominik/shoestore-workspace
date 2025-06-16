@@ -1,0 +1,51 @@
+.sidebar-nav {
+  height: 100%;
+  overflow-y: auto;
+  width: 280px;
+  min-width: 280px;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
+
+  // Enhanced hover effects
+  a {
+    position: relative;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      transform: translateX(2px);
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    &.active {
+      background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+      font-weight: 600;
+
+      &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 3px;
+        background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        border-radius: 0 2px 2px 0;
+      }
+    }
+  }
+}

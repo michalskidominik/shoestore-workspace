@@ -19,24 +19,12 @@ export const appRoutes: Route[] = [
         loadComponent: () => import('./pages/products/products.component').then(m => m.ProductsComponent)
       },
       {
-        path: 'favorites',
-        loadComponent: () => import('./pages/favorites/favorites.component').then(m => m.FavoritesComponent)
-      },
-      {
         path: 'orders',
         loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent)
       },
       {
-        path: 'orders/history',
-        loadComponent: () => import('./pages/order-history/order-history.component').then(m => m.OrderHistoryComponent)
-      },
-      {
         path: 'profile',
         loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)
-      },
-      {
-        path: 'settings',
-        loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent)
       }
     ]
   },

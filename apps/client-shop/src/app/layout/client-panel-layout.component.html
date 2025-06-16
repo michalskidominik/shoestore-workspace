@@ -1,0 +1,43 @@
+<div class="app-layout min-h-screen bg-gradient-to-br from-slate-50 to-slate-100">
+  <!-- Header Section -->
+  <header class="app-header sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm">
+    <app-header [companyName]="companyName" (logout)="onLogout()"></app-header>
+  </header>
+
+  <!-- Main Application Container -->
+  <div class="app-container flex min-h-[calc(100vh-4rem)]">
+    <!-- Sidebar Navigation - Only visible on products page -->
+    <aside
+      *ngIf="showSidebar()"
+      class="app-sidebar w-72 bg-white/95 backdrop-blur-sm border-r border-slate-200 shadow-lg flex-shrink-0 transition-all duration-300 ease-in-out transform"
+      [class.hidden]="!isSidebarVisible()"
+      [class.-translate-x-full]="!isSidebarVisible()">
+      <div class="sidebar-content h-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
+        <div class="p-6">
+          <app-sidebar-nav [menuItems]="menuItems"></app-sidebar-nav>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main flex-1 overflow-hidden">
+      <div class="main-content h-full overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
+        <div class="content-wrapper" [class]="contentWrapperClass()">
+          <router-outlet></router-outlet>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Mobile Sidebar Overlay -->
+  <div
+    *ngIf="showSidebar() && isSidebarVisible()"
+    class="mobile-overlay fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden transition-opacity duration-300"
+    role="button"
+    tabindex="0"
+    aria-label="Close sidebar"
+    (click)="closeSidebar()"
+    (keydown.enter)="closeSidebar()"
+    (keydown.space)="closeSidebar()">
+  </div>
+</div>
