@@ -4,6 +4,7 @@ import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { MenuModule } from 'primeng/menu';
+import { PopoverModule } from 'primeng/popover';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { AvatarModule } from 'primeng/avatar';
 import { DividerModule } from 'primeng/divider';
@@ -14,6 +15,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { UiStateService } from '../../../core/services/ui-state.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { CartService } from '../../../shared/services/cart.service';
+import { CartPanelComponent } from './components/cart-panel/cart-panel.component';
 
 interface NavigationItem {
   label: string;
@@ -33,10 +35,12 @@ interface NavigationItem {
     ButtonModule,
     BadgeModule,
     MenuModule,
+    PopoverModule,
     OverlayPanelModule,
     AvatarModule,
     DividerModule,
-    RouterLink
+    RouterLink,
+    CartPanelComponent
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -101,27 +105,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       route: '/orders',
       icon: 'pi-shopping-cart',
       requiresAuth: true,
-      badge: 'new',
       ariaLabel: 'Manage your orders'
-    },
-    {
-      label: 'Analytics',
-      route: '/analytics',
-      icon: 'pi-chart-bar',
-      requiresAuth: true,
-      ariaLabel: 'View business analytics'
-    },
-    {
-      label: 'About',
-      route: '/about-us',
-      icon: 'pi-info-circle',
-      ariaLabel: 'Learn about our company'
-    },
-    {
-      label: 'Contact',
-      route: '/contact',
-      icon: 'pi-question-circle',
-      ariaLabel: 'Contact support team'
     }
   ];
 

@@ -42,11 +42,6 @@ export const appRoutes: Route[] = [
         loadComponent: () => import('./pages/cart/cart.component').then(m => m.CartComponent)
       },
       {
-        path: 'analytics',
-        canActivate: [authGuard],
-        loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent) // Placeholder - reuse dashboard for now
-      },
-      {
         path: 'profile',
         canActivate: [authGuard],
         loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)
