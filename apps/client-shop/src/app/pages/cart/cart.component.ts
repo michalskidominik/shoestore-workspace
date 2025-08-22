@@ -19,6 +19,20 @@ interface StockConflict {
   availableStock: number;
 }
 
+interface GroupedCartItem {
+  productId: number;
+  productCode: string;
+  productName: string;
+  unitPrice: number;
+  sizes: Array<{
+    size: number;
+    quantity: number;
+    totalPrice: number;
+  }>;
+  totalQuantity: number;
+  totalPrice: number;
+}
+
 @Component({
   selector: 'app-cart',
   standalone: true,
@@ -60,90 +74,95 @@ interface StockConflict {
         } @else {
           <!-- Cart Content -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            
+
             <!-- Cart Items -->
             <div class="lg:col-span-2 space-y-4">
               <div class="bg-white rounded-lg shadow-sm">
                 <div class="p-6 border-b border-slate-200">
                   <h2 class="text-xl font-semibold text-slate-900">Cart Items ({{ cartService.totalItems() }})</h2>
                 </div>
-                
+
                 <div class="divide-y divide-slate-200">
-                  @for (item of cartService.items(); track item.productId + '-' + item.size) {
+                  @for (group of groupedCartItems(); track group.productId) {
                     <div class="p-6 hover:bg-slate-50 transition-colors">
                       <div class="flex items-start gap-4">
                         <!-- Product Image Placeholder -->
                         <div class="flex-shrink-0 w-20 h-20 bg-slate-200 rounded-lg flex items-center justify-center">
                           <i class="pi pi-image text-slate-400 text-xl"></i>
                         </div>
-                        
+
                         <!-- Product Details -->
                         <div class="flex-1 min-w-0">
-                          <h3 class="text-lg font-semibold text-slate-900">{{ item.productName }}</h3>
-                          <p class="text-slate-600 text-sm mt-1">{{ item.productCode }}</p>
-                          <p class="text-slate-600 text-sm">Size: {{ item.size }}</p>
-                          <p class="text-slate-900 font-medium mt-2">\${{ item.unitPrice.toFixed(2) }} each</p>
-                        </div>
-                        
-                        <!-- Quantity Controls -->
-                        <div class="flex items-center gap-3">
-                          <div class="flex items-center gap-2">
-                            <p-button
-                              icon="pi pi-minus"
-                              size="small"
-                              [text]="true"
-                              [rounded]="true"
-                              styleClass="!w-8 !h-8 !text-slate-600 hover:!bg-slate-100"
-                              (onClick)="updateQuantity(item, item.quantity - 1)"
-                              [disabled]="isUpdating()">
-                            </p-button>
-                            
-                            <p-inputNumber
-                              [(ngModel)]="item.quantity"
-                              [min]="1"
-                              [max]="999"
-                              [showButtons]="false"
-                              [disabled]="isUpdating()"
-                              styleClass="w-16 text-center"
-                              inputStyleClass="!text-center !p-2"
-                              (onBlur)="updateQuantity(item, item.quantity)">
-                            </p-inputNumber>
-                            
-                            <p-button
-                              icon="pi pi-plus"
-                              size="small"
-                              [text]="true"
-                              [rounded]="true"
-                              styleClass="!w-8 !h-8 !text-slate-600 hover:!bg-slate-100"
-                              (onClick)="updateQuantity(item, item.quantity + 1)"
-                              [disabled]="isUpdating()">
-                            </p-button>
+                          <h3 class="text-lg font-semibold text-slate-900">{{ group.productName }}</h3>
+                          <p class="text-slate-600 text-sm mt-1">{{ group.productCode }}</p>
+                          <p class="text-slate-900 font-medium mt-2">€{{ group.unitPrice.toFixed(2) }} each</p>
+
+                          <!-- Size variants -->
+                          <div class="mt-4 space-y-3">
+                            @for (sizeVariant of group.sizes; track sizeVariant.size) {
+                              <div class="flex items-center justify-between bg-slate-50 rounded-lg p-3">
+                                <div class="flex items-center gap-4">
+                                  <span class="text-sm font-medium text-slate-700 min-w-16">Size {{ sizeVariant.size }}</span>
+
+                                  <!-- Quantity Controls -->
+                                  <div class="flex items-center gap-2">
+                                    <p-button
+                                      icon="pi pi-minus"
+                                      size="small"
+                                      [text]="true"
+                                      [rounded]="true"
+                                      styleClass="!w-7 !h-7 !text-slate-600 hover:!bg-slate-200"
+                                      (onClick)="updateQuantityBySize(group.productId, sizeVariant.size, sizeVariant.quantity - 1)"
+                                      [disabled]="isUpdating()">
+                                    </p-button>
+
+                                    <span class="text-sm font-semibold text-slate-900 min-w-8 text-center">{{ sizeVariant.quantity }}</span>
+
+                                    <p-button
+                                      icon="pi pi-plus"
+                                      size="small"
+                                      [text]="true"
+                                      [rounded]="true"
+                                      styleClass="!w-7 !h-7 !text-slate-600 hover:!bg-slate-200"
+                                      (onClick)="updateQuantityBySize(group.productId, sizeVariant.size, sizeVariant.quantity + 1)"
+                                      [disabled]="isUpdating()">
+                                    </p-button>
+                                  </div>
+                                </div>
+
+                                <div class="flex items-center gap-3">
+                                  <!-- Size Total -->
+                                  <span class="text-sm font-bold text-slate-900">€{{ sizeVariant.totalPrice.toFixed(2) }}</span>
+
+                                  <!-- Remove Size Button -->
+                                  <p-button
+                                    icon="pi pi-trash"
+                                    severity="danger"
+                                    [text]="true"
+                                    [rounded]="true"
+                                    size="small"
+                                    styleClass="!w-7 !h-7"
+                                    (onClick)="removeSizeVariant(group.productId, sizeVariant.size)"
+                                    [disabled]="isUpdating()"
+                                    [attr.aria-label]="'Remove size ' + sizeVariant.size + ' from cart'">
+                                  </p-button>
+                                </div>
+                              </div>
+                            }
                           </div>
-                          
-                          <!-- Item Total -->
-                          <div class="text-right min-w-24">
-                            <p class="text-lg font-bold text-slate-900">\${{ item.totalPrice.toFixed(2) }}</p>
+
+                          <!-- Product Total -->
+                          <div class="mt-4 pt-3 border-t border-slate-200 flex justify-between items-center">
+                            <span class="text-sm font-medium text-slate-700">Product Total ({{ group.totalQuantity }} items):</span>
+                            <span class="text-lg font-bold text-slate-900">€{{ group.totalPrice.toFixed(2) }}</span>
                           </div>
-                          
-                          <!-- Remove Button -->
-                          <p-button
-                            icon="pi pi-trash"
-                            severity="danger"
-                            [text]="true"
-                            [rounded]="true"
-                            size="small"
-                            styleClass="!w-8 !h-8"
-                            (onClick)="removeItem(item)"
-                            [disabled]="isUpdating()"
-                            [attr.aria-label]="'Remove ' + item.productName + ' from cart'">
-                          </p-button>
                         </div>
                       </div>
                     </div>
                   }
                 </div>
               </div>
-              
+
               <!-- Continue Shopping -->
               <div class="bg-white rounded-lg shadow-sm p-6">
                 <p-button
@@ -155,37 +174,37 @@ interface StockConflict {
                 </p-button>
               </div>
             </div>
-            
+
             <!-- Order Summary -->
             <div class="lg:col-span-1">
               <div class="bg-white rounded-lg shadow-sm sticky top-4">
                 <div class="p-6">
                   <h2 class="text-xl font-semibold text-slate-900 mb-6">Order Summary</h2>
-                  
+
                   <div class="space-y-4 mb-6">
                     <div class="flex justify-between">
                       <span class="text-slate-600">Subtotal ({{ cartService.totalItems() }} items)</span>
                       <span class="text-slate-900 font-medium">\${{ cartService.totalPrice().toFixed(2) }}</span>
                     </div>
-                    
+
                     <div class="flex justify-between">
                       <span class="text-slate-600">Shipping</span>
                       <span class="text-green-600 font-medium">Free</span>
                     </div>
-                    
+
                     <div class="flex justify-between">
                       <span class="text-slate-600">Tax</span>
                       <span class="text-slate-900 font-medium">\${{ (cartService.totalPrice() * 0.08).toFixed(2) }}</span>
                     </div>
-                    
+
                     <p-divider></p-divider>
-                    
+
                     <div class="flex justify-between text-lg">
                       <span class="font-semibold text-slate-900">Total</span>
                       <span class="font-bold text-slate-900">\${{ (cartService.totalPrice() * 1.08).toFixed(2) }}</span>
                     </div>
                   </div>
-                  
+
                   <!-- Submit Order Button -->
                   <p-button
                     label="Submit Order"
@@ -196,7 +215,7 @@ interface StockConflict {
                     [disabled]="cartService.isEmpty() || isUpdating()"
                     (onClick)="submitOrder()">
                   </p-button>
-                  
+
                   <p class="text-xs text-slate-500 mt-3 text-center">
                     Your order will be reviewed and processed within 24 hours.
                   </p>
@@ -205,7 +224,7 @@ interface StockConflict {
             </div>
           </div>
         }
-        
+
         <!-- Error Messages -->
         @if (errorMessage()) {
           <p-message
@@ -214,7 +233,7 @@ interface StockConflict {
             styleClass="mt-4 w-full">
           </p-message>
         }
-        
+
         <!-- Success Messages -->
         @if (successMessage()) {
           <p-message
@@ -234,12 +253,12 @@ interface StockConflict {
       (onHide)="showStockConflictDialog.set(false)"
       [dismissableMask]="false"
       styleClass="w-full max-w-2xl">
-      
+
       <div class="p-4">
         <p class="text-slate-600 mb-4">
           Some items in your cart have limited stock availability. Please adjust quantities or remove items before proceeding.
         </p>
-        
+
         <div class="space-y-3 mb-6">
           @for (conflict of stockConflicts(); track conflict.productId + '-' + conflict.size) {
             <div class="p-4 bg-red-50 border border-red-200 rounded-lg">
@@ -271,7 +290,7 @@ interface StockConflict {
             </div>
           }
         </div>
-        
+
         <div class="flex justify-end gap-2">
           <p-button
             label="Cancel"
@@ -296,7 +315,7 @@ interface StockConflict {
       (onHide)="showSuccessDialog.set(false)"
       [dismissableMask]="false"
       styleClass="w-full max-w-md">
-      
+
       <div class="p-4 text-center">
         <i class="pi pi-check-circle text-green-600 text-4xl mb-4 block"></i>
         <h3 class="text-xl font-semibold text-slate-900 mb-2">Order Confirmed</h3>
@@ -310,7 +329,7 @@ interface StockConflict {
         <p class="text-sm text-slate-500 mb-6">
           You will receive a confirmation email shortly. Our team will review and process your order within 24 hours.
         </p>
-        
+
         <div class="flex flex-col gap-2">
           <p-button
             label="View Order History"
@@ -348,6 +367,43 @@ export class CartComponent {
   protected readonly stockConflicts = signal<StockConflict[]>([]);
   protected readonly orderId = signal<string | null>(null);
 
+  // Computed properties
+  protected readonly groupedCartItems = computed(() => {
+    const groups = new Map<number, GroupedCartItem>();
+
+    this.cartService.items().forEach(item => {
+      if (!groups.has(item.productId)) {
+        groups.set(item.productId, {
+          productId: item.productId,
+          productCode: item.productCode,
+          productName: item.productName,
+          unitPrice: item.unitPrice,
+          sizes: [],
+          totalQuantity: 0,
+          totalPrice: 0
+        });
+      }
+
+      const group = groups.get(item.productId);
+      if (!group) return;
+
+      group.sizes.push({
+        size: item.size,
+        quantity: item.quantity,
+        totalPrice: item.totalPrice
+      });
+      group.totalQuantity += item.quantity;
+      group.totalPrice += item.totalPrice;
+    });
+
+    // Sort sizes within each group
+    groups.forEach(group => {
+      group.sizes.sort((a, b) => a.size - b.size);
+    });
+
+    return Array.from(groups.values()).sort((a, b) => a.productName.localeCompare(b.productName));
+  });
+
   protected updateQuantity(item: CartItem, newQuantity: number): void {
     if (newQuantity <= 0) {
       this.removeItem(item);
@@ -360,11 +416,50 @@ export class CartComponent {
     try {
       this.cartService.updateQuantity(item.productId, item.size, newQuantity);
       this.successMessage.set('Cart updated successfully');
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => this.successMessage.set(null), 3000);
     } catch (error) {
       this.errorMessage.set('Failed to update item quantity');
+    } finally {
+      this.isUpdating.set(false);
+    }
+  }
+
+  protected updateQuantityBySize(productId: number, size: number, newQuantity: number): void {
+    if (newQuantity <= 0) {
+      this.removeSizeVariant(productId, size);
+      return;
+    }
+
+    this.isUpdating.set(true);
+    this.errorMessage.set(null);
+
+    try {
+      this.cartService.updateQuantity(productId, size, newQuantity);
+      this.successMessage.set('Cart updated successfully');
+
+      // Clear success message after 3 seconds
+      setTimeout(() => this.successMessage.set(null), 3000);
+    } catch {
+      this.errorMessage.set('Failed to update item quantity');
+    } finally {
+      this.isUpdating.set(false);
+    }
+  }
+
+  protected removeSizeVariant(productId: number, size: number): void {
+    this.isUpdating.set(true);
+    this.errorMessage.set(null);
+
+    try {
+      this.cartService.removeItem(productId, size);
+      this.successMessage.set('Item removed from cart');
+
+      // Clear success message after 3 seconds
+      setTimeout(() => this.successMessage.set(null), 3000);
+    } catch {
+      this.errorMessage.set('Failed to remove item from cart');
     } finally {
       this.isUpdating.set(false);
     }
@@ -377,10 +472,10 @@ export class CartComponent {
     try {
       this.cartService.removeItem(item.productId, item.size);
       this.successMessage.set(`${item.productName} removed from cart`);
-      
+
       // Clear success message after 3 seconds
       setTimeout(() => this.successMessage.set(null), 3000);
-    } catch (error) {
+    } catch {
       this.errorMessage.set('Failed to remove item from cart');
     } finally {
       this.isUpdating.set(false);
@@ -394,7 +489,7 @@ export class CartComponent {
     try {
       // First validate stock
       const stockValidation = await this.cartService.validateCartStock();
-      
+
       if (!stockValidation.valid) {
         this.stockConflicts.set(stockValidation.conflicts);
         this.showStockConflictDialog.set(true);
@@ -404,14 +499,14 @@ export class CartComponent {
 
       // Submit order
       const result = await this.cartService.submitOrder();
-      
+
       if (result.success) {
         this.orderId.set(result.orderId || null);
         this.showSuccessDialog.set(true);
       } else {
         this.errorMessage.set(result.error || 'Failed to submit order');
       }
-    } catch (error) {
+    } catch {
       this.errorMessage.set('An error occurred while submitting your order');
     } finally {
       this.isSubmittingOrder.set(false);
@@ -425,13 +520,13 @@ export class CartComponent {
 
   protected adjustToAvailableStock(conflict: StockConflict): void {
     this.cartService.updateQuantity(conflict.productId, conflict.size, conflict.availableStock);
-    
+
     // Remove this conflict from the list
     const updatedConflicts = this.stockConflicts().filter(
       c => !(c.productId === conflict.productId && c.size === conflict.size)
     );
     this.stockConflicts.set(updatedConflicts);
-    
+
     // Close dialog if no more conflicts
     if (updatedConflicts.length === 0) {
       this.showStockConflictDialog.set(false);
@@ -440,13 +535,13 @@ export class CartComponent {
 
   protected removeConflictItem(conflict: StockConflict): void {
     this.cartService.removeItem(conflict.productId, conflict.size);
-    
+
     // Remove this conflict from the list
     const updatedConflicts = this.stockConflicts().filter(
       c => !(c.productId === conflict.productId && c.size === conflict.size)
     );
     this.stockConflicts.set(updatedConflicts);
-    
+
     // Close dialog if no more conflicts
     if (updatedConflicts.length === 0) {
       this.showStockConflictDialog.set(false);

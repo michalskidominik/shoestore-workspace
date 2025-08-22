@@ -1,9 +1,23 @@
-import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PopoverModule } from 'primeng/popover';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { CartItem, CartSummary } from '../../../../../shared/services/cart.service';
+
+interface GroupedCartItem {
+  productId: number;
+  productCode: string;
+  productName: string;
+  unitPrice: number;
+  sizes: Array<{
+    size: number;
+    quantity: number;
+    totalPrice: number;
+  }>;
+  totalQuantity: number;
+  totalPrice: number;
+}
 
 @Component({
   selector: 'app-cart-panel',
@@ -62,40 +76,49 @@ import { CartItem, CartSummary } from '../../../../../shared/services/cart.servi
           </div>
         } @else {
           <div class="max-h-64 overflow-y-auto">
-            @for (item of cartItems(); track item.productId + '-' + item.size) {
+            @for (group of groupedCartItems(); track group.productId) {
               <div class="px-4 py-3 hover:bg-slate-50/80 transition-colors duration-150 border-b border-slate-50">
                 <div class="flex items-start gap-3">
                   <div class="flex-1 min-w-0">
-                    <p class="text-sm font-medium text-slate-900 truncate">{{ item.productName }}</p>
-                    <p class="text-xs text-slate-600 mt-1">{{ item.productCode }} - Size {{ item.size }}</p>
-                    <div class="flex items-center justify-between mt-2">
-                      <div class="flex items-center gap-2">
-                        <button
-                          (click)="onUpdateQuantity(item.productId, item.size, item.quantity - 1)"
-                          class="w-6 h-6 flex items-center justify-center rounded bg-slate-100 hover:bg-slate-200 transition-colors text-slate-600"
-                          [attr.aria-label]="'Decrease quantity'">
-                          <i class="pi pi-minus text-xs"></i>
-                        </button>
-                        <span class="text-sm font-medium text-slate-900 min-w-8 text-center">{{ item.quantity }}</span>
-                        <button
-                          (click)="onUpdateQuantity(item.productId, item.size, item.quantity + 1)"
-                          class="w-6 h-6 flex items-center justify-center rounded bg-slate-100 hover:bg-slate-200 transition-colors text-slate-600"
-                          [attr.aria-label]="'Increase quantity'">
-                          <i class="pi pi-plus text-xs"></i>
-                        </button>
-                      </div>
-                      <div class="text-right">
-                        <p class="text-sm font-semibold text-slate-900">€{{ item.totalPrice.toFixed(2) }}</p>
-                        <p class="text-xs text-slate-500">€{{ item.unitPrice.toFixed(2) }} each</p>
-                      </div>
+                    <p class="text-sm font-medium text-slate-900 truncate">{{ group.productName }}</p>
+                    <p class="text-xs text-slate-600 mt-1">{{ group.productCode }}</p>
+
+                    <!-- Size variants -->
+                    <div class="mt-2 space-y-1.5">
+                      @for (sizeVariant of group.sizes; track sizeVariant.size) {
+                        <div class="flex items-center justify-between">
+                          <span class="text-xs text-slate-600 min-w-12">Size {{ sizeVariant.size }}:</span>
+                          <div class="flex items-center gap-1">
+                            <button
+                              (click)="onUpdateQuantity(group.productId, sizeVariant.size, sizeVariant.quantity - 1)"
+                              class="w-5 h-5 flex items-center justify-center rounded bg-slate-100 hover:bg-slate-200 transition-colors text-slate-600"
+                              [attr.aria-label]="'Decrease quantity for size ' + sizeVariant.size">
+                              <i class="pi pi-minus text-xs"></i>
+                            </button>
+                            <span class="text-xs font-medium text-slate-900 min-w-6 text-center">{{ sizeVariant.quantity }}</span>
+                            <button
+                              (click)="onUpdateQuantity(group.productId, sizeVariant.size, sizeVariant.quantity + 1)"
+                              class="w-5 h-5 flex items-center justify-center rounded bg-slate-100 hover:bg-slate-200 transition-colors text-slate-600"
+                              [attr.aria-label]="'Increase quantity for size ' + sizeVariant.size">
+                              <i class="pi pi-plus text-xs"></i>
+                            </button>
+                            <span class="text-xs text-slate-600 ml-1 min-w-12">€{{ sizeVariant.totalPrice.toFixed(2) }}</span>
+                            <button
+                              (click)="onRemoveItem(group.productId, sizeVariant.size)"
+                              class="w-4 h-4 flex items-center justify-center rounded hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
+                              [attr.aria-label]="'Remove size ' + sizeVariant.size + ' from cart'">
+                              <i class="pi pi-times text-xs"></i>
+                            </button>
+                          </div>
+                        </div>
+                      }
+                    </div>
+
+                    <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
+                      <span class="text-xs font-medium text-slate-700">Total ({{ group.totalQuantity }} items):</span>
+                      <span class="text-sm font-bold text-slate-900">€{{ group.totalPrice.toFixed(2) }}</span>
                     </div>
                   </div>
-                  <button
-                    (click)="onRemoveItem(item.productId, item.size)"
-                    class="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
-                    [attr.aria-label]="'Remove ' + item.productName + ' from cart'">
-                    <i class="pi pi-times text-xs"></i>
-                  </button>
                 </div>
               </div>
             }
@@ -134,6 +157,42 @@ export class CartPanelComponent {
   cartItemCount() {
     return this.cartItems().reduce((total, item) => total + item.quantity, 0);
   }
+
+  groupedCartItems = computed(() => {
+    const groups = new Map<number, GroupedCartItem>();
+
+    this.cartItems().forEach(item => {
+      if (!groups.has(item.productId)) {
+        groups.set(item.productId, {
+          productId: item.productId,
+          productCode: item.productCode,
+          productName: item.productName,
+          unitPrice: item.unitPrice,
+          sizes: [],
+          totalQuantity: 0,
+          totalPrice: 0
+        });
+      }
+
+      const group = groups.get(item.productId);
+      if (!group) return;
+
+      group.sizes.push({
+        size: item.size,
+        quantity: item.quantity,
+        totalPrice: item.totalPrice
+      });
+      group.totalQuantity += item.quantity;
+      group.totalPrice += item.totalPrice;
+    });
+
+    // Sort sizes within each group
+    groups.forEach(group => {
+      group.sizes.sort((a, b) => a.size - b.size);
+    });
+
+    return Array.from(groups.values()).sort((a, b) => a.productName.localeCompare(b.productName));
+  });
 
   // Event handlers
   protected onUpdateQuantity(productId: number, size: number, quantity: number): void {
