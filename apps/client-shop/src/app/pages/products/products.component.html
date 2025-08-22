@@ -87,6 +87,51 @@
         </div>
       </div>
     </div>
+
+    <!-- Mobile Active Filters Bar -->
+    @if (hasActiveFilters()) {
+      <div class="lg:hidden bg-white border-b border-slate-200 px-4 py-3">
+        <div class="flex items-center justify-between mb-2">
+          <div class="flex items-center gap-2">
+            <span class="text-sm font-medium text-slate-700">Filters</span>
+            <p-badge
+              [value]="activeFilters().length.toString()"
+              severity="info"
+              styleClass="!text-xs !min-w-[16px] !h-[16px]">
+            </p-badge>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-600">
+              @if (filterLoading()) {
+                <i class="pi pi-spin pi-spinner text-xs mr-1"></i>
+              }
+              {{ filteredShoes().length }} results
+            </span>
+            <button
+              type="button"
+              (click)="clearFilters()"
+              class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Mobile Filter Chips - Scrollable -->
+        <div class="flex gap-1 overflow-x-auto pb-1 scrollbar-thin scrollbar-thumb-slate-300">
+          @for (filter of activeFilters(); track filter.type + '-' + filter.value) {
+            <div class="flex-shrink-0 bg-blue-50 text-blue-800 px-2 py-1 rounded text-xs border border-blue-200">
+              <span>{{ filter.label }}: {{ filter.displayValue }}</span>
+              <button
+                type="button"
+                (click)="removeActiveFilter(filter.type, filter.value)"
+                class="ml-1 text-blue-600 hover:text-blue-800">
+                <i class="pi pi-times text-xs"></i>
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    }
   </div>
 
   <!-- Main Layout Container -->
@@ -143,19 +188,19 @@
             <div class="text-sm font-semibold text-slate-700 mb-3">Category</div>
             <div class="space-y-2">
               @for (category of categoryOptions(); track category.id) {
-                <label class="flex items-center cursor-pointer group">
-                  <input
-                    type="radio"
-                    name="category"
-                    [value]="category.id"
-                    [checked]="selectedCategory() === category.id"
-                    (change)="selectedCategory.set(category.id)"
-                    class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
-                  <div class="ml-3 flex items-center gap-2 flex-1">
-                    <i [class]="category.icon + ' text-slate-500 text-sm'"></i>
-                    <span class="text-sm text-slate-700 group-hover:text-slate-900">{{ category.name }}</span>
-                  </div>
-                </label>
+                @if (category.id !== 'all') {
+                  <label class="flex items-center cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      [checked]="isCategorySelected(category.id)"
+                      (change)="toggleCategoryFilter(category.id)"
+                      class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 rounded">
+                    <div class="ml-3 flex items-center gap-2 flex-1">
+                      <i [class]="category.icon + ' text-slate-500 text-sm'"></i>
+                      <span class="text-sm text-slate-700 group-hover:text-slate-900">{{ category.name }}</span>
+                    </div>
+                  </label>
+                }
               }
             </div>
           </div>
@@ -165,20 +210,37 @@
             <div class="text-sm font-semibold text-slate-700 mb-3">Brand</div>
             <div class="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300">
               @for (brand of brandOptions(); track brand.value) {
-                <label class="flex items-center justify-between cursor-pointer group">
-                  <div class="flex items-center">
-                    <input
-                      type="radio"
-                      name="brand"
-                      [value]="brand.value"
-                      [checked]="selectedBrand() === brand.value"
-                      (change)="selectedBrand.set(brand.value)"
-                      class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
-                    <span class="ml-3 text-sm text-slate-700 group-hover:text-slate-900">{{ brand.label }}</span>
-                  </div>
-                  @if (brand.count) {
-                    <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">{{ brand.count }}</span>
-                  }
+                @if (brand.value !== 'all') {
+                  <label class="flex items-center justify-between cursor-pointer group">
+                    <div class="flex items-center">
+                      <input
+                        type="checkbox"
+                        [checked]="isBrandSelected(brand.value)"
+                        (change)="toggleBrandFilter(brand.value)"
+                        class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 rounded">
+                      <span class="ml-3 text-sm text-slate-700 group-hover:text-slate-900">{{ brand.label }}</span>
+                    </div>
+                    @if (brand.count) {
+                      <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">{{ brand.count }}</span>
+                    }
+                  </label>
+                }
+              }
+            </div>
+          </div>
+
+          <!-- Availability Filter -->
+          <div class="mb-6">
+            <div class="text-sm font-semibold text-slate-700 mb-3">Stock Status</div>
+            <div class="space-y-2">
+              @for (availability of availabilityOptions; track availability.value) {
+                <label class="flex items-center cursor-pointer group">
+                  <input
+                    type="checkbox"
+                    [checked]="isAvailabilitySelected(availability.value)"
+                    (change)="toggleAvailabilityFilter(availability.value)"
+                    class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 rounded">
+                  <span class="ml-3 text-sm text-slate-700 group-hover:text-slate-900">{{ availability.label }}</span>
                 </label>
               }
             </div>
@@ -197,26 +259,13 @@
                 </button>
               </div>
               <div class="space-y-2">
-                @if (searchTerm()) {
+                @for (filter of activeFilters(); track filter.type + '-' + filter.value) {
                   <div class="flex items-center justify-between bg-blue-50 px-3 py-2 rounded-lg">
-                    <span class="text-sm text-blue-800">Search: {{ searchTerm() }}</span>
-                    <button type="button" (click)="searchTerm.set('')" class="text-blue-600 hover:text-blue-800">
-                      <i class="pi pi-times text-xs"></i>
-                    </button>
-                  </div>
-                }
-                @if (selectedBrand() !== 'all') {
-                  <div class="flex items-center justify-between bg-green-50 px-3 py-2 rounded-lg">
-                    <span class="text-sm text-green-800">Brand: {{ selectedBrand() }}</span>
-                    <button type="button" (click)="selectedBrand.set('all')" class="text-green-600 hover:text-green-800">
-                      <i class="pi pi-times text-xs"></i>
-                    </button>
-                  </div>
-                }
-                @if (selectedCategory() !== 'all') {
-                  <div class="flex items-center justify-between bg-orange-50 px-3 py-2 rounded-lg">
-                    <span class="text-sm text-orange-800">Category: {{ selectedCategory() }}</span>
-                    <button type="button" (click)="selectedCategory.set('all')" class="text-orange-600 hover:text-orange-800">
+                    <span class="text-sm text-blue-800">{{ filter.label }}: {{ filter.displayValue }}</span>
+                    <button
+                      type="button"
+                      (click)="removeActiveFilter(filter.type, filter.value)"
+                      class="text-blue-600 hover:text-blue-800">
                       <i class="pi pi-times text-xs"></i>
                     </button>
                   </div>
@@ -283,19 +332,19 @@
               <div class="text-sm font-semibold text-slate-700 mb-3">Category</div>
               <div class="space-y-2">
                 @for (category of categoryOptions(); track category.id) {
-                  <label class="flex items-center cursor-pointer">
-                    <input
-                      type="radio"
-                      name="mobile-category"
-                      [value]="category.id"
-                      [checked]="selectedCategory() === category.id"
-                      (change)="selectedCategory.set(category.id)"
-                      class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
-                    <div class="ml-3 flex items-center gap-2">
-                      <i [class]="category.icon + ' text-slate-500 text-sm'"></i>
-                      <span class="text-sm text-slate-700">{{ category.name }}</span>
-                    </div>
-                  </label>
+                  @if (category.id !== 'all') {
+                    <label class="flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        [checked]="isCategorySelected(category.id)"
+                        (change)="toggleCategoryFilter(category.id)"
+                        class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 rounded">
+                      <div class="ml-3 flex items-center gap-2">
+                        <i [class]="category.icon + ' text-slate-500 text-sm'"></i>
+                        <span class="text-sm text-slate-700">{{ category.name }}</span>
+                      </div>
+                    </label>
+                  }
                 }
               </div>
             </div>
@@ -305,20 +354,37 @@
               <div class="text-sm font-semibold text-slate-700 mb-3">Brand</div>
               <div class="space-y-2 max-h-48 overflow-y-auto">
                 @for (brand of brandOptions(); track brand.value) {
-                  <label class="flex items-center justify-between cursor-pointer">
-                    <div class="flex items-center">
-                      <input
-                        type="radio"
-                        name="mobile-brand"
-                        [value]="brand.value"
-                        [checked]="selectedBrand() === brand.value"
-                        (change)="selectedBrand.set(brand.value)"
-                        class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
-                      <span class="ml-3 text-sm text-slate-700">{{ brand.label }}</span>
-                    </div>
-                    @if (brand.count) {
-                      <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">{{ brand.count }}</span>
-                    }
+                  @if (brand.value !== 'all') {
+                    <label class="flex items-center justify-between cursor-pointer">
+                      <div class="flex items-center">
+                        <input
+                          type="checkbox"
+                          [checked]="isBrandSelected(brand.value)"
+                          (change)="toggleBrandFilter(brand.value)"
+                          class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 rounded">
+                        <span class="ml-3 text-sm text-slate-700">{{ brand.label }}</span>
+                      </div>
+                      @if (brand.count) {
+                        <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">{{ brand.count }}</span>
+                      }
+                    </label>
+                  }
+                }
+              </div>
+            </div>
+
+            <!-- Availability Filter -->
+            <div class="mb-6">
+              <div class="text-sm font-semibold text-slate-700 mb-3">Stock Status</div>
+              <div class="space-y-2">
+                @for (availability of availabilityOptions; track availability.value) {
+                  <label class="flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      [checked]="isAvailabilitySelected(availability.value)"
+                      (change)="toggleAvailabilityFilter(availability.value)"
+                      class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 rounded">
+                    <span class="ml-3 text-sm text-slate-700">{{ availability.label }}</span>
                   </label>
                 }
               </div>
@@ -475,6 +541,54 @@
 
       <!-- Products Grid -->
       @if (!loading() && !error()) {
+        <!-- Active Filters Bar -->
+        @if (hasActiveFilters()) {
+          <div class="bg-white border border-slate-200 rounded-lg p-4 mb-4">
+            <div class="flex items-center justify-between mb-3">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-filter text-slate-600 text-sm"></i>
+                <span class="text-sm font-semibold text-slate-700">Active Filters</span>
+                <p-badge
+                  [value]="activeFilters().length.toString()"
+                  severity="info"
+                  styleClass="!text-xs !min-w-[20px] !h-[20px]">
+                </p-badge>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="text-sm text-slate-600">
+                  @if (filterLoading()) {
+                    <i class="pi pi-spin pi-spinner text-xs mr-1"></i>
+                  }
+                  {{ filteredShoes().length }} products
+                </span>
+                <button
+                  type="button"
+                  (click)="clearFilters()"
+                  class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1"
+                  aria-label="Clear all filters">
+                  <i class="pi pi-filter-slash text-xs"></i>
+                  Clear All
+                </button>
+              </div>
+            </div>
+
+            <!-- Filter Chips -->
+            <div class="flex flex-wrap gap-2">
+              @for (filter of activeFilters(); track filter.type + '-' + filter.value) {
+                <p-chip
+                  [label]="filter.label + ': ' + filter.displayValue"
+                  [removable]="true"
+                  (onRemove)="removeActiveFilter(filter.type, filter.value)"
+                  styleClass="!bg-blue-50 !text-blue-800 !border-blue-200 !text-sm !py-1 !px-3">
+                  <ng-template pTemplate="removeicon">
+                    <i class="pi pi-times text-blue-600 hover:text-blue-800 text-xs ml-2 cursor-pointer"></i>
+                  </ng-template>
+                </p-chip>
+              }
+            </div>
+          </div>
+        }
+
         <div class="bg-white border border-slate-200 rounded-lg overflow-hidden mt-0 lg:mt-0">
           <!-- Results Header - Hidden on mobile since info is in mobile header -->
           <div class="hidden lg:block px-6 py-4 border-b border-slate-200 bg-slate-50">

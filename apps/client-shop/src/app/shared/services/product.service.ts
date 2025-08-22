@@ -5,8 +5,9 @@ import { Observable, of } from 'rxjs';
 // Interface for filtering options
 export interface ProductFilters {
   searchTerm?: string;
-  brand?: string;
-  category?: string;
+  brands?: string[];
+  categories?: string[];
+  availability?: string[];
   minPrice?: number;
   maxPrice?: number;
   inStockOnly?: boolean;
@@ -339,24 +340,45 @@ export class ProductService {
       );
     }
 
-    // Brand filter
-    if (filters.brand && filters.brand !== 'all') {
+    // Brands filter (multi-select)
+    if (filters.brands && filters.brands.length > 0) {
       filtered = filtered.filter(shoe => {
         const brand = shoe.name.split(' ')[0].toLowerCase();
-        return brand === filters.brand?.toLowerCase();
+        return filters.brands?.some(selectedBrand =>
+          brand === selectedBrand.toLowerCase()
+        ) || false;
       });
     }
 
-    // Category filter
-    if (filters.category && filters.category !== 'all') {
+    // Categories filter (multi-select)
+    if (filters.categories && filters.categories.length > 0) {
       filtered = filtered.filter(shoe => {
         // Use the category field from the shoe model
         const category = shoe.category || 'sneakers'; // Fallback for shoes without category
-        return category === filters.category;
+        return filters.categories?.includes(category) || false;
       });
     }
 
-    // Price range filter
+    // Availability filter (multi-select)
+    if (filters.availability && filters.availability.length > 0) {
+      filtered = filtered.filter(shoe => {
+        if (!shoe.sizes || shoe.sizes.length === 0) return false;
+
+        const totalStock = shoe.sizes.reduce((sum, size) => sum + size.quantity, 0);
+
+        return filters.availability?.some(availability => {
+          switch (availability) {
+            case 'in-stock': return totalStock > 50;
+            case 'low-stock': return totalStock > 0 && totalStock <= 50;
+            case 'pre-order': return totalStock === 0; // Mock logic
+            case 'made-to-order': return shoe.name.toLowerCase().includes('custom'); // Mock logic
+            default: return false;
+          }
+        }) || false;
+      });
+    }
+
+    // Price range filter (legacy - keep for backward compatibility)
     if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
       filtered = filtered.filter(shoe => {
         const minPrice = Math.min(...shoe.sizes.map(size => size.price));

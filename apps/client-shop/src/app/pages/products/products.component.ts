@@ -13,6 +13,7 @@ import { BadgeModule } from 'primeng/badge';
 import { TagModule } from 'primeng/tag';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { ChipModule } from 'primeng/chip';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // Models and services
@@ -59,6 +60,7 @@ interface ViewOption {
     TagModule,
     InputGroupModule,
     InputGroupAddonModule,
+    ChipModule,
   ],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss'],
@@ -76,11 +78,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
   protected readonly brandStats = signal<Record<string, number>>({});
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+  protected readonly filterLoading = signal(false);
 
   // Filter signals
   protected readonly searchTerm = signal('');
-  protected readonly selectedBrand = signal('all');
-  protected readonly selectedCategory = signal('all');
+  protected readonly selectedBrands = signal<string[]>([]);
+  protected readonly selectedCategories = signal<string[]>([]);
+  protected readonly selectedAvailability = signal<string[]>([]);
   protected readonly selectedSort = signal('name-asc');
   protected readonly sizeSystem = signal<'eu' | 'us'>('eu');
   protected readonly currentView = signal<'grid' | 'list'>('grid');
@@ -114,8 +118,58 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   protected readonly hasActiveFilters = computed(() => {
     return this.searchTerm() !== '' ||
-           this.selectedBrand() !== 'all' ||
-           this.selectedCategory() !== 'all';
+           this.selectedBrands().length > 0 ||
+           this.selectedCategories().length > 0 ||
+           this.selectedAvailability().length > 0;
+  });
+
+  // Active filters for display
+  protected readonly activeFilters = computed(() => {
+    const filters: Array<{type: string, label: string, value: string, displayValue: string}> = [];
+
+    // Search filter
+    if (this.searchTerm()) {
+      filters.push({
+        type: 'search',
+        label: 'Search',
+        value: 'search',
+        displayValue: this.searchTerm()
+      });
+    }
+
+    // Brand filters
+    this.selectedBrands().forEach(brand => {
+      const brandOption = this.brandOptions().find(b => b.value === brand);
+      filters.push({
+        type: 'brand',
+        label: 'Brand',
+        value: brand,
+        displayValue: brandOption?.label || brand
+      });
+    });
+
+    // Category filters
+    this.selectedCategories().forEach(category => {
+      const categoryOption = this.categoryOptions().find(c => c.id === category);
+      filters.push({
+        type: 'category',
+        label: 'Category',
+        value: category,
+        displayValue: categoryOption?.name || category
+      });
+    });
+
+    // Availability filters
+    this.selectedAvailability().forEach(availability => {
+      filters.push({
+        type: 'availability',
+        label: 'Stock',
+        value: availability,
+        displayValue: availability
+      });
+    });
+
+    return filters;
   });
 
   readonly sortOptions: SortOption[] = [
@@ -143,6 +197,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
     { label: '48 per page', value: 48 }
   ];
 
+  readonly availabilityOptions = [
+    { label: 'In Stock', value: 'in-stock' },
+    { label: 'Low Stock', value: 'low-stock' },
+    { label: 'Pre-Order', value: 'pre-order' },
+    { label: 'Made to Order', value: 'made-to-order' }
+  ];
+
   constructor() {
     // Setup search debouncing
     this.searchSubject.pipe(
@@ -157,8 +218,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
     effect(() => {
       // Track all filter changes
       this.searchTerm();
-      this.selectedBrand();
-      this.selectedCategory();
+      this.selectedBrands();
+      this.selectedCategories();
+      this.selectedAvailability();
       this.selectedSort();
 
       // Only reload if we have initial data (avoid loading on component init)
@@ -232,8 +294,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private buildFilters(): ProductFilters {
     return {
       searchTerm: this.searchTerm() || undefined,
-      brand: this.selectedBrand() !== 'all' ? this.selectedBrand() : undefined,
-      category: this.selectedCategory() !== 'all' ? this.selectedCategory() : undefined,
+      brands: this.selectedBrands().length > 0 ? this.selectedBrands() : undefined,
+      categories: this.selectedCategories().length > 0 ? this.selectedCategories() : undefined,
     };
   }
 
@@ -254,10 +316,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   protected clearFilters(): void {
-    this.searchTerm.set('');
-    this.selectedBrand.set('all');
-    this.selectedCategory.set('all');
-    this.selectedSort.set('name-asc');
+    this.clearAllFilters();
   }
 
   protected onQuickOrder(shoe: Shoe): void {
@@ -344,5 +403,89 @@ export class ProductsComponent implements OnInit, OnDestroy {
     } else {
       return { label: 'High Stock', severity: 'info', icon: 'pi pi-check-circle' };
     }
+  }
+
+  // ============================================
+  // MULTI-SELECT FILTER METHODS
+  // ============================================
+
+  protected toggleBrandFilter(brandValue: string): void {
+    this.filterLoading.set(true);
+    const current = this.selectedBrands();
+    const index = current.indexOf(brandValue);
+
+    if (index === -1) {
+      this.selectedBrands.set([...current, brandValue]);
+    } else {
+      this.selectedBrands.set(current.filter(b => b !== brandValue));
+    }
+
+    // Reset loading after a brief delay to show feedback
+    setTimeout(() => this.filterLoading.set(false), 300);
+  }
+
+  protected toggleCategoryFilter(categoryId: string): void {
+    this.filterLoading.set(true);
+    const current = this.selectedCategories();
+    const index = current.indexOf(categoryId);
+
+    if (index === -1) {
+      this.selectedCategories.set([...current, categoryId]);
+    } else {
+      this.selectedCategories.set(current.filter(c => c !== categoryId));
+    }
+
+    setTimeout(() => this.filterLoading.set(false), 300);
+  }
+
+  protected toggleAvailabilityFilter(availabilityValue: string): void {
+    const current = this.selectedAvailability();
+    const index = current.indexOf(availabilityValue);
+
+    if (index === -1) {
+      this.selectedAvailability.set([...current, availabilityValue]);
+    } else {
+      this.selectedAvailability.set(current.filter(a => a !== availabilityValue));
+    }
+  }
+
+  protected removeActiveFilter(filterType: string, filterValue: string): void {
+    this.filterLoading.set(true);
+    switch (filterType) {
+      case 'search':
+        this.searchTerm.set('');
+        break;
+      case 'brand':
+        this.toggleBrandFilter(filterValue);
+        return; // toggleBrandFilter already handles loading
+      case 'category':
+        this.toggleCategoryFilter(filterValue);
+        return; // toggleCategoryFilter already handles loading
+      case 'availability':
+        this.toggleAvailabilityFilter(filterValue);
+        return;
+    }
+    setTimeout(() => this.filterLoading.set(false), 300);
+  }
+
+  protected clearAllFilters(): void {
+    this.filterLoading.set(true);
+    this.searchTerm.set('');
+    this.selectedBrands.set([]);
+    this.selectedCategories.set([]);
+    this.selectedAvailability.set([]);
+    setTimeout(() => this.filterLoading.set(false), 300);
+  }
+
+  protected isBrandSelected(brandValue: string): boolean {
+    return this.selectedBrands().includes(brandValue);
+  }
+
+  protected isCategorySelected(categoryId: string): boolean {
+    return this.selectedCategories().includes(categoryId);
+  }
+
+  protected isAvailabilitySelected(availabilityValue: string): boolean {
+    return this.selectedAvailability().includes(availabilityValue);
   }
 }
