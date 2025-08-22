@@ -14,9 +14,9 @@ import { RouterLink } from '@angular/router';
     <footer class="bg-slate-900 text-slate-300 border-t border-slate-800">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <!-- Main Footer Content -->
-        <div class="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div class="py-8 sm:py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
           <!-- Company Info -->
-          <div class="space-y-4">
+          <div class="space-y-4 sm:col-span-2 lg:col-span-1">
             <div class="flex items-center gap-3">
               <div class="bg-gradient-to-br from-blue-500 to-blue-600 p-2 rounded-lg">
                 <i class="pi pi-box text-white text-lg"></i>
@@ -74,30 +74,30 @@ import { RouterLink } from '@angular/router';
           </div>
 
           <!-- Contact Information -->
-          <div class="space-y-4">
+          <div class="space-y-4 sm:col-span-2 lg:col-span-1">
             <h4 class="text-sm font-semibold text-white uppercase tracking-wide">Get in Touch</h4>
             <div class="space-y-3">
               <div class="flex items-start gap-3">
-                <i class="pi pi-map-marker text-blue-400 text-sm mt-0.5"></i>
+                <i class="pi pi-map-marker text-blue-400 text-sm mt-0.5 flex-shrink-0"></i>
                 <div class="text-sm text-slate-400">
                   <p>ul. Polna 4C</p>
                   <p>32-043 Skała, Poland</p>
                 </div>
               </div>
               <div class="flex items-center gap-3">
-                <i class="pi pi-phone text-blue-400 text-sm"></i>
+                <i class="pi pi-phone text-blue-400 text-sm flex-shrink-0"></i>
                 <a href="tel:+48123456789" class="text-sm text-slate-400 hover:text-blue-400 transition-colors">
                   +48 123 456 789
                 </a>
               </div>
               <div class="flex items-center gap-3">
-                <i class="pi pi-envelope text-blue-400 text-sm"></i>
-                <a href="mailto:wholesale&#64;mandraime.com" class="text-sm text-slate-400 hover:text-blue-400 transition-colors">
+                <i class="pi pi-envelope text-blue-400 text-sm flex-shrink-0"></i>
+                <a href="mailto:wholesale&#64;mandraime.com" class="text-sm text-slate-400 hover:text-blue-400 transition-colors break-all">
                   contact&#64;mandraime.com
                 </a>
               </div>
-              <div class="flex items-center gap-3">
-                <i class="pi pi-clock text-blue-400 text-sm"></i>
+              <div class="flex items-start gap-3">
+                <i class="pi pi-clock text-blue-400 text-sm mt-0.5 flex-shrink-0"></i>
                 <div class="text-sm text-slate-400">
                   <p>Monday - Friday</p>
                   <p>8:00 AM - 4:00 PM (CET)</p>
@@ -108,14 +108,16 @@ import { RouterLink } from '@angular/router';
         </div>
 
         <!-- Footer Bottom -->
-        <div class="py-6 border-t border-slate-800">
+        <div class="py-4 sm:py-6 border-t border-slate-800">
           <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="text-sm text-slate-400">
+            <div class="text-sm text-slate-400 text-center sm:text-left">
               © {{ currentYear }} {{ companyName() }}. All rights reserved.
             </div>
-            <div class="flex items-center gap-6 text-sm text-slate-400">
-              <a href="#" class="hover:text-blue-400 transition-colors">Privacy</a>
-              <a href="#" class="hover:text-blue-400 transition-colors">Terms</a>
+            <div class="flex flex-col sm:flex-row items-center gap-4 sm:gap-6 text-sm text-slate-400">
+              <div class="flex items-center gap-4">
+                <a href="#" class="hover:text-blue-400 transition-colors">Privacy</a>
+                <a href="#" class="hover:text-blue-400 transition-colors">Terms</a>
+              </div>
               <div class="flex items-center gap-1">
                 <i class="pi pi-shield-check text-green-400 text-xs"></i>
                 <span class="text-xs">Secure Platform</span>
