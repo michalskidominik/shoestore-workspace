@@ -1,17 +1,493 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, effect, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
+import { FormsModule } from '@angular/forms';
+
+// PrimeNG Modules
 import { CardModule } from 'primeng/card';
+import { TableModule, TablePageEvent } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { MessageModule } from 'primeng/message';
+import { DividerModule } from 'primeng/divider';
+import { SkeletonModule } from 'primeng/skeleton';
+
+// Models and Services
+import { Order, OrderQueryParams, OrderStatus, PagedResult } from '@shoestore/shared-models';
+import { OrderService } from '../../shared/services/order.service';
 
 @Component({
   selector: 'app-orders',
   standalone: true,
-  imports: [CardModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    CardModule,
+    TableModule,
+    ButtonModule,
+    TagModule,
+    InputTextModule,
+    SelectModule,
+    TooltipModule,
+    ProgressSpinnerModule,
+    MessageModule,
+    DividerModule,
+    SkeletonModule
+  ],
   template: `
-    <div class="orders">
-      <h2 class="text-2xl font-bold mb-4">My Orders</h2>
-      <p-card>
-        <p>Your current orders will appear here...</p>
-      </p-card>
+    <div class="orders-page min-h-screen bg-slate-50 py-8">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="mb-8">
+          <h1 class="text-3xl font-bold text-slate-900 mb-2">My Orders</h1>
+          <p class="text-slate-600">Track and manage your B2B orders</p>
+        </div>
+
+        <!-- Filters and Search -->
+        <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Search -->
+            <div class="md:col-span-2">
+              <label for="search" class="block text-sm font-medium text-slate-700 mb-2">Search Orders</label>
+              <input
+                id="search"
+                type="text"
+                pInputText
+                placeholder="Search by order ID, email, or customer name..."
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="onSearchChange($event)"
+                class="w-full"
+              />
+            </div>
+
+            <!-- Status Filter -->
+            <div>
+              <label for="status-filter" class="block text-sm font-medium text-slate-700 mb-2">Filter by Status</label>
+              <p-select
+                id="status-filter"
+                [options]="statusOptions()"
+                [(ngModel)]="selectedStatus"
+                (onChange)="onStatusFilterChange($event.value)"
+                placeholder="All statuses"
+                [showClear]="true"
+                styleClass="w-full"
+              />
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="bg-white rounded-lg shadow-sm">
+          @if (loading()) {
+            <!-- Loading State -->
+            <div class="p-6">
+              <div class="space-y-4">
+                @for (item of [1, 2, 3, 4, 5]; track item) {
+                  <div class="flex items-center space-x-4">
+                    <p-skeleton width="100px" height="20px"></p-skeleton>
+                    <p-skeleton width="150px" height="20px"></p-skeleton>
+                    <p-skeleton width="200px" height="20px"></p-skeleton>
+                    <p-skeleton width="100px" height="20px"></p-skeleton>
+                    <p-skeleton width="80px" height="20px"></p-skeleton>
+                  </div>
+                }
+              </div>
+            </div>
+          } @else if (errorMessage()) {
+            <!-- Error State -->
+            <div class="p-6">
+              <p-message
+                severity="error"
+                [text]="errorMessage()!"
+                styleClass="w-full"
+              />
+              <div class="mt-4">
+                <p-button
+                  label="Retry"
+                  icon="pi pi-refresh"
+                  (onClick)="loadOrders()"
+                  severity="secondary"
+                />
+              </div>
+            </div>
+          } @else {
+            <!-- Orders Table -->
+            <p-table
+              [value]="orders()"
+              [paginator]="true"
+              [rows]="queryParams().pageSize || 10"
+              [totalRecords]="totalRecords()"
+              [lazy]="true"
+              [loading]="loading()"
+              [sortField]="'date'"
+              [sortOrder]="-1"
+              (onSort)="onSort($event)"
+              (onPage)="onPageChange($event)"
+              dataKey="id"
+              [tableStyle]="{ 'min-width': '50rem' }"
+              styleClass="p-datatable-sm"
+            >
+              <!-- Table Header -->
+              <ng-template pTemplate="header">
+                <tr>
+                  <th pSortableColumn="id" class="text-left">
+                    Order ID <p-sortIcon field="id" />
+                  </th>
+                  <th pSortableColumn="date" class="text-left">
+                    Order Date <p-sortIcon field="date" />
+                  </th>
+                  <th class="text-left">Items</th>
+                  <th pSortableColumn="totalAmount" class="text-right">
+                    Total Amount <p-sortIcon field="totalAmount" />
+                  </th>
+                  <th pSortableColumn="status" class="text-center">
+                    Status <p-sortIcon field="status" />
+                  </th>
+                  <th class="text-center">Actions</th>
+                </tr>
+              </ng-template>
+
+              <!-- Table Body -->
+              <ng-template pTemplate="body" let-order>
+                <tr class="hover:bg-slate-50">
+                  <!-- Order ID -->
+                  <td class="font-mono text-sm font-medium text-slate-900">
+                    #{{ order.id }}
+                  </td>
+
+                  <!-- Order Date -->
+                  <td class="text-slate-600">
+                    {{ order.date | date:'MMM d, y' }}<br>
+                    <span class="text-xs text-slate-400">{{ order.date | date:'HH:mm' }}</span>
+                  </td>
+
+                  <!-- Items Summary -->
+                  <td>
+                    <div class="space-y-1">
+                      <div class="text-sm font-medium text-slate-900">
+                        {{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}
+                      </div>
+                      <div class="text-xs text-slate-500">
+                        {{ getTotalQuantity(order) }} pieces total
+                      </div>
+                      @if (order.items.length > 0) {
+                        <div class="text-xs text-slate-400 truncate max-w-48"
+                             [title]="getItemsSummary(order)">
+                          {{ getItemsPreview(order) }}
+                        </div>
+                      }
+                    </div>
+                  </td>
+
+                  <!-- Total Amount -->
+                  <td class="text-right">
+                    <div class="font-bold text-slate-900">
+                      €{{ order.totalAmount.toFixed(2) }}
+                    </div>
+                  </td>
+
+                  <!-- Status -->
+                  <td class="text-center">
+                    <p-tag
+                      [value]="orderService.getStatusLabel(order.status)"
+                      [severity]="orderService.getStatusSeverity(order.status)"
+                    />
+                  </td>
+
+                  <!-- Actions -->
+                  <td class="text-center">
+                    <div class="flex justify-center gap-2">
+                      <p-button
+                        icon="pi pi-eye"
+                        [text]="true"
+                        [rounded]="true"
+                        size="small"
+                        severity="secondary"
+                        (onClick)="viewOrderDetails(order.id)"
+                        pTooltip="View Details"
+                        tooltipPosition="top"
+                      />
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <!-- Empty State -->
+              <ng-template pTemplate="emptymessage">
+                <tr>
+                  <td colspan="6" class="text-center py-12">
+                    <div class="space-y-4">
+                      <i class="pi pi-shopping-bag text-slate-300 text-4xl"></i>
+                      <div>
+                        <h3 class="text-lg font-medium text-slate-900 mb-2">No orders found</h3>
+                        @if (hasActiveFilters()) {
+                          <p class="text-slate-500 mb-4">Try adjusting your search criteria or filters.</p>
+                          <p-button
+                            label="Clear Filters"
+                            icon="pi pi-filter-slash"
+                            severity="secondary"
+                            [outlined]="true"
+                            (onClick)="clearFilters()"
+                          />
+                        } @else {
+                          <p class="text-slate-500 mb-4">You haven't placed any orders yet.</p>
+                          <p-button
+                            label="Start Shopping"
+                            icon="pi pi-shopping-cart"
+                            (onClick)="navigateToProducts()"
+                          />
+                        }
+                      </div>
+                    </div>
+                  </td>
+                </tr>
+              </ng-template>
+
+              <!-- Loading Template -->
+              <ng-template pTemplate="loadingbody">
+                <tr>
+                  <td colspan="7" class="text-center py-8">
+                    <p-progressSpinner styleClass="w-8 h-8" />
+                    <p class="text-slate-500 mt-2">Loading orders...</p>
+                  </td>
+                </tr>
+              </ng-template>
+            </p-table>
+          }
+        </div>
+
+        <!-- Order Summary Stats -->
+        @if (!loading() && orders().length > 0) {
+          <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
+            <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+              <div class="text-2xl font-bold text-blue-600">{{ totalRecords() }}</div>
+              <div class="text-sm text-slate-500">Total Orders</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+              <div class="text-2xl font-bold text-green-600">{{ getCompletedOrdersCount() }}</div>
+              <div class="text-sm text-slate-500">Completed</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+              <div class="text-2xl font-bold text-yellow-600">{{ getProcessingOrdersCount() }}</div>
+              <div class="text-sm text-slate-500">Processing</div>
+            </div>
+            <div class="bg-white rounded-lg shadow-sm p-6 text-center">
+              <div class="text-2xl font-bold text-slate-900">€{{ getTotalOrderValue().toFixed(2) }}</div>
+              <div class="text-sm text-slate-500">Total Value</div>
+            </div>
+          </div>
+        }
+      </div>
     </div>
-  `
+  `,
+  styleUrl: './orders.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class OrdersComponent {}
+export class OrdersComponent implements OnInit {
+  protected readonly orderService = inject(OrderService);
+  private readonly router = inject(Router);
+
+  // Component state
+  protected readonly loading = signal(false);
+  protected readonly errorMessage = signal<string | null>(null);
+  protected readonly orders = signal<Order[]>([]);
+  protected readonly totalRecords = signal(0);
+
+  // Query parameters
+  protected readonly queryParams = signal<OrderQueryParams>({
+    page: 1,
+    pageSize: 10,
+    sortBy: 'date',
+    sortDirection: 'desc'
+  });
+
+  // Filters
+  protected searchTerm = '';
+  protected selectedStatus: OrderStatus | null = null;
+
+  // Computed properties
+  protected readonly statusOptions = computed(() => this.orderService.getStatusOptions());
+
+  // Trigger for reloading data
+  private readonly reloadTrigger = signal(0);
+
+  constructor() {
+    // Auto-reload when query params change
+    effect(() => {
+      this.reloadTrigger(); // Subscribe to trigger
+      this.loadOrders();
+    });
+  }
+
+  ngOnInit(): void {
+    this.loadOrders();
+  }
+
+  /**
+   * Load orders from service
+   */
+  protected loadOrders(): void {
+    this.loading.set(true);
+    this.errorMessage.set(null);
+
+    this.orderService.getOrders(this.queryParams()).subscribe({
+      next: (result: PagedResult<Order>) => {
+        this.orders.set(result.items);
+        this.totalRecords.set(result.total);
+        this.loading.set(false);
+      },
+      error: (error) => {
+        this.errorMessage.set('Failed to load orders. Please try again.');
+        this.loading.set(false);
+        console.error('Error loading orders:', error);
+      }
+    });
+  }
+
+  /**
+   * Handle search input change
+   */
+  protected onSearchChange(searchTerm: string): void {
+    this.queryParams.update(params => ({
+      ...params,
+      search: searchTerm || undefined,
+      page: 1
+    }));
+    this.triggerReload();
+  }
+
+  /**
+   * Handle status filter change
+   */
+  protected onStatusFilterChange(status: OrderStatus | null): void {
+    this.queryParams.update(params => ({
+      ...params,
+      status: status || undefined,
+      page: 1
+    }));
+    this.triggerReload();
+  }
+
+  /**
+   * Handle table sorting
+   */
+  protected onSort(event: { field: string; order: number }): void {
+    const sortDirection = event.order === 1 ? 'asc' : 'desc';
+    this.queryParams.update(params => ({
+      ...params,
+      sortBy: event.field as 'date' | 'status' | 'totalAmount',
+      sortDirection,
+      page: 1
+    }));
+    this.triggerReload();
+  }
+
+  /**
+   * Handle table pagination
+   */
+  protected onPageChange(event: TablePageEvent): void {
+    const page = Math.floor((event.first || 0) / (event.rows || 10)) + 1;
+    this.queryParams.update(params => ({
+      ...params,
+      page,
+      pageSize: event.rows || 10
+    }));
+    this.triggerReload();
+  }
+
+  /**
+   * Navigate to order details
+   */
+  protected viewOrderDetails(orderId: number): void {
+    this.router.navigate(['/order', orderId]);
+  }
+
+  /**
+   * Navigate to products page
+   */
+  protected navigateToProducts(): void {
+    this.router.navigate(['/products']);
+  }
+
+  /**
+   * Clear all filters
+   */
+  protected clearFilters(): void {
+    this.searchTerm = '';
+    this.selectedStatus = null;
+    this.queryParams.update(params => ({
+      ...params,
+      search: undefined,
+      status: undefined,
+      page: 1
+    }));
+    this.triggerReload();
+  }
+
+  /**
+   * Check if any filters are active
+   */
+  protected hasActiveFilters(): boolean {
+    const params = this.queryParams();
+    return !!(params.search || params.status);
+  }
+
+  /**
+   * Get total quantity of items in an order
+   */
+  protected getTotalQuantity(order: Order): number {
+    return order.items.reduce((total, item) => total + item.quantity, 0);
+  }
+
+  /**
+   * Get items summary for tooltip
+   */
+  protected getItemsSummary(order: Order): string {
+    return order.items.map(item =>
+      `${item.shoeName} (Size ${item.size}) - Qty: ${item.quantity}`
+    ).join('\n');
+  }
+
+  /**
+   * Get items preview (first few items)
+   */
+  protected getItemsPreview(order: Order): string {
+    if (order.items.length === 0) return '';
+    if (order.items.length === 1) {
+      return `${order.items[0].shoeName} (${order.items[0].quantity}x)`;
+    }
+    return `${order.items[0].shoeName}, ${order.items[1]?.shoeName || ''}${order.items.length > 2 ? '...' : ''}`;
+  }
+
+  /**
+   * Get count of completed orders
+   */
+  protected getCompletedOrdersCount(): number {
+    return this.orders().filter(order => order.status === 'completed').length;
+  }
+
+  /**
+   * Get count of processing orders
+   */
+  protected getProcessingOrdersCount(): number {
+    return this.orders().filter(order => order.status === 'processing').length;
+  }
+
+  /**
+   * Get total value of all orders
+   */
+  protected getTotalOrderValue(): number {
+    return this.orders().reduce((total, order) => total + order.totalAmount, 0);
+  }
+
+  /**
+   * Trigger data reload
+   */
+  private triggerReload(): void {
+    this.reloadTrigger.update(count => count + 1);
+  }
+}

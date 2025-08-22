@@ -124,3 +124,43 @@
     @apply mx-2;
   }
 }
+
+/* Mobile Order Dialog Styles */
+::ng-deep .mobile-order-dialog {
+  .p-dialog-content {
+    @apply p-0 h-full;
+  }
+
+  .p-dialog-mask {
+    @apply bg-black/50 backdrop-blur-sm;
+  }
+
+  @media (max-width: 1023px) {
+    .p-dialog {
+      @apply w-full h-full max-w-none max-h-none m-0 rounded-none;
+    }
+
+    .p-dialog-content {
+      @apply h-full flex flex-col;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .p-dialog {
+      @apply w-11/12 max-w-4xl h-5/6 max-h-none rounded-xl;
+    }
+  }
+}
+
+/* Custom order form styles for mobile dialog */
+::ng-deep .mobile-order-dialog .order-form {
+  @apply border-0 shadow-none rounded-none bg-transparent;
+}
+
+::ng-deep .mobile-order-dialog .order-form .p-inputnumber {
+  @apply bg-white border border-slate-200;
+}
+
+::ng-deep .mobile-order-dialog .order-form .p-button {
+  @apply shadow-sm;
+}

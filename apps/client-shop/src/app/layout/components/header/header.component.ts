@@ -4,6 +4,7 @@ import { Router, RouterLink, NavigationEnd } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { MenuModule } from 'primeng/menu';
+import { PopoverModule } from 'primeng/popover';
 import { OverlayPanelModule } from 'primeng/overlaypanel';
 import { AvatarModule } from 'primeng/avatar';
 import { DividerModule } from 'primeng/divider';
@@ -13,6 +14,8 @@ import { Subject } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UiStateService } from '../../../core/services/ui-state.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { CartService } from '../../../shared/services/cart.service';
+import { CartPanelComponent } from './components/cart-panel/cart-panel.component';
 
 interface NavigationItem {
   label: string;
@@ -32,10 +35,12 @@ interface NavigationItem {
     ButtonModule,
     BadgeModule,
     MenuModule,
+    PopoverModule,
     OverlayPanelModule,
     AvatarModule,
     DividerModule,
-    RouterLink
+    RouterLink,
+    CartPanelComponent
   ],
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss',
@@ -49,6 +54,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly uiStateService = inject(UiStateService);
   private readonly authService = inject(AuthService);
+  private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
 
   // Input/Output properties
@@ -61,6 +67,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Authentication state
   readonly isAuthenticated = this.authService.isAuthenticated;
   readonly currentUser = this.authService.currentUser;
+  // All users are B2B - no need for isB2BUser property
+
+  // Cart state
+  readonly cartItemCount = this.cartService.totalItems;
+  readonly cartItems = this.cartService.items;
+  readonly cartSummary = this.cartService.summary;
 
   // Current route tracking for active navigation
   private readonly currentUrl = toSignal(
@@ -93,27 +105,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       route: '/orders',
       icon: 'pi-shopping-cart',
       requiresAuth: true,
-      badge: 'new',
       ariaLabel: 'Manage your orders'
-    },
-    {
-      label: 'Analytics',
-      route: '/analytics',
-      icon: 'pi-chart-bar',
-      requiresAuth: true,
-      ariaLabel: 'View business analytics'
-    },
-    {
-      label: 'About',
-      route: '/about-us',
-      icon: 'pi-info-circle',
-      ariaLabel: 'Learn about our company'
-    },
-    {
-      label: 'Contact',
-      route: '/contact',
-      icon: 'pi-question-circle',
-      ariaLabel: 'Contact support team'
     }
   ];
 
@@ -152,15 +144,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
         command: () => this.navigateToOrders(),
         styleClass: 'text-slate-700 hover:text-blue-600'
       },
-      {
-        label: 'Notifications',
-        icon: 'pi pi-bell',
-        command: () => {
-          // Notification panel is now handled by PrimeNG OverlayPanel
-          // No need to close user menu as OverlayPanel handles this
-        },
-        styleClass: 'text-slate-700 hover:text-blue-600'
-      },
+      // {
+      //   label: 'Notifications',
+      //   icon: 'pi pi-bell',
+      //   command: () => {
+      //     // Notification panel is now handled by PrimeNG OverlayPanel
+      //     // No need to close user menu as OverlayPanel handles this
+      //   },
+      //   styleClass: 'text-slate-700 hover:text-blue-600'
+      // },
       {
         separator: true
       },
@@ -257,5 +249,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (hour < 12) return 'Good morning';
     if (hour < 17) return 'Good afternoon';
     return 'Good evening';
+  }
+
+  // Cart navigation methods
+  protected navigateToCart(): void {
+    this.router.navigate(['/cart']);
+  }
+
+  protected onRemoveCartItem(productId: number, size: number): void {
+    this.cartService.removeItem(productId, size);
+  }
+
+  protected onUpdateCartQuantity(productId: number, size: number, quantity: number): void {
+    if (quantity <= 0) {
+      this.cartService.removeItem(productId, size);
+    } else {
+      this.cartService.updateQuantity(productId, size, quantity);
+    }
   }
 }

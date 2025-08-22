@@ -1,9 +1,10 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HeaderComponent } from './components/header/header.component';
+import { FooterComponent } from './components/footer/footer.component';
 import { ToastComponent } from '../shared/components/toast/toast.component';
 
 @Component({
@@ -12,7 +13,9 @@ import { ToastComponent } from '../shared/components/toast/toast.component';
   imports: [
     CommonModule,
     RouterOutlet,
+    RouterLink,
     HeaderComponent,
+    FooterComponent,
     ToastComponent
   ],
   templateUrl: './client-panel-layout.component.html',
@@ -22,6 +25,7 @@ export class ClientPanelLayoutComponent {
   private router = inject(Router);
 
   readonly companyName = 'MANDRAIME';
+  readonly currentYear = new Date().getFullYear();
 
   // Track current route for different content wrapper styling
   private currentUrl = toSignal(

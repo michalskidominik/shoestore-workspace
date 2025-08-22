@@ -5,6 +5,7 @@ export interface User {
   id: number;
   email: string;
   name: string;
+  // All users are B2B - no need for userType field
 }
 
 export interface LoginCredentials {
@@ -23,6 +24,7 @@ export class AuthService {
   readonly currentUser = this._currentUser.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly isAuthenticated = computed(() => !!this._currentUser());
+  // All users are B2B - no need for isB2BUser computed property
 
   constructor(private router: Router) {
     // Check if user is already logged in (from localStorage)
@@ -49,7 +51,10 @@ export class AuthService {
       await new Promise(resolve => setTimeout(resolve, 1000));      // Mock authentication - accept specific credentials or any email with password 'password'
       if (credentials.password === 'password' ||
           (credentials.email === 'admin@sgats.com' && credentials.password === 'admin123') ||
-          (credentials.email === 'user@sgats.com' && credentials.password === 'user123')) {
+          (credentials.email === 'user@sgats.com' && credentials.password === 'user123') ||
+          (credentials.email === 'b2b-test@sgats.com' && credentials.password === 'b2b123')) {
+
+        // All users are B2B customers
         const mockUser: User = {
           id: 1,
           email: credentials.email,

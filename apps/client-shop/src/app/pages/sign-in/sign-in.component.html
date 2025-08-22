@@ -88,6 +88,24 @@
           </p-button>
         </div>
 
+        <!-- Test B2B Login Button -->
+        <div class="mb-6">
+          <p-divider>
+            <span class="text-xs text-slate-500 bg-white px-2">For Testing</span>
+          </p-divider>
+          <p-button
+            type="button"
+            label="Login as Test B2B User"
+            icon="pi pi-user-check"
+            severity="secondary"
+            [outlined]="true"
+            [loading]="loading()"
+            styleClass="w-full mt-4 !border-blue-300 !text-blue-700 hover:!border-blue-400 hover:!bg-blue-50"
+            size="large"
+            (onClick)="onMockB2BLogin()">
+          </p-button>
+        </div>
+
         <!-- Terms of Service and Privacy Policy -->
         <p class="text-xs text-slate-500 text-center mb-6">
           By clicking sign in, you agree to our

@@ -61,7 +61,8 @@
                 @if (item.badge) {
                   <p-badge
                     [value]="item.badge"
-                    styleClass="!bg-orange-100 !text-orange-700 !text-xs !px-1.5 !py-0.5">
+                    severity="warn"
+                    size="small">
                   </p-badge>
                 }
               </div>
@@ -72,22 +73,20 @@
 
       <!-- Right Side Actions -->
       <div class="flex items-center gap-3">
-
-        <!-- Search Button (authenticated users only) -->
+        <!-- Cart Button (All authenticated users are B2B) -->
         @if (isAuthenticated()) {
-          <p-button
-            icon="pi pi-search"
-            severity="secondary"
-            [text]="true"
-            [rounded]="true"
-            size="small"
-            class="hidden sm:inline-flex"
-            styleClass="!text-slate-600 hover:!text-blue-600 hover:!bg-slate-50/80 transition-all duration-200 !p-2"
-            [attr.aria-label]="'Search inventory'">
-          </p-button>
+          <div class="relative cart-panel" data-menu-trigger>
+            <app-cart-panel
+              [cartItems]="cartItems()"
+              [cartSummary]="cartSummary()"
+              (updateQuantity)="onUpdateCartQuantity($event.productId, $event.size, $event.quantity)"
+              (removeItem)="onRemoveCartItem($event.productId, $event.size)"
+              (viewCart)="navigateToCart()">
+            </app-cart-panel>
+          </div>
         }
 
-        <!-- Notifications (authenticated users only) -->
+<!-- Notifications (authenticated users only)
         @if (isAuthenticated()) {
           <div class="relative hidden sm:block notification-panel" data-menu-trigger>
             <p-button
@@ -101,16 +100,14 @@
               (onClick)="notificationPanel.toggle($event)"
               [attr.aria-label]="'View notifications'">
             </p-button>
-            <!-- Notification badge -->
             @if (notificationCount() > 0) {
               <p-badge
                 [value]="notificationCount() > 99 ? '99+' : notificationCount().toString()"
                 severity="danger"
-                styleClass="absolute -top-1 -right-1 !text-xs shadow-sm">
+                styleClass="absolute -top-1 -right-1 !text-xs !min-w-4 !h-4 !leading-none !px-1">
               </p-badge>
             }
 
-            <!-- Notification Panel -->
             <p-overlayPanel
               #notificationPanel
               styleClass="w-80 !p-0"
@@ -167,7 +164,7 @@
             </p-overlayPanel>
           </div>
         }
-
+-->
         <!-- User Actions -->
         @if (isAuthenticated()) {
           <!-- User Menu for Desktop -->
@@ -321,7 +318,8 @@
             @if (item.badge) {
               <p-badge
                 [value]="item.badge"
-                styleClass="!bg-orange-100 !text-orange-700 !text-xs !px-1.5 !py-0.5">
+                severity="warn"
+                size="small">
               </p-badge>
             }
           </a>
@@ -350,7 +348,7 @@
                 <p-badge
                   [value]="notificationCount().toString()"
                   severity="danger"
-                  styleClass="!text-xs">
+                  styleClass="absolute -top-1 -right-1 !text-xs !min-w-4 !h-4 !leading-none !px-1">
                 </p-badge>
               }
             </button>
