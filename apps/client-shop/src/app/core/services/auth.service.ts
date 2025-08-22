@@ -5,7 +5,7 @@ export interface User {
   id: number;
   email: string;
   name: string;
-  userType?: 'standard' | 'b2b';
+  // All users are B2B - no need for userType field
 }
 
 export interface LoginCredentials {
@@ -24,7 +24,7 @@ export class AuthService {
   readonly currentUser = this._currentUser.asReadonly();
   readonly isLoading = this._isLoading.asReadonly();
   readonly isAuthenticated = computed(() => !!this._currentUser());
-  readonly isB2BUser = computed(() => this._currentUser()?.userType === 'b2b');
+  // All users are B2B - no need for isB2BUser computed property
 
   constructor(private router: Router) {
     // Check if user is already logged in (from localStorage)
@@ -53,24 +53,13 @@ export class AuthService {
           (credentials.email === 'admin@sgats.com' && credentials.password === 'admin123') ||
           (credentials.email === 'user@sgats.com' && credentials.password === 'user123') ||
           (credentials.email === 'b2b-test@sgats.com' && credentials.password === 'b2b123')) {
-        
-        // Create appropriate user based on email
-        let mockUser: User;
-        if (credentials.email === 'b2b-test@sgats.com') {
-          mockUser = {
-            id: 999,
-            email: credentials.email,
-            name: 'B2B Test User',
-            userType: 'b2b'
-          };
-        } else {
-          mockUser = {
-            id: 1,
-            email: credentials.email,
-            name: credentials.email.split('@')[0],
-            userType: 'standard'
-          };
-        }
+
+        // All users are B2B customers
+        const mockUser: User = {
+          id: 1,
+          email: credentials.email,
+          name: credentials.email.split('@')[0]
+        };
 
         this._currentUser.set(mockUser);
         localStorage.setItem('authUser', JSON.stringify(mockUser));

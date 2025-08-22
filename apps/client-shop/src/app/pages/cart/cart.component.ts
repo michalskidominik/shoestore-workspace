@@ -439,14 +439,12 @@ export class CartComponent {
     }
   }
 
-  protected async submitOrder(): Promise<void> {
+  protected submitOrder(): void {
     this.isSubmittingOrder.set(true);
     this.errorMessage.set(null);
 
-    try {
-      // First validate stock
-      const stockValidation = await this.cartService.validateCartStock();
-
+    // Validate stock first
+    this.cartService.validateCartStock().then(stockValidation => {
       if (!stockValidation.valid) {
         this.stockConflicts.set(stockValidation.conflicts);
         this.showStockConflictDialog.set(true);
@@ -454,26 +452,32 @@ export class CartComponent {
         return;
       }
 
-      // Submit order
-      const result = await this.cartService.submitOrder();
-
-      if (result.success) {
-        this.orderId.set(result.orderId || null);
-        // Redirect to payment instructions page with order details
-        this.router.navigate(['/payment-instructions'], {
-          queryParams: {
-            orderId: result.orderId,
-            amount: this.cartService.totalPrice()
+      // Submit order using Observable
+      this.cartService.submitOrder().subscribe({
+        next: (result) => {
+          if (result.success) {
+            this.orderId.set(result.orderId?.toString() || null);
+            // Redirect to payment instructions page with order details
+            this.router.navigate(['/payment-instructions'], {
+              queryParams: {
+                orderId: result.orderId,
+                amount: this.cartService.totalPrice()
+              }
+            });
+          } else {
+            this.errorMessage.set(result.error || 'Failed to submit order');
           }
-        });
-      } else {
-        this.errorMessage.set(result.error || 'Failed to submit order');
-      }
-    } catch {
-      this.errorMessage.set('An error occurred while submitting your order');
-    } finally {
+          this.isSubmittingOrder.set(false);
+        },
+        error: () => {
+          this.errorMessage.set('An error occurred while submitting your order');
+          this.isSubmittingOrder.set(false);
+        }
+      });
+    }).catch(() => {
+      this.errorMessage.set('Stock validation failed');
       this.isSubmittingOrder.set(false);
-    }
+    });
   }
 
   protected retryOrderSubmission(): void {

@@ -37,6 +37,11 @@ export const appRoutes: Route[] = [
         loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent)
       },
       {
+        path: 'order/:id',
+        canActivate: [authGuard],
+        loadComponent: () => import('./pages/order-detail/order-detail.component').then(m => m.OrderDetailComponent)
+      },
+      {
         path: 'cart',
         canActivate: [authGuard],
         loadComponent: () => import('./pages/cart/cart.component').then(m => m.CartComponent)

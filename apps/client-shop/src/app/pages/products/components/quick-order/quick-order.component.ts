@@ -7,7 +7,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { Shoe, SizeAvailability } from '@shoestore/shared-models';
 
-export interface QuickOrderData {
+export interface OrderData {
   productId: number;
   items: { size: number; quantity: number; unitPrice: number }[];
 }
@@ -25,14 +25,14 @@ export interface QuickOrderData {
     TagModule
   ],
   template: `
-    <div class="quick-order-form bg-white border-2 border-slate-200 rounded-2xl shadow-xl p-6 mt-4">
+    <div class="order-form bg-white border-2 border-slate-200 rounded-2xl shadow-xl p-6 mt-4">
       <!-- Header -->
       <div class="flex items-center justify-between mb-6">
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
             <i class="pi pi-shopping-cart text-blue-600 text-sm"></i>
           </div>
-          <h4 class="text-lg font-bold text-slate-900">Quick Order</h4>
+          <h4 class="text-lg font-bold text-slate-900">Order</h4>
         </div>
         <p-button
           icon="pi pi-times"
@@ -40,7 +40,7 @@ export interface QuickOrderData {
           [text]="true"
           size="small"
           (onClick)="onCancel()"
-          [attr.aria-label]="'Close quick order form'"
+          [attr.aria-label]="'Close order form'"
           styleClass="!w-8 !h-8 !p-0 hover:!bg-slate-100 !transition-colors">
         </p-button>
       </div>
@@ -105,7 +105,7 @@ export interface QuickOrderData {
       }
 
       <!-- Size Quantities Form -->
-      <form [formGroup]="quickOrderForm" (ngSubmit)="onSubmit()">
+      <form [formGroup]="orderForm" (ngSubmit)="onSubmit()">
         @if (isFormReady()) {
           <div formArrayName="sizes">
             <div class="space-y-2 mb-6 max-h-56 overflow-y-auto">
@@ -212,8 +212,8 @@ export interface QuickOrderData {
               </p-button>
               <p-button
                 type="submit"
-                label="Add to Cart"
-                icon="pi pi-shopping-cart"
+                label="Order"
+                icon="pi pi-check"
                 severity="primary"
                 [disabled]="!canSubmit() || isSubmitting()"
                 [loading]="isSubmitting()"
@@ -320,7 +320,7 @@ export interface QuickOrderData {
     }
 
     /* Enhanced hover effects */
-    .quick-order-form .hover\\:border-slate-200:hover {
+    .order-form .hover\\:border-slate-200:hover {
       transform: translateY(-1px);
     }
 
@@ -348,12 +348,12 @@ export class QuickOrderComponent {
   readonly isSubmitting = input<boolean>(false);
 
   // Outputs
-  readonly addToCart = output<QuickOrderData>();
+  readonly placeOrder = output<OrderData>();
   readonly cancelOrder = output<void>();
 
   // Form and state management
   private readonly fb = inject(FormBuilder);
-  protected readonly quickOrderForm: FormGroup;
+  protected readonly orderForm: FormGroup;
   protected readonly applyToAllQuantity = signal<number>(0);
 
   // Computed values
@@ -367,19 +367,19 @@ export class QuickOrderComponent {
 
   protected readonly isFormReady = computed(() => {
     const sizes = this.availableSizes();
-    const sizesArray = this.quickOrderForm.get('sizes') as FormArray;
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
     return sizes.length > 0 && sizesArray && sizesArray.controls.length === sizes.length;
   });
 
   protected readonly sizeFormControls = computed(() => {
     if (!this.isFormReady()) return [];
-    const sizesArray = this.quickOrderForm.get('sizes') as FormArray;
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
     return sizesArray.controls;
   });
 
   constructor() {
     // Initialize form with empty size controls
-    this.quickOrderForm = this.fb.group({
+    this.orderForm = this.fb.group({
       sizes: this.fb.array([])
     });
 
@@ -395,7 +395,7 @@ export class QuickOrderComponent {
     // Handle enabling/disabling controls when isSubmitting changes
     effect(() => {
       const submitting = this.isSubmitting();
-      const sizesArray = this.quickOrderForm.get('sizes') as FormArray;
+      const sizesArray = this.orderForm.get('sizes') as FormArray;
 
       if (sizesArray && sizesArray.controls.length > 0) {
         sizesArray.controls.forEach((control, index) => {
@@ -415,7 +415,7 @@ export class QuickOrderComponent {
   }
 
   private setupSizeControls(): void {
-    const sizesArray = this.quickOrderForm.get('sizes') as FormArray;
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
     sizesArray.clear();
 
     this.availableSizes().forEach((size) => {
@@ -442,7 +442,7 @@ export class QuickOrderComponent {
 
   protected onApplyToAll(): void {
     const quantity = this.applyToAllQuantity();
-    const sizesArray = this.quickOrderForm.get('sizes') as FormArray;
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
     const sizes = this.availableSizes();
 
     if (sizesArray && sizes.length > 0) {
@@ -458,12 +458,12 @@ export class QuickOrderComponent {
 
   protected getTotalQuantity(): number {
     if (!this.isFormReady()) return 0;
-    const sizesArray = this.quickOrderForm.get('sizes') as FormArray;
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
     return sizesArray.value.reduce((total: number, quantity: number) => total + (quantity || 0), 0);
   }
 
   protected getTotalPrice(): number {
-    const sizesArray = this.quickOrderForm.get('sizes') as FormArray;
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
     const sizes = this.availableSizes();
 
     if (!sizesArray || sizes.length === 0) return 0;
@@ -475,16 +475,16 @@ export class QuickOrderComponent {
   }
 
   protected canSubmit(): boolean {
-    return this.isFormReady() && this.getTotalQuantity() > 0 && this.quickOrderForm.valid;
+    return this.isFormReady() && this.getTotalQuantity() > 0 && this.orderForm.valid;
   }
 
   protected hasValidationErrors(): boolean {
-    return this.quickOrderForm.invalid && this.quickOrderForm.touched;
+    return this.orderForm.invalid && this.orderForm.touched;
   }
 
   protected getValidationMessage(): string {
-    if (!this.quickOrderForm.valid) {
-      const sizesArray = this.quickOrderForm.get('sizes') as FormArray;
+    if (!this.orderForm.valid) {
+      const sizesArray = this.orderForm.get('sizes') as FormArray;
       const sizes = this.availableSizes();
 
       if (!sizesArray || sizes.length === 0) return 'Form is not ready';
@@ -514,7 +514,7 @@ export class QuickOrderComponent {
   protected onSubmit(): void {
     if (!this.canSubmit()) return;
 
-    const sizesArray = this.quickOrderForm.get('sizes') as FormArray;
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
     const sizes = this.availableSizes();
 
     if (!sizesArray || sizes.length === 0) return;
@@ -533,12 +533,12 @@ export class QuickOrderComponent {
 
     if (items.length === 0) return;
 
-    const orderData: QuickOrderData = {
+    const orderData: OrderData = {
       productId: this.product().id,
       items
     };
 
-    this.addToCart.emit(orderData);
+    this.placeOrder.emit(orderData);
   }
 
   protected onCancel(): void {

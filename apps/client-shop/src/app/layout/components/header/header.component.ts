@@ -67,7 +67,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Authentication state
   readonly isAuthenticated = this.authService.isAuthenticated;
   readonly currentUser = this.authService.currentUser;
-  readonly isB2BUser = this.authService.isB2BUser;
+  // All users are B2B - no need for isB2BUser property
 
   // Cart state
   readonly cartItemCount = this.cartService.totalItems;

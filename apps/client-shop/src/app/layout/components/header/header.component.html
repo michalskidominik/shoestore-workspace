@@ -73,8 +73,8 @@
 
       <!-- Right Side Actions -->
       <div class="flex items-center gap-3">
-        <!-- Cart Button (B2B users only) -->
-        @if (isAuthenticated() && isB2BUser()) {
+        <!-- Cart Button (All authenticated users are B2B) -->
+        @if (isAuthenticated()) {
           <div class="relative cart-panel" data-menu-trigger>
             <app-cart-panel
               [cartItems]="cartItems()"

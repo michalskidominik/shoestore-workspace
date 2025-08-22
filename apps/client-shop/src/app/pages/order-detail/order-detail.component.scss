@@ -1,0 +1,249 @@
+// Order Detail Page Styles
+.order-detail-page {
+  // Custom mobile-first responsive design
+
+  // Loading states
+  .skeleton-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    padding: 1.5rem;
+  }
+
+  // Order header responsive design
+  .order-header {
+    @media (max-width: 640px) {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+
+      .order-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+    }
+  }
+
+  // Grid layout adjustments
+  .order-content-grid {
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // Item cards
+  .order-item {
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      background-color: rgb(248 250 252);
+      transform: translateY(-1px);
+    }
+
+    .item-image-placeholder {
+      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+      border: 1px solid #e2e8f0;
+    }
+
+    @media (max-width: 640px) {
+      .item-details {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+
+        .item-meta {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.25rem;
+        }
+      }
+
+      .item-total {
+        text-align: left;
+        margin-top: 0.5rem;
+      }
+    }
+  }
+
+  // Summary cards
+  .summary-card {
+    background: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    border: 1px solid #f1f5f9;
+
+    &:hover {
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+
+    .summary-line {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+
+      &.total-line {
+        border-top: 1px solid #e2e8f0;
+        margin-top: 0.5rem;
+        padding-top: 1rem;
+        font-size: 1.125rem;
+        font-weight: 600;
+      }
+    }
+  }
+
+  // Timeline component
+  .order-timeline {
+    .timeline-item {
+      position: relative;
+      padding-left: 1.5rem;
+
+      &:not(:last-child)::before {
+        content: '';
+        position: absolute;
+        left: 0.25rem;
+        top: 1rem;
+        width: 1px;
+        height: calc(100% - 0.5rem);
+        background-color: #e2e8f0;
+      }
+
+      .timeline-dot {
+        position: absolute;
+        left: 0;
+        top: 0.5rem;
+        width: 0.5rem;
+        height: 0.5rem;
+        border-radius: 50%;
+
+        &.placed { background-color: #3b82f6; }
+        &.processing { background-color: #eab308; }
+        &.completed { background-color: #10b981; }
+        &.cancelled { background-color: #ef4444; }
+      }
+
+      .timeline-content {
+        padding-bottom: 1rem;
+
+        .timeline-title {
+          font-weight: 500;
+          color: #1e293b;
+          margin-bottom: 0.25rem;
+        }
+
+        .timeline-description {
+          font-size: 0.875rem;
+          color: #64748b;
+        }
+      }
+    }
+  }
+
+  // Action buttons
+  .action-buttons {
+    @media (max-width: 640px) {
+      flex-direction: column;
+      gap: 0.75rem;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+
+  // Status tags custom styles
+  ::ng-deep {
+    .p-tag {
+      &.status-placed {
+        background-color: #dbeafe;
+        color: #1e40af;
+      }
+      &.status-processing {
+        background-color: #fef3c7;
+        color: #92400e;
+      }
+      &.status-completed {
+        background-color: #d1fae5;
+        color: #065f46;
+      }
+      &.status-cancelled {
+        background-color: #fee2e2;
+        color: #991b1b;
+      }
+    }
+
+    // Table responsive adjustments
+    .p-datatable {
+      @media (max-width: 768px) {
+        .p-datatable-tbody > tr > td {
+          padding: 0.5rem;
+          font-size: 0.875rem;
+        }
+      }
+    }
+
+    // Button adjustments
+    .p-button {
+      &.w-full {
+        width: 100%;
+      }
+
+      &.action-button {
+        transition: all 0.2s ease-in-out;
+
+        &:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+      }
+    }
+
+    // Message component styling
+    .p-message {
+      border-radius: 0.5rem;
+      border: 1px solid;
+
+      &.p-message-error {
+        background-color: #fef2f2;
+        border-color: #fecaca;
+        color: #991b1b;
+      }
+    }
+  }
+
+  // Utility classes
+  .card-hover {
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    }
+  }
+
+  .text-gradient {
+    background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  // Print styles
+  @media print {
+    .order-detail-page {
+      background: white;
+      color: black;
+
+      .action-buttons,
+      .order-actions {
+        display: none;
+      }
+
+      .summary-card,
+      .order-item {
+        box-shadow: none;
+        border: 1px solid #ccc;
+      }
+    }
+  }
+}
