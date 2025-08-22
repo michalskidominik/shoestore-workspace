@@ -8,56 +8,70 @@
     <div class="flex items-center justify-between h-16">
 
       <!-- Logo and Brand -->
-      <button
-        (click)="navigateToLanding()"
-        class="flex items-center space-x-4 hover:opacity-80 transition-opacity duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 rounded-lg"
-        ariaLabel="Navigate to homepage">
-        <div class="flex-shrink-0">
-          <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-2.5 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200">
-            <i class="pi pi-box text-white text-xl" aria-hidden="true"></i>
+      <p-button
+        (onClick)="navigateToLanding()"
+        [text]="true"
+        styleClass="flex items-center gap-4 hover:opacity-80 transition-opacity duration-200 !p-0 !border-0 !bg-transparent"
+        [attr.aria-label]="'Navigate to homepage'">
+        <ng-template pTemplate="content">
+          <div class="flex items-center gap-4">
+            <div class="flex-shrink-0">
+              <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-2.5 rounded-xl shadow-lg hover:shadow-xl transition-shadow duration-200">
+                <i class="pi pi-box text-white text-xl" aria-hidden="true"></i>
+              </div>
+            </div>
+            <div class="flex flex-col">
+              <span class="text-lg font-bold text-slate-900 leading-tight tracking-tight">
+                {{ companyName().split(' ')[0] }}
+              </span>
+              @if (companyName().split(' ').length > 1) {
+                <span class="text-xs text-slate-600 font-medium -mt-0.5 tracking-wide">
+                  {{ companyName().split(' ').slice(1).join(' ') }} B2B
+                </span>
+              }
+            </div>
           </div>
-        </div>
-        <div class="flex flex-col">
-          <span class="text-lg font-bold text-slate-900 leading-tight tracking-tight">
-            {{ companyName().split(' ')[0] }}
-          </span>
-          @if (companyName().split(' ').length > 1) {
-            <span class="text-xs text-slate-600 font-medium -mt-0.5 tracking-wide">
-              {{ companyName().split(' ').slice(1).join(' ') }} B2B
-            </span>
-          }
-        </div>
-      </button>
+        </ng-template>
+      </p-button>
 
       <!-- Desktop Navigation -->
-      <nav class="hidden lg:flex items-center gap-1" role="navigation" aria-label="Main navigation">
+      <nav class="hidden lg:flex items-center gap-2" role="navigation" aria-label="Main navigation">
         <!-- All Navigation Items -->
         @for (item of navigationItems(); track item.route) {
-          <a
+          <p-button
             [routerLink]="item.route"
+            [text]="!isRouteActive(item.route, item.exact)"
+            [outlined]="isRouteActive(item.route, item.exact)"
+            severity="secondary"
+            size="small"
+            styleClass="group relative transition-all duration-200 !px-3 !py-2"
             [class]="isRouteActive(item.route, item.exact)
-              ? 'bg-blue-50 text-blue-700 border-blue-200 shadow-sm'
-              : 'text-slate-700 hover:text-blue-600 hover:bg-slate-50 border-transparent'"
-            class="group relative inline-flex items-center px-3 py-2.5 rounded-lg text-sm font-medium border transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+              ? '!bg-blue-50 !text-blue-700 !border-blue-300 shadow-sm hover:!border-blue-400'
+              : '!text-slate-700 hover:!text-blue-600 hover:!bg-slate-50/80 !border-transparent'"
             [attr.aria-label]="item.ariaLabel"
             [attr.aria-current]="isRouteActive(item.route, item.exact) ? 'page' : null">
-            @if (item.icon) {
-              <i [class]="'pi ' + item.icon + ' mr-2 text-base transition-colors'"
-                 [ngClass]="isRouteActive(item.route, item.exact) ? 'text-blue-600' : 'text-slate-500 group-hover:text-blue-600'"
-                 aria-hidden="true"></i>
-            }
-            <span class="tracking-wide font-medium">{{ item.label }}</span>
-            @if (item.badge) {
-              <span class="ml-2 px-1.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-700 rounded-full">
-                {{ item.badge }}
-              </span>
-            }
-          </a>
+            <ng-template pTemplate="content">
+              <div class="flex items-center gap-2">
+                @if (item.icon) {
+                  <i [class]="'pi ' + item.icon + ' text-sm transition-colors'"
+                     [ngClass]="isRouteActive(item.route, item.exact) ? 'text-blue-600' : 'text-slate-500 group-hover:text-blue-600'"
+                     aria-hidden="true"></i>
+                }
+                <span class="text-sm font-medium tracking-wide">{{ item.label }}</span>
+                @if (item.badge) {
+                  <p-badge
+                    [value]="item.badge"
+                    styleClass="!bg-orange-100 !text-orange-700 !text-xs !px-1.5 !py-0.5">
+                  </p-badge>
+                }
+              </div>
+            </ng-template>
+          </p-button>
         }
       </nav>
 
       <!-- Right Side Actions -->
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center gap-3">
 
         <!-- Search Button (authenticated users only) -->
         @if (isAuthenticated()) {
@@ -66,9 +80,10 @@
             severity="secondary"
             [text]="true"
             [rounded]="true"
-            size="large"
+            size="small"
             class="hidden sm:inline-flex"
-            ariaLabel="Search inventory">
+            styleClass="!text-slate-600 hover:!text-blue-600 hover:!bg-slate-50/80 transition-all duration-200 !p-2"
+            [attr.aria-label]="'Search inventory'">
           </p-button>
         }
 
@@ -76,32 +91,39 @@
         @if (isAuthenticated()) {
           <div class="relative hidden sm:block notification-panel" data-menu-trigger>
             <p-button
+              #notificationBtn
               icon="pi pi-bell"
               severity="secondary"
               [text]="true"
               [rounded]="true"
-              size="large"
-              (onClick)="toggleNotificationPanel()"
-              [attr.aria-expanded]="isNotificationPanelOpen()"
-              ariaLabel="View notifications">
+              size="small"
+              styleClass="!text-slate-600 hover:!text-blue-600 hover:!bg-slate-50/80 transition-all duration-200 !p-2"
+              (onClick)="notificationPanel.toggle($event)"
+              [attr.aria-label]="'View notifications'">
             </p-button>
             <!-- Notification badge -->
             @if (notificationCount() > 0) {
-              <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center font-medium shadow-sm">
-                {{ notificationCount() > 99 ? '99+' : notificationCount() }}
-              </span>
+              <p-badge
+                [value]="notificationCount() > 99 ? '99+' : notificationCount().toString()"
+                severity="danger"
+                styleClass="absolute -top-1 -right-1 !text-xs shadow-sm">
+              </p-badge>
             }
 
             <!-- Notification Panel -->
-            @if (isNotificationPanelOpen()) {
-              <div class="absolute right-0 top-full mt-3 w-80 bg-white rounded-xl shadow-xl border border-slate-200/80 backdrop-blur-lg py-3 z-50 transform transition-all duration-200 ease-out scale-100 opacity-100">
+            <p-overlayPanel
+              #notificationPanel
+              styleClass="w-80 !p-0"
+              [showTransitionOptions]="'200ms ease-out'"
+              [hideTransitionOptions]="'150ms ease-in'">
+              <div class="py-3">
                 <div class="px-4 py-2 border-b border-slate-100">
                   <h3 class="text-sm font-semibold text-slate-900 flex items-center gap-2">
                     <i class="pi pi-bell text-blue-600" aria-hidden="true"></i>
                     Notifications
                   </h3>
                 </div>
-                <div class="max-h-64 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-transparent">
+                <div class="max-h-64 overflow-y-auto">
                   <div class="px-4 py-3 hover:bg-slate-50/80 transition-colors duration-150 border-l-4 border-transparent hover:border-blue-500">
                     <div class="flex items-start gap-3">
                       <div class="flex-shrink-0 w-2 h-2 bg-blue-500 rounded-full mt-2"></div>
@@ -134,12 +156,15 @@
                   </div>
                 </div>
                 <div class="px-4 py-2 border-t border-slate-100 bg-slate-50/50">
-                  <button class="text-xs text-blue-600 hover:text-blue-700 font-medium w-full text-center py-2 rounded-md hover:bg-blue-50 transition-all duration-150">
-                    View all notifications
-                  </button>
+                  <p-button
+                    label="View all notifications"
+                    [text]="true"
+                    size="small"
+                    styleClass="w-full !text-blue-600 hover:!text-blue-700 !font-medium">
+                  </p-button>
                 </div>
               </div>
-            }
+            </p-overlayPanel>
           </div>
         }
 
@@ -147,37 +172,45 @@
         @if (isAuthenticated()) {
           <!-- User Menu for Desktop -->
           <div class="relative hidden lg:block user-menu" data-menu-trigger>
-            <button
-              (click)="onToggleUserMenu()"
-              [attr.aria-expanded]="isUserMenuOpen()"
-              class="flex items-center space-x-3 px-3 py-2 rounded-lg hover:bg-slate-50 transition-colors duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
-              ariaLabel="User account menu">
+            <p-button
+              #userMenuBtn
+              (onClick)="userMenuPanel.toggle($event)"
+              severity="secondary"
+              [text]="true"
+              [attr.aria-label]="'User account menu'"
+              styleClass="!p-2 !rounded-lg hover:!bg-slate-50/80 transition-all duration-200 group">
+              <ng-template pTemplate="content">
+                <div class="flex items-center gap-3">
+                  <p-avatar
+                    [label]="getUserInitials()"
+                    styleClass="bg-blue-600 text-white !text-sm"
+                    size="normal">
+                  </p-avatar>
 
-              <p-avatar
-                [label]="getUserInitials()"
-                styleClass="bg-blue-600 text-white"
-                size="normal">
-              </p-avatar>
+                  <div class="hidden xl:block text-left">
+                    <p class="text-sm font-medium text-slate-900 leading-tight">
+                      {{ getGreeting() }}
+                    </p>
+                    <p class="text-xs text-slate-600 leading-tight">
+                      {{ currentUser()?.name || 'User' }}
+                    </p>
+                  </div>
 
-              <div class="hidden xl:block text-left">
-                <p class="text-sm font-medium text-slate-900 leading-tight">
-                  {{ getGreeting() }}
-                </p>
-                <p class="text-xs text-slate-600 leading-tight">
-                  {{ currentUser()?.name || 'User' }}
-                </p>
-              </div>
+                  <i class="pi pi-chevron-down text-xs text-slate-500 transition-transform duration-200 group-hover:text-blue-600"></i>
+                </div>
+              </ng-template>
+            </p-button>
 
-              <i class="pi pi-chevron-down text-xs text-slate-500 transition-transform duration-200"
-                 [class.rotate-180]="isUserMenuOpen()"></i>
-            </button>
-
-            <!-- User Dropdown Menu -->
-            @if (isUserMenuOpen()) {
-              <div class="absolute right-0 top-full mt-2 w-64 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 animate-fade-in-scale">
+            <!-- User Menu Panel -->
+            <p-overlayPanel
+              #userMenuPanel
+              styleClass="w-64 !p-0"
+              [showTransitionOptions]="'200ms ease-out'"
+              [hideTransitionOptions]="'150ms ease-in'">
+              <div class="py-2">
                 <!-- User Info -->
                 <div class="px-4 py-3 border-b border-slate-100">
-                  <div class="flex items-center space-x-3">
+                  <div class="flex items-center gap-3">
                     <p-avatar
                       [label]="getUserInitials()"
                       styleClass="bg-blue-600 text-white"
@@ -193,31 +226,37 @@
                 <!-- Menu Items -->
                 @for (menuItem of userMenuItems(); track menuItem.label) {
                   @if (menuItem.separator) {
-                    <hr class="my-2 border-slate-100">
+                    <p-divider styleClass="!my-2"></p-divider>
                   } @else {
-                    <button
-                      (click)="menuItem.command && menuItem.command({})"
-                      class="w-full px-4 py-2.5 text-left text-sm hover:bg-slate-50 transition-colors flex items-center space-x-3 group"
-                      [class]="menuItem.styleClass">
-                      @if (menuItem.icon) {
-                        <i [class]="menuItem.icon + ' text-slate-500 group-hover:text-blue-600 transition-colors'" aria-hidden="true"></i>
-                      }
-                      <span class="font-medium">{{ menuItem.label }}</span>
-                    </button>
+                    <p-button
+                      [label]="menuItem.label"
+                      [icon]="menuItem.icon"
+                      [text]="true"
+                      size="small"
+                      (onClick)="menuItem.command && menuItem.command({}); userMenuPanel.hide()"
+                      [styleClass]="'w-full !justify-start !px-4 !py-2.5 ' + (menuItem.styleClass || '!text-slate-700 hover:!text-blue-600 hover:!bg-slate-50')">
+                    </p-button>
                   }
                 }
               </div>
-            }
+            </p-overlayPanel>
           </div>
         } @else {
           <!-- Sign In Button for Guests -->
-          <button
-            (click)="onSignIn()"
-            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 rounded-lg border border-blue-600 transition-all duration-200 shadow-sm hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 transform hover:-translate-y-0.5 cursor-pointer"
-            ariaLabel="Sign in to your business account">
-            <i class="pi pi-sign-in text-sm" aria-hidden="true"></i>
-            <span class="hidden sm:inline">Sign In</span>
-          </button>
+          <p-button
+            (onClick)="onSignIn()"
+            icon="pi pi-sign-in"
+            label="Sign In"
+            severity="primary"
+            size="small"
+            styleClass="!px-4 !py-2 shadow-sm hover:shadow-md transition-all duration-200"
+            [attr.aria-label]="'Sign in to your business account'">
+            <ng-template pTemplate="content">
+              <div class="flex items-center gap-2">
+                <span class="hidden sm:inline text-sm font-medium">Sign In</span>
+              </div>
+            </ng-template>
+          </p-button>
         }
 
         <!-- Mobile Menu Toggle -->
@@ -226,12 +265,13 @@
           severity="secondary"
           [text]="true"
           [rounded]="true"
-          size="large"
+          size="small"
           class="lg:hidden"
+          styleClass="!text-slate-600 hover:!text-blue-600 hover:!bg-slate-50/80 transition-all duration-200 !p-2"
           data-menu-trigger
           (onClick)="onToggleMobileMenu()"
           [attr.aria-expanded]="isMobileMenuOpen()"
-          ariaLabel="Toggle mobile menu">
+          [attr.aria-label]="'Toggle mobile menu'">
         </p-button>
       </div>
     </div>
@@ -240,11 +280,11 @@
   <!-- Mobile Navigation Menu -->
   @if (isMobileMenuOpen()) {
     <div class="lg:hidden mobile-menu border-t border-slate-200 bg-white/98 backdrop-blur-lg shadow-lg">
-      <nav class="px-4 py-4 space-y-2" aria-label="Mobile navigation">
+      <nav class="px-4 py-4 space-y-3" aria-label="Mobile navigation">
 
         <!-- User Info (for authenticated users) -->
         @if (isAuthenticated()) {
-          <div class="flex items-center space-x-3 p-3 bg-slate-50 rounded-lg mb-4">
+          <div class="flex items-center gap-3 p-3 bg-slate-50 rounded-lg mb-4">
             <p-avatar
               [label]="getUserInitials()"
               styleClass="bg-blue-600 text-white"
@@ -279,9 +319,10 @@
             </div>
 
             @if (item.badge) {
-              <span class="px-2 py-1 text-xs font-medium bg-orange-100 text-orange-700 rounded-full">
-                {{ item.badge }}
-              </span>
+              <p-badge
+                [value]="item.badge"
+                styleClass="!bg-orange-100 !text-orange-700 !text-xs !px-1.5 !py-0.5">
+              </p-badge>
             }
           </a>
         }
@@ -290,7 +331,7 @@
 
         <!-- Quick Actions for authenticated users -->
         @if (isAuthenticated()) {
-          <div class="space-y-2">
+          <div class="space-y-3">
             <button
               (click)="navigateToProfile(); closeMobileMenu()"
               class="w-full flex items-center px-4 py-3 text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-lg transition-colors duration-200">
@@ -299,16 +340,18 @@
             </button>
 
             <button
-              (click)="toggleNotificationPanel(); closeMobileMenu()"
+              (click)="closeMobileMenu()"
               class="w-full flex items-center justify-between px-4 py-3 text-base font-medium text-slate-700 hover:text-blue-600 hover:bg-slate-50 rounded-lg transition-colors duration-200">
               <div class="flex items-center">
                 <i class="pi pi-bell mr-3.5 text-lg text-slate-500" aria-hidden="true"></i>
                 Notifications
               </div>
               @if (notificationCount() > 0) {
-                <span class="px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 rounded-full">
-                  {{ notificationCount() }}
-                </span>
+                <p-badge
+                  [value]="notificationCount().toString()"
+                  severity="danger"
+                  styleClass="!text-xs">
+                </p-badge>
               }
             </button>
 
@@ -321,12 +364,18 @@
           </div>
         } @else {
           <!-- Sign In for guests -->
-          <button
-            (click)="onSignIn(); closeMobileMenu()"
-            class="w-full flex items-center px-4 py-3.5 text-base font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg transition-all duration-200 shadow-sm hover:shadow-md transform hover:-translate-y-0.5">
-            <i class="pi pi-sign-in mr-3.5 text-lg" aria-hidden="true"></i>
-            Sign In to Your Account
-          </button>
+          <p-button
+            (onClick)="onSignIn(); closeMobileMenu()"
+            label="Sign In to Your Account"
+            icon="pi pi-sign-in"
+            severity="primary"
+            styleClass="!w-full !px-4 !py-3.5 shadow-sm hover:shadow-md transition-all duration-200">
+            <ng-template pTemplate="content">
+              <div class="flex items-center gap-2">
+                <span class="text-base font-medium">Sign In to Your Account</span>
+              </div>
+            </ng-template>
+          </p-button>
         }
       </nav>
     </div>

@@ -57,8 +57,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   // State signals
   protected readonly isMobileMenuOpen = signal(false);
-  protected readonly isUserMenuOpen = signal(false);
-  protected readonly isNotificationPanelOpen = signal(false);
 
   // Authentication state
   readonly isAuthenticated = this.authService.isAuthenticated;
@@ -157,7 +155,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       {
         label: 'Notifications',
         icon: 'pi pi-bell',
-        command: () => this.toggleNotificationPanel(),
+        command: () => {
+          // Notification panel is now handled by PrimeNG OverlayPanel
+          // No need to close user menu as OverlayPanel handles this
+        },
         styleClass: 'text-slate-700 hover:text-blue-600'
       },
       {
@@ -184,63 +185,30 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Navigation methods
   protected onToggleMobileMenu(): void {
     this.isMobileMenuOpen.update(isOpen => !isOpen);
-    // Close other menus when mobile menu opens
-    if (this.isMobileMenuOpen()) {
-      this.isUserMenuOpen.set(false);
-      this.isNotificationPanelOpen.set(false);
-    }
-  }
-
-  protected onToggleUserMenu(): void {
-    this.isUserMenuOpen.update(isOpen => !isOpen);
-    // Close other menus when user menu opens
-    if (this.isUserMenuOpen()) {
-      this.isMobileMenuOpen.set(false);
-      this.isNotificationPanelOpen.set(false);
-    }
-  }
-
-  protected toggleNotificationPanel(): void {
-    this.isNotificationPanelOpen.update(isOpen => !isOpen);
-    // Close other menus when notification panel opens
-    if (this.isNotificationPanelOpen()) {
-      this.isMobileMenuOpen.set(false);
-      this.isUserMenuOpen.set(false);
-    }
   }
 
   protected closeMobileMenu(): void {
     this.isMobileMenuOpen.set(false);
   }
 
-  protected closeUserMenu(): void {
-    this.isUserMenuOpen.set(false);
-  }
-
-  protected closeNotificationPanel(): void {
-    this.isNotificationPanelOpen.set(false);
-  }
-
   protected closeAllMenus(): void {
     this.isMobileMenuOpen.set(false);
-    this.isUserMenuOpen.set(false);
-    this.isNotificationPanelOpen.set(false);
   }
 
   protected navigateToProfile(): void {
     this.router.navigate(['/profile']);
-    this.closeUserMenu();
+    // PrimeNG OverlayPanel will close automatically
   }
 
   protected navigateToOrders(): void {
     this.router.navigate(['/orders']);
-    this.closeUserMenu();
+    // PrimeNG OverlayPanel will close automatically
   }
 
   protected onLogout(): void {
     this.authService.logout();
     this.logout.emit();
-    this.closeUserMenu();
+    // PrimeNG OverlayPanel will close automatically
   }
 
   protected onSignIn(): void {

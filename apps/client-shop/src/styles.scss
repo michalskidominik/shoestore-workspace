@@ -1,4 +1,4 @@
-@use "tailwindcss";
+@use 'tailwindcss';
 @use 'primeicons/primeicons.css';
 
 /* TailwindCSS v4 Theme Configuration */
@@ -27,7 +27,10 @@
   --color-purple-900: #581c87;
 
   /* Font family */
-  --font-family-sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-family-sans: Inter, ui-sans-serif, system-ui, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans',
+    sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol',
+    'Noto Color Emoji';
 
   /* Custom spacing */
   --spacing-18: 4.5rem;
@@ -40,32 +43,6 @@
 
   /* Custom blur values */
   --blur-xs: 2px;
-}
-
-/* Custom component classes using TailwindCSS v4 */
-@layer components {
-  /* Header component styles */
-  .app-header {
-    @apply sticky top-0 z-50 w-full bg-white/95 backdrop-blur-sm border-b border-slate-200 shadow-sm;
-  }
-
-  /* Card styles */
-  .card-modern {
-    @apply bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden;
-  }
-
-  /* Navigation styles */
-  .nav-link {
-    @apply px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 border border-transparent;
-  }
-
-  .nav-link-active {
-    @apply bg-purple-50 text-purple-700 border-purple-200;
-  }
-
-  .nav-link-inactive {
-    @apply text-slate-700 hover:text-purple-600 hover:bg-slate-50;
-  }
 }
 
 /* Custom utility classes */
@@ -88,49 +65,8 @@
   .scrollbar-track-transparent::-webkit-scrollbar-track {
     background: transparent;
   }
-
-  /* Modern shadow utilities */
-  .shadow-modern {
-    box-shadow:
-      0 4px 6px -1px rgba(0, 0, 0, 0.1),
-      0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  }
-
-  .shadow-modern-lg {
-    box-shadow:
-      0 10px 15px -3px rgba(0, 0, 0, 0.1),
-      0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  }
-
-  /* Gradient utilities */
-  .gradient-purple {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  }
-
-  .gradient-purple-light {
-    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
-  }
-
-  /* Animation utilities */
-  .animate-fade-in {
-    animation: var(--animate-fade-in);
-  }
-
-  .animate-slide-in {
-    animation: var(--animate-slide-in);
-  }
-
-  .animate-bounce-subtle {
-    animation: var(--animate-bounce-subtle);
-  }
-
-  /* Custom backdrop blur */
-  .backdrop-blur-xs {
-    backdrop-filter: blur(var(--blur-xs));
-  }
 }
 
-/* Global base styles */
 @layer base {
   * {
     scroll-behavior: smooth;
@@ -152,36 +88,6 @@
   /* Custom focus styles */
   .focus-visible {
     @apply ring-2 ring-purple-500 ring-offset-2;
-  }
-}
-
-/* Keyframe animations */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideIn {
-  from {
-    transform: translateY(-10px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes bounceSubtle {
-  0%, 100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-5px);
   }
 }
 
