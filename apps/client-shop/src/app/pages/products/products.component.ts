@@ -18,8 +18,10 @@ import { ChipModule } from 'primeng/chip';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // Models and services
-import { Shoe, SizeTemplate } from '@shoestore/shared-models';
+import { Shoe, SizeTemplate, SizeAvailability } from '@shoestore/shared-models';
 import { ProductService, ProductFilters, ProductSort, ProductCategory } from '../../shared/services/product.service';
+import { CartService, AddToCartRequest } from '../../shared/services/cart.service';
+import { ToastService } from '../../shared/services/toast.service';
 // Import new components
 import {
   MobileHeaderComponent,
@@ -87,6 +89,8 @@ interface ViewOption {
 export class ProductsComponent implements OnInit, OnDestroy {
   // Dependency injection using inject() function
   private readonly productService = inject(ProductService);
+  private readonly cartService = inject(CartService);
+  private readonly toastService = inject(ToastService);
 
   // State signals
   protected readonly allShoes = signal<Shoe[]>([]);
@@ -338,8 +342,52 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   protected onQuickOrder(shoe: Shoe): void {
-    // TODO: Implement quick order functionality
-    console.log('Quick order for:', shoe.name);
+    // This is for the simple "Add to Cart" button (not quick order form)
+    // The quick order form is handled entirely within ProductCardComponent
+    const hasStock = shoe.sizes && shoe.sizes.some((size: SizeAvailability) => size.quantity > 0);
+
+    if (!hasStock) {
+      this.toastService.showError('This product is out of stock');
+      return;
+    }
+
+    // For simple add to cart, add the first available size with quantity 1
+    const availableSize = shoe.sizes.find((size: SizeAvailability) => size.quantity > 0);
+    if (!availableSize) {
+      this.toastService.showError('No sizes available');
+      return;
+    }
+
+    const addToCartRequest: AddToCartRequest = {
+      productId: shoe.id,
+      productCode: shoe.code,
+      productName: shoe.name,
+      items: [{
+        size: availableSize.size,
+        quantity: 1,
+        unitPrice: availableSize.price
+      }]
+    };
+
+    this.cartService.addToCart(addToCartRequest).subscribe({
+      next: () => {
+        this.toastService.showSuccess(
+          `Added ${shoe.name} to cart`,
+          5000,
+          {
+            label: 'View Cart',
+            handler: () => {
+              // Navigate to cart - implement as needed
+              console.log('Navigate to cart');
+            }
+          }
+        );
+      },
+      error: (error) => {
+        console.error('Error adding item to cart:', error);
+        this.toastService.showError(`Failed to add ${shoe.name} to cart`);
+      }
+    });
   }
 
   protected onViewDetails(shoe: Shoe): void {

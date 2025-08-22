@@ -1,10 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, input, output, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { RatingModule } from 'primeng/rating';
 import { FormsModule } from '@angular/forms';
 import { Shoe, SizeTemplate } from '@shoestore/shared-models';
+import { QuickOrderComponent, QuickOrderData } from '../quick-order/quick-order.component';
+import { CartService, AddToCartRequest } from '../../../../shared/services/cart.service';
+import { ToastService } from '../../../../shared/services/toast.service';
 
 type ViewMode = 'grid' | 'list' | 'large' | 'compact';
 type ImageSize = 'small' | 'medium' | 'large';
@@ -12,7 +15,7 @@ type ImageSize = 'small' | 'medium' | 'large';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, ButtonModule, TagModule, RatingModule, FormsModule],
+  imports: [CommonModule, ButtonModule, TagModule, RatingModule, FormsModule, QuickOrderComponent],
   template: `
     <div
       class="group transition-all duration-200 overflow-hidden
@@ -103,8 +106,17 @@ type ImageSize = 'small' | 'medium' | 'large';
                 (onClick)="onViewDetails()">
               </p-button>
               <p-button
-                label="Order"
+                label="Quick Order"
                 icon="pi pi-shopping-cart"
+                severity="success"
+                size="small"
+                [disabled]="!hasStock()"
+                styleClass="!text-xs !py-1.5 !px-2 w-full lg:w-auto"
+                (onClick)="onQuickOrder()">
+              </p-button>
+              <p-button
+                label="Order"
+                icon="pi pi-plus"
                 severity="primary"
                 size="small"
                 [disabled]="!hasStock()"
@@ -113,6 +125,17 @@ type ImageSize = 'small' | 'medium' | 'large';
               </p-button>
             </div>
           </div>
+
+          <!-- Quick Order Form -->
+          @if (showQuickOrder()) {
+            <app-quick-order
+              [product]="product()"
+              [sizeSystem]="sizeSystem()"
+              [isSubmitting]="quickOrderSubmitting()"
+              (addToCart)="onQuickOrderSubmit($event)"
+              (cancelOrder)="onQuickOrderCancel()">
+            </app-quick-order>
+          }
         </div>
       } @else {
         <!-- List Layout -->
@@ -158,8 +181,17 @@ type ImageSize = 'small' | 'medium' | 'large';
               (onClick)="onViewDetails()">
             </p-button>
             <p-button
-              label="Order"
+              label="Quick Order"
               icon="pi pi-shopping-cart"
+              severity="success"
+              size="small"
+              [disabled]="!hasStock()"
+              styleClass="!text-xs !py-1.5 !px-3"
+              (onClick)="onQuickOrder()">
+            </p-button>
+            <p-button
+              label="Order"
+              icon="pi pi-plus"
               severity="primary"
               size="small"
               [disabled]="!hasStock()"
@@ -168,6 +200,19 @@ type ImageSize = 'small' | 'medium' | 'large';
             </p-button>
           </div>
         </div>
+
+        <!-- Quick Order Form for List Layout -->
+        @if (showQuickOrder()) {
+          <div class="mt-3 border-t border-slate-200 pt-3">
+            <app-quick-order
+              [product]="product()"
+              [sizeSystem]="sizeSystem()"
+              [isSubmitting]="quickOrderSubmitting()"
+              (addToCart)="onQuickOrderSubmit($event)"
+              (cancelOrder)="onQuickOrderCancel()">
+            </app-quick-order>
+          </div>
+        }
       }
     </div>
   `,
@@ -182,6 +227,10 @@ type ImageSize = 'small' | 'medium' | 'large';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ProductCardComponent {
+  // Services
+  private readonly cartService = inject(CartService);
+  private readonly toastService = inject(ToastService);
+
   // Inputs
   readonly product = input.required<Shoe>();
   readonly viewMode = input.required<ViewMode>();
@@ -192,6 +241,10 @@ export class ProductCardComponent {
   // Outputs
   readonly addToCart = output<Shoe>();
   readonly viewDetails = output<Shoe>();
+
+  // State for quick order
+  protected readonly showQuickOrder = signal<boolean>(false);
+  protected readonly quickOrderSubmitting = signal<boolean>(false);
 
   // Event handlers
   protected onAddToCart(): void {
@@ -205,6 +258,60 @@ export class ProductCardComponent {
 
   protected onViewDetails(): void {
     this.viewDetails.emit(this.product());
+  }
+
+  // Quick Order methods
+  protected onQuickOrder(): void {
+    this.showQuickOrder.set(true);
+  }
+
+  protected onQuickOrderCancel(): void {
+    this.showQuickOrder.set(false);
+  }
+
+  protected onQuickOrderSubmit(orderData: QuickOrderData): void {
+    this.quickOrderSubmitting.set(true);
+
+    const request: AddToCartRequest = {
+      productId: orderData.productId,
+      productCode: this.product().code,
+      productName: this.product().name,
+      items: orderData.items
+    };
+
+    this.cartService.addToCart(request).subscribe({
+      next: () => {
+        this.quickOrderSubmitting.set(false);
+        this.showQuickOrder.set(false);
+
+        // Show success toast with undo option
+        const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
+        this.toastService.showSuccess(
+          `Added ${totalItems} items to cart`,
+          5000,
+          {
+            label: 'Undo',
+            handler: () => this.undoLastCartAction(orderData)
+          }
+        );
+      },
+      error: (error) => {
+        this.quickOrderSubmitting.set(false);
+        this.toastService.showError(
+          'Failed to add items to cart. Please try again.',
+          7000
+        );
+        console.error('Failed to add to cart:', error);
+      }
+    });
+  }
+
+  private undoLastCartAction(orderData: QuickOrderData): void {
+    // Remove the items that were just added
+    orderData.items.forEach(item => {
+      this.cartService.removeItem(orderData.productId, item.size);
+    });
+    this.toastService.showInfo('Items removed from cart');
   }
 
   // Helper methods

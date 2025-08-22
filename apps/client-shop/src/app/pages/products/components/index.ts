@@ -6,3 +6,4 @@ export { FilterSidebarComponent } from './filter-sidebar/filter-sidebar.componen
 export { MobileFiltersOverlayComponent } from './mobile-filters-overlay/mobile-filters-overlay.component';
 export { ProductGridComponent } from './product-grid/product-grid.component';
 export { ProductCardComponent } from './product-card/product-card.component';
+export { QuickOrderComponent } from './quick-order/quick-order.component';
