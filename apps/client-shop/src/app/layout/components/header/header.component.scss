@@ -1,3 +1,5 @@
+@reference "tailwindcss";
+
 /* Header Component Styles */
 :host {
   @apply block w-full;
@@ -12,11 +14,11 @@
 /* Smooth transitions for interactive elements */
 .nav-link {
   @apply transition-all duration-200 ease-in-out;
-  
+
   &:hover {
     transform: translateY(-1px);
   }
-  
+
   &.active {
     @apply shadow-sm;
   }
@@ -67,12 +69,12 @@
 /* Enhanced hover effects for buttons */
 .btn-hover-lift {
   @apply transition-all duration-200;
-  
+
   &:hover {
     transform: translateY(-1px);
     @apply shadow-md;
   }
-  
+
   &:active {
     transform: translateY(0);
   }
@@ -90,7 +92,7 @@
   .header-bg {
     @apply bg-slate-900/95;
   }
-  
+
   .text-adaptive {
     @apply text-slate-100;
   }
@@ -100,7 +102,7 @@
 @media (prefers-contrast: high) {
   .nav-link {
     @apply border-2 border-transparent;
-    
+
     &:hover, &.active {
       @apply border-current;
     }
