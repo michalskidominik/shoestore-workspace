@@ -28,6 +28,7 @@ import { ProductCardComponent } from '../product-card/product-card.component';
             [imageSize]="imageSize()"
             [sizeSystem]="sizeSystem()"
             [sizeTemplates]="sizeTemplates()"
+            [isMobile]="isMobile()"
             (addToCart)="addToCart.emit(product)"
             (viewDetails)="viewDetails.emit(product)">
           </app-product-card>
@@ -49,7 +50,8 @@ import { ProductCardComponent } from '../product-card/product-card.component';
             [imageSize]="mobileImageSize()"
             [sizeSystem]="sizeSystem()"
             [sizeTemplates]="sizeTemplates()"
-            (addToCart)="addToCart.emit(product)"
+            [isMobile]="isMobile()"
+            (addToCart)="mobileOrder.emit(product)"
             (viewDetails)="viewDetails.emit(product)">
           </app-product-card>
         }
@@ -111,11 +113,13 @@ export class ProductGridComponent {
   readonly isLoading = input<boolean>(false);
   readonly sizeSystem = input.required<'eu' | 'us'>();
   readonly sizeTemplates = input.required<SizeTemplate[]>();
+  readonly isMobile = input<boolean>(false);
 
   // Outputs
   readonly addToCart = output<Shoe>();
   readonly viewDetails = output<Shoe>();
   readonly clearFilters = output<void>();
+  readonly mobileOrder = output<Shoe>();
 
   // Loading skeleton items
   protected readonly loadingItems = Array(12).fill(0);

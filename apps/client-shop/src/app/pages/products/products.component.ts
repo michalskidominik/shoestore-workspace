@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, computed, signal, effect, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, computed, signal, effect, ChangeDetectionStrategy, inject, HostListener } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
@@ -15,6 +15,7 @@ import { TagModule } from 'primeng/tag';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { ChipModule } from 'primeng/chip';
+import { DialogModule } from 'primeng/dialog';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // Models and services
@@ -22,6 +23,8 @@ import { Shoe, SizeTemplate, SizeAvailability } from '@shoestore/shared-models';
 import { ProductService, ProductFilters, ProductSort, ProductCategory } from '../../shared/services/product.service';
 import { CartService, AddToCartRequest } from '../../shared/services/cart.service';
 import { ToastService } from '../../shared/services/toast.service';
+// Import order component
+import { QuickOrderComponent, OrderData } from './components/quick-order/quick-order.component';
 // Import new components
 import {
   MobileHeaderComponent,
@@ -74,6 +77,9 @@ interface ViewOption {
     InputGroupModule,
     InputGroupAddonModule,
     ChipModule,
+    DialogModule,
+    // Order component
+    QuickOrderComponent,
     // New component imports
     MobileHeaderComponent,
     MobileControlsComponent,
@@ -101,6 +107,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
   protected readonly filterLoading = signal(false);
+
+  // Mobile dialog state
+  protected readonly showMobileOrderDialog = signal(false);
+  protected readonly selectedProductForOrder = signal<Shoe | null>(null);
+  protected readonly orderDialogSubmitting = signal(false);
+  protected readonly isMobile = signal(false);
 
   // Filter signals
   protected readonly searchTerm = signal('');
@@ -236,6 +248,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
       this.searchTerm.set(searchTerm);
     });
 
+    // Initialize mobile detection
+    this.checkIsMobile();
+
     // Watch for filter changes and reload data
     effect(() => {
       // Track all filter changes
@@ -327,6 +342,76 @@ export class ProductsComponent implements OnInit, OnDestroy {
       field: sortField as 'name' | 'price' | 'code' | 'stock',
       direction: sortDirection as 'asc' | 'desc'
     };
+  }
+
+  private checkIsMobile(): void {
+    this.isMobile.set(window.innerWidth < 1024); // lg breakpoint
+  }
+
+  // ============================================
+  // MOBILE DIALOG METHODS
+  // ============================================
+
+  protected onMobileOrder(product: Shoe): void {
+    if (this.isMobile()) {
+      this.selectedProductForOrder.set(product);
+      this.showMobileOrderDialog.set(true);
+    }
+  }
+
+  protected onMobileOrderSubmit(orderData: OrderData): void {
+    const selectedProduct = this.selectedProductForOrder();
+    if (!selectedProduct) return;
+
+    this.orderDialogSubmitting.set(true);
+
+    const request: AddToCartRequest = {
+      productId: orderData.productId,
+      productCode: selectedProduct.code,
+      productName: selectedProduct.name,
+      items: orderData.items
+    };
+
+    this.cartService.addToCart(request).subscribe({
+      next: () => {
+        this.orderDialogSubmitting.set(false);
+        this.showMobileOrderDialog.set(false);
+        this.selectedProductForOrder.set(null);
+
+        // Show success toast
+        const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
+        this.toastService.showSuccess(
+          `Added ${totalItems} items to cart`,
+          5000,
+          {
+            label: 'View Cart',
+            handler: () => {
+              // Navigate to cart - implement as needed
+              console.log('Navigate to cart');
+            }
+          }
+        );
+      },
+      error: (error) => {
+        this.orderDialogSubmitting.set(false);
+        this.toastService.showError(
+          'Failed to add items to cart. Please try again.',
+          7000
+        );
+        console.error('Failed to add to cart:', error);
+      }
+    });
+  }
+
+  protected onMobileOrderCancel(): void {
+    this.showMobileOrderDialog.set(false);
+    this.selectedProductForOrder.set(null);
+    this.orderDialogSubmitting.set(false);
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize(): void {
+    this.checkIsMobile();
   }
 
   // ============================================

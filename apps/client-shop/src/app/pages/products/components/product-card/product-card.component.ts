@@ -228,6 +228,7 @@ export class ProductCardComponent {
   readonly imageSize = input<ImageSize>('medium');
   readonly sizeSystem = input<'eu' | 'us'>('eu');
   readonly sizeTemplates = input<SizeTemplate[]>([]);
+  readonly isMobile = input<boolean>(false);
 
   // Outputs
   readonly addToCart = output<Shoe>();
@@ -253,7 +254,13 @@ export class ProductCardComponent {
 
   // Quick Order methods
   protected onQuickOrder(): void {
-    this.showQuickOrder.set(true);
+    // On mobile, emit addToCart event to trigger mobile dialog
+    // On desktop, show inline form
+    if (this.isMobile()) {
+      this.onAddToCart();
+    } else {
+      this.showQuickOrder.set(true);
+    }
   }
 
   protected onQuickOrderCancel(): void {

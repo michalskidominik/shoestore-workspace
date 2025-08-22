@@ -7,14 +7,16 @@
       <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
 
         <!-- Hero Content -->
-        <div class="space-y-6 sm:space-y-8 order-1 lg:order-none">
+        <div class="space-y-6 sm:space-y-8 order-1 lg:order-none text-center lg:text-left">
           <!-- Company Badge -->
-          <div class="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-blue-50 border border-blue-200 rounded-full">
-            <div class="bg-blue-600 p-1 sm:p-1.5 rounded-lg">
-              <i class="pi pi-box text-white text-xs sm:text-sm" aria-hidden="true"></i>
+          <div class="flex justify-center lg:justify-start">
+            <div class="inline-flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-blue-50 border border-blue-200 rounded-full">
+              <div class="bg-blue-600 p-1 sm:p-1.5 rounded-lg">
+                <i class="pi pi-box text-white text-xs sm:text-sm" aria-hidden="true"></i>
+              </div>
+              <span class="text-xs sm:text-sm font-semibold text-blue-900 tracking-wide">{{ companyName }} B2B</span>
+              <span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full font-medium">Wholesale</span>
             </div>
-            <span class="text-xs sm:text-sm font-semibold text-blue-900 tracking-wide">{{ companyName }} B2B</span>
-            <span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full font-medium">Wholesale</span>
           </div>
 
           <!-- Main Headline -->
@@ -23,13 +25,13 @@
               Your Trusted
               <span class="text-blue-600 block">Footwear Supplier</span>
             </h1>
-            <p class="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed max-w-xl">
+            <p class="text-base sm:text-lg md:text-xl text-slate-600 leading-relaxed max-w-xl mx-auto lg:mx-0">
               Premium wholesale footwear for retailers across Europe. Streamline your inventory with our professional B2B platform designed for growing shoe stores.
             </p>
           </div>
 
           <!-- Key Statistics -->
-          <div class="grid grid-cols-3 gap-4 sm:gap-6 py-4 sm:py-6 border-t border-slate-200">
+          <div class="grid grid-cols-3 gap-4 sm:gap-6 py-4 sm:py-6 border-t border-slate-200 max-w-md mx-auto lg:max-w-none lg:mx-0">
             <div class="text-center">
               <div class="text-xl sm:text-2xl font-bold text-slate-900">50+</div>
               <div class="text-xs sm:text-sm text-slate-600 font-medium">Partner Stores</div>
@@ -45,14 +47,14 @@
           </div>
 
           <!-- Primary CTA -->
-          <div class="flex flex-col sm:flex-row gap-3 sm:gap-4">
+          <div class="flex flex-col sm:flex-row gap-3 sm:gap-4 items-center justify-center lg:justify-start max-w-lg mx-auto lg:max-w-none lg:mx-0">
             <p-button
               label="View Catalog"
               icon="pi pi-shopping-bag"
               severity="primary"
               size="large"
               routerLink="/products"
-              styleClass="!px-6 sm:!px-8 !py-3 sm:!py-4 !text-sm sm:!text-base font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+              styleClass="w-full sm:w-auto !px-6 sm:!px-8 !py-3 sm:!py-4 !text-sm sm:!text-base font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
             </p-button>
             <p-button
               label="Partner Login"
@@ -61,44 +63,44 @@
               [outlined]="true"
               size="large"
               routerLink="/sign-in"
-              styleClass="!px-6 sm:!px-8 !py-3 sm:!py-4 !text-sm sm:!text-base font-semibold border-2 hover:!bg-slate-50 transition-all duration-200">
+              styleClass="w-full sm:w-auto !px-6 sm:!px-8 !py-3 sm:!py-4 !text-sm sm:!text-base font-semibold border-2 hover:!bg-slate-50 transition-all duration-200">
             </p-button>
           </div>
         </div>
 
         <!-- Hero Visual -->
         <div class="relative h-80 sm:h-96 lg:h-96 order-2 lg:order-none">
-          <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl shadow-2xl transform rotate-2 sm:rotate-3"></div>
-          <div class="relative bg-white rounded-2xl shadow-xl p-4 sm:p-6 transform -rotate-1 hover:rotate-0 transition-transform duration-300 h-full overflow-hidden">
-            <div class="space-y-4 sm:space-y-6 h-full flex flex-col">
+          <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl shadow-2xl transform rotate-1 sm:rotate-2 lg:rotate-3"></div>
+          <div class="relative bg-white rounded-2xl shadow-xl p-3 sm:p-4 lg:p-6 transform -rotate-1 hover:rotate-0 transition-transform duration-300 h-full overflow-hidden">
+            <div class="space-y-3 sm:space-y-4 lg:space-y-6 h-full flex flex-col">
               <!-- Header -->
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2 sm:gap-3">
-                  <div class="w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <div class="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 bg-blue-100 rounded-lg flex items-center justify-center">
                     <i class="pi pi-shopping-cart text-blue-600 text-xs sm:text-sm" aria-hidden="true"></i>
                   </div>
-                  <h3 class="text-sm sm:text-lg font-semibold text-slate-900">Quick Restock</h3>
+                  <h3 class="text-xs sm:text-sm lg:text-lg font-semibold text-slate-900">Quick Restock</h3>
                 </div>
                 <div class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">In Stock</div>
               </div>
 
               <!-- Product Preview -->
-              <div class="bg-slate-50 rounded-xl p-3 sm:p-4 flex-1">
-                <div class="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
-                  <div class="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-slate-200 to-slate-300 rounded-lg flex items-center justify-center">
-                    <i class="pi pi-box text-slate-600 text-lg sm:text-xl" aria-hidden="true"></i>
+              <div class="bg-slate-50 rounded-xl p-2 sm:p-3 lg:p-4 flex-1">
+                <div class="flex items-center gap-2 sm:gap-3 lg:gap-4 mb-2 sm:mb-3 lg:mb-4">
+                  <div class="w-10 h-10 sm:w-12 sm:h-12 lg:w-16 lg:h-16 bg-gradient-to-br from-slate-200 to-slate-300 rounded-lg flex items-center justify-center">
+                    <i class="pi pi-box text-slate-600 text-sm sm:text-lg lg:text-xl" aria-hidden="true"></i>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <h4 class="text-sm sm:text-base font-semibold text-slate-900 truncate">Nike Air Max 270</h4>
-                    <p class="text-xs sm:text-sm text-slate-600">Style: #AM270-BLK-001</p>
-                    <p class="text-xs sm:text-sm font-semibold text-blue-600">€45.99 wholesale</p>
+                    <h4 class="text-xs sm:text-sm lg:text-base font-semibold text-slate-900 truncate">Nike Air Max 270</h4>
+                    <p class="text-xs text-slate-600">Style: #AM270-BLK-001</p>
+                    <p class="text-xs font-semibold text-blue-600">€45.99 wholesale</p>
                   </div>
                 </div>
 
-                <!-- Size Selection Grid - Simplified for mobile -->
+                <!-- Size Selection Grid - Optimized for mobile -->
                 <div class="space-y-2 sm:space-y-3">
                   <div class="text-xs font-medium text-slate-700 uppercase tracking-wide">Select Sizes & Quantities</div>
-                  <div class="grid grid-cols-4 sm:grid-cols-4 gap-1 sm:gap-2">
+                  <div class="grid grid-cols-4 gap-1 sm:gap-2">
                     @for (size of [
                       { size: '39', qty: 0, available: true },
                       { size: '40', qty: 2, available: true },
@@ -131,7 +133,7 @@
                 </div>
 
                 <!-- Order Summary -->
-                <div class="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-slate-200">
+                <div class="mt-2 sm:mt-3 lg:mt-4 pt-2 sm:pt-3 lg:pt-4 border-t border-slate-200">
                   <div class="flex justify-between items-center text-xs sm:text-sm">
                     <span class="text-slate-600">Total Units: <span class="font-semibold">13 pairs</span></span>
                     <span class="text-slate-900 font-semibold">€597.87</span>
@@ -333,14 +335,14 @@
       </p>
 
       <!-- CTA Buttons -->
-      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center max-w-lg mx-auto">
         <p-button
           label="Start Partnership"
           icon="pi pi-arrow-right"
           severity="primary"
           size="large"
           routerLink="/sign-in"
-          styleClass="!bg-blue-600 hover:!bg-blue-700 !border-blue-600 hover:!border-blue-700 !px-8 !py-4 !text-base font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+          styleClass="w-full sm:w-auto !bg-blue-600 hover:!bg-blue-700 !border-blue-600 hover:!border-blue-700 !px-8 !py-4 !text-base font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
         </p-button>
         <p-button
           label="Schedule Demo"
@@ -349,7 +351,7 @@
           [outlined]="true"
           size="large"
           routerLink="/contact"
-          styleClass="!border-2 !border-white !text-white hover:!bg-white hover:!text-slate-900 !px-8 !py-4 !text-base font-semibold transition-all duration-200">
+          styleClass="w-full sm:w-auto !border-2 !border-white !text-white hover:!bg-white hover:!text-slate-900 !px-8 !py-4 !text-base font-semibold transition-all duration-200">
         </p-button>
       </div>
 
