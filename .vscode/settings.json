@@ -8,5 +8,11 @@
                 "github.copilot-chat/o4-mini"
             ]
         }
-    }
+    },
+    "css.validate": true,
+    "css.customData": [".vscode/css-custom-data.json"],
+    "scss.validate": true,
+    "scss.customData": [".vscode/css-custom-data.json"],
+    "css.lint.unknownAtRules": "ignore",
+    "scss.lint.unknownAtRules": "ignore"
 }

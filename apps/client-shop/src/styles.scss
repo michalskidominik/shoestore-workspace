@@ -1,8 +1,10 @@
-@plugin "tailwindcss-primeui";
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
 @import 'primeicons/primeicons.css';
+
+/* Tailwind CSS v4 theme configuration */
+@theme {
+  /* Your custom theme variables can go here if needed */
+}
 
 /* Custom utility classes for modern layout */
 @layer utilities {
