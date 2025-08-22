@@ -1,5 +1,117 @@
-.app-header {
-      position: sticky;
-      top: 0;
-      z-index: 1000;
+/* Header Component Styles */
+:host {
+  @apply block w-full;
+}
+
+/* Enhanced backdrop blur for better visual separation */
+.header-backdrop {
+  backdrop-filter: blur(8px) saturate(150%);
+  -webkit-backdrop-filter: blur(8px) saturate(150%);
+}
+
+/* Smooth transitions for interactive elements */
+.nav-link {
+  @apply transition-all duration-200 ease-in-out;
+  
+  &:hover {
+    transform: translateY(-1px);
+  }
+  
+  &.active {
+    @apply shadow-sm;
+  }
+}
+
+/* Mobile menu animations */
+.mobile-menu {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* User menu dropdown animations */
+.user-menu-dropdown {
+  animation: fadeInScale 0.15s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Focus states for accessibility */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2;
+}
+
+/* Custom notification badge pulse animation */
+.notification-badge {
+  animation: pulse 2s infinite;
+}
+
+/* Enhanced hover effects for buttons */
+.btn-hover-lift {
+  @apply transition-all duration-200;
+  
+  &:hover {
+    transform: translateY(-1px);
+    @apply shadow-md;
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+/* Responsive text sizing */
+@media (min-width: 640px) {
+  .brand-text {
+    @apply text-xl;
+  }
+}
+
+/* Dark mode support (if needed) */
+@media (prefers-color-scheme: dark) {
+  .header-bg {
+    @apply bg-slate-900/95;
+  }
+  
+  .text-adaptive {
+    @apply text-slate-100;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .nav-link {
+    @apply border-2 border-transparent;
+    
+    &:hover, &.active {
+      @apply border-current;
     }
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
