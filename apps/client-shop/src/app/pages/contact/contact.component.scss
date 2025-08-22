@@ -2,8 +2,8 @@
 /* Component-specific styles that complement Tailwind CSS */
 
 .contact-page {
-  /* Ensure proper background gradients work across all browsers */
-  background-attachment: fixed;
+  /* Ensure consistent spacing and layout */
+  min-height: calc(100vh - 4rem);
   
   /* Smooth scrolling for anchor links */
   scroll-behavior: smooth;
@@ -32,34 +32,35 @@ textarea:focus {
   to { transform: rotate(360deg); }
 }
 
-/* Enhanced hover effects for cards */
-.p-card:hover {
-  transform: translateY(-2px);
+/* Enhanced hover effects for contact cards */
+.contact-page .p-card:hover,
+.contact-page [class*="border-slate-200"]:hover {
+  transform: translateY(-1px);
   transition: all 0.2s ease-in-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive form spacing */
 @media (max-width: 768px) {
-  .contact-page section {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  
-  .grid.md\\:grid-cols-2 {
+  .contact-page .grid.md\\:grid-cols-2 {
     gap: 1rem;
   }
+  
+  .contact-page .lg\\:grid-cols-2 {
+    gap: 1.5rem;
+  }
 }
 
-/* Custom PrimeNG card overrides for consistent spacing */
-::ng-deep .p-card .p-card-content {
-  padding: 1.5rem;
+/* Custom PrimeNG overrides for consistent styling */
+::ng-deep .p-button {
+  transition: all 0.2s ease-in-out;
 }
 
-::ng-deep .p-card .p-card-body {
-  padding: 0;
+::ng-deep .p-button:hover {
+  transform: translateY(-1px);
 }
 
-/* Ensure proper text contrast on gradient backgrounds */
+/* Ensure proper text contrast */
 .text-slate-300 {
   color: #cbd5e1;
 }
