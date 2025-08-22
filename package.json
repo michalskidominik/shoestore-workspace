@@ -1,10 +1,14 @@
 {
   "name": "@shoestore-workspace/source",
   "version": "0.0.0",
-  "license": "MIT",  "scripts": {
-    "deploy:client-shop": "nx deploy client-shop",
-    "deploy:admin-panel": "nx deploy admin-panel",
-    "deploy:all": "npm run deploy:client-shop && npm run deploy:admin-panel"
+  "license": "MIT",
+  "scripts": {
+    "build:vercel": "node scripts/vercel-build.js",
+    "vercel:dev": "vercel dev --listen 4300",
+    "vercel:login": "vercel login",
+    "vercel:link": "vercel link",
+    "vercel:deploy": "vercel --prod",
+    "vercel:preview": "vercel"
   },
   "private": true,
   "devDependencies": {
@@ -55,6 +59,7 @@
     "tslib": "^2.3.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.19.0",
+    "vercel": "^46.0.2",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {

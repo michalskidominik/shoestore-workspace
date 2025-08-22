@@ -1,0 +1,46 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "version": 2,
+  "name": "shoestore-workspace",
+  "installCommand": "npm install --ignore-scripts",
+  "buildCommand": "npm run build:vercel",
+  "ignoreCommand": "echo 'Skipping cache to force fresh build'",
+  "framework": null,
+  "git": {
+    "deploymentEnabled": {
+      "master": true,
+      "develop": true
+    }
+  },
+  "outputDirectory": "dist-vercel",
+  "rewrites": [
+    {
+      "source": "/client-shop/(.*)",
+      "destination": "/client-shop/index.html"
+    },
+    {
+      "source": "/admin-panel/(.*)",
+      "destination": "/admin-panel/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/client-shop/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    },
+    {
+      "source": "/admin-panel/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
+}

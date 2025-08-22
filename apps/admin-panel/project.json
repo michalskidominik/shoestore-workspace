@@ -86,16 +86,6 @@
         "staticFilePath": "dist/apps/admin-panel/browser",
         "spa": true
       }
-    },    "deploy": {
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          { "command": "nx build admin-panel --configuration=production --base-href=/shoestore-workspace/admin-panel/" },
-          { "command": "node scripts/deploy-admin-panel.js" }
-        ],
-        "parallel": false
-      },
-      "dependsOn": ["build"]
-    }
+  }
   }
 }

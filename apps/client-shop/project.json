@@ -86,16 +86,6 @@
         "staticFilePath": "dist/apps/client-shop/browser",
         "spa": true
       }
-    },    "deploy": {
-      "executor": "nx:run-commands",
-      "options": {
-        "commands": [
-          { "command": "nx build client-shop --configuration=production --base-href=/shoestore-workspace/client-shop/" },
-          { "command": "node scripts/deploy-client-shop.js" }
-        ],
-        "parallel": false
-      },
-      "dependsOn": ["build"]
-    }
+  }
   }
 }
