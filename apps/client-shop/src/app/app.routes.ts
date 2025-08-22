@@ -2,6 +2,11 @@ import { Route } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
 
 export const appRoutes: Route[] = [
+  // Landing page (public)
+  {
+    path: 'landing',
+    loadComponent: () => import('./pages/landing/landing.component').then(m => m.LandingComponent)
+  },
   // Sign in page (for guests only)
   {
     path: 'sign-in',
@@ -15,7 +20,7 @@ export const appRoutes: Route[] = [
     children: [
       {
         path: '',
-        redirectTo: '/dashboard',
+        redirectTo: '/landing',
         pathMatch: 'full'
       },
       {
@@ -30,6 +35,11 @@ export const appRoutes: Route[] = [
         path: 'orders',
         canActivate: [authGuard],
         loadComponent: () => import('./pages/orders/orders.component').then(m => m.OrdersComponent)
+      },
+      {
+        path: 'analytics',
+        canActivate: [authGuard],
+        loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent) // Placeholder - reuse dashboard for now
       },
       {
         path: 'profile',

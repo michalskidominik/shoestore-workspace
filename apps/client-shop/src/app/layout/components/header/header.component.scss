@@ -1,54 +1,10 @@
-@reference "tailwindcss";
+/* Minimal SCSS - Maximizing TailwindCSS 4.1 Usage */
 
-/* Header Component Styles */
-:host {
-  @apply block w-full;
-}
-
-/* Enhanced backdrop blur for better visual separation */
-.header-backdrop {
-  backdrop-filter: blur(8px) saturate(150%);
-  -webkit-backdrop-filter: blur(8px) saturate(150%);
-}
-
-/* Smooth transitions for interactive elements */
-.nav-link {
-  @apply transition-all duration-200 ease-in-out;
-
-  &:hover {
-    transform: translateY(-1px);
-  }
-
-  &.active {
-    @apply shadow-sm;
-  }
-}
-
-/* Mobile menu animations */
-.mobile-menu {
-  animation: slideDown 0.2s ease-out;
-}
-
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* User menu dropdown animations */
-.user-menu-dropdown {
-  animation: fadeInScale 0.15s ease-out;
-}
-
+/* Essential animations not available in Tailwind */
 @keyframes fadeInScale {
   from {
     opacity: 0;
-    transform: scale(0.95) translateY(-5px);
+    transform: scale(0.95) translateY(-8px);
   }
   to {
     opacity: 1;
@@ -56,64 +12,59 @@
   }
 }
 
-/* Focus states for accessibility */
-.focus-ring {
-  @apply focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2;
-}
-
-/* Custom notification badge pulse animation */
-.notification-badge {
-  animation: pulse 2s infinite;
-}
-
-/* Enhanced hover effects for buttons */
-.btn-hover-lift {
-  @apply transition-all duration-200;
-
-  &:hover {
-    transform: translateY(-1px);
-    @apply shadow-md;
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-12px);
   }
-
-  &:active {
+  to {
+    opacity: 1;
     transform: translateY(0);
   }
 }
 
-/* Responsive text sizing */
-@media (min-width: 640px) {
-  .brand-text {
-    @apply text-xl;
-  }
+/* Animation utility classes for dropdowns */
+.animate-fade-in-scale {
+  animation: fadeInScale 0.2s ease-out;
 }
 
-/* Dark mode support (if needed) */
-@media (prefers-color-scheme: dark) {
-  .header-bg {
-    @apply bg-slate-900/95;
-  }
-
-  .text-adaptive {
-    @apply text-slate-100;
-  }
+.animate-slide-down {
+  animation: slideDown 0.25s ease-out;
 }
 
-/* High contrast mode support */
-@media (prefers-contrast: high) {
-  .nav-link {
-    @apply border-2 border-transparent;
-
-    &:hover, &.active {
-      @apply border-current;
-    }
-  }
+/* Custom scrollbar for notification panel (not fully supported in Tailwind yet) */
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
 }
 
-/* Reduced motion support */
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: rgb(203 213 225);
+  border-radius: 3px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(148 163 184);
+}
+
+.scrollbar-thumb-slate-300::-webkit-scrollbar-thumb {
+  background-color: rgb(203 213 225);
+}
+
+.scrollbar-track-transparent::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Enhanced backdrop blur for modern browsers */
+.backdrop-blur-lg {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
 }

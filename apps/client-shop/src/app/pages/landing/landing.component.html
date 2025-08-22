@@ -1,0 +1,102 @@
+<div class="landing-page min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+  <!-- Hero Section -->
+  <section class="relative py-20 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-7xl mx-auto text-center">
+      <!-- Company Logo -->
+      <div class="flex justify-center mb-8">
+        <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-2xl shadow-xl">
+          <i class="pi pi-box text-white text-4xl" aria-hidden="true"></i>
+        </div>
+      </div>
+
+      <!-- Hero Content -->
+      <h1 class="text-5xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight">
+        Welcome to <span class="text-blue-600">{{ companyName }}</span>
+      </h1>
+      <p class="text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
+        Your trusted B2B partner for premium footwear. Streamline your inventory management with our professional wholesale platform.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+        <p-button
+          label="Browse Products"
+          icon="pi pi-shopping-bag"
+          severity="primary"
+          size="large"
+          routerLink="/products"
+          class="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-200">
+        </p-button>
+        <p-button
+          label="Business Sign In"
+          icon="pi pi-sign-in"
+          severity="secondary"
+          [outlined]="true"
+          size="large"
+          routerLink="/sign-in"
+          class="border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white">
+        </p-button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
+          Why Choose {{ companyName }}?
+        </h2>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          Professional tools designed specifically for business customers in the footwear industry.
+        </p>
+      </div>
+
+      <!-- Features Grid -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        @for (feature of features; track feature.title) {
+          <div class="text-center p-6 rounded-xl bg-slate-50 hover:bg-white hover:shadow-lg transition-all duration-300 border border-slate-100">
+            <div class="flex justify-center mb-4">
+              <div class="bg-blue-100 p-3 rounded-xl">
+                <i [class]="feature.icon + ' text-blue-600 text-2xl'" aria-hidden="true"></i>
+              </div>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-900 mb-3">{{ feature.title }}</h3>
+            <p class="text-slate-600 leading-relaxed">{{ feature.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="py-16 px-4 sm:px-6 lg:px-8 bg-slate-900">
+    <div class="max-w-4xl mx-auto text-center">
+      <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
+        Ready to Start Your Business Journey?
+      </h2>
+      <p class="text-xl text-slate-300 mb-8 leading-relaxed">
+        Join thousands of retailers who trust {{ companyName }} for their footwear needs.
+      </p>
+      <div class="flex flex-col sm:flex-row gap-4 justify-center">
+        <p-button
+          label="Get Started Today"
+          icon="pi pi-arrow-right"
+          severity="primary"
+          size="large"
+          routerLink="/sign-in"
+          class="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl">
+        </p-button>
+        <p-button
+          label="Contact Sales"
+          icon="pi pi-phone"
+          severity="secondary"
+          [outlined]="true"
+          size="large"
+          routerLink="/contact"
+          class="border-white text-white hover:bg-white hover:text-slate-900">
+        </p-button>
+      </div>
+    </div>
+  </section>
+</div>
