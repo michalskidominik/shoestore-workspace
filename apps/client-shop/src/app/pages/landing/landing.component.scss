@@ -5,15 +5,6 @@
   background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
 }
 
-/* Enhanced button hover effects */
-.p-button {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.p-button:hover {
-  transform: translateY(-2px);
-}
-
 /* Feature card hover animation */
 .feature-card:hover {
   transform: translateY(-4px);

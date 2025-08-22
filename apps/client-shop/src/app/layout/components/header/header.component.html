@@ -67,7 +67,7 @@
             [text]="true"
             [rounded]="true"
             size="large"
-            class="text-slate-600 hover:text-blue-600 hidden sm:inline-flex"
+            class="hidden sm:inline-flex"
             ariaLabel="Search inventory">
           </p-button>
         }
@@ -81,7 +81,6 @@
               [text]="true"
               [rounded]="true"
               size="large"
-              class="text-slate-600 hover:text-blue-600"
               (onClick)="toggleNotificationPanel()"
               [attr.aria-expanded]="isNotificationPanelOpen()"
               ariaLabel="View notifications">
@@ -228,7 +227,7 @@
           [text]="true"
           [rounded]="true"
           size="large"
-          class="text-slate-600 hover:text-blue-600 lg:hidden"
+          class="lg:hidden"
           data-menu-trigger
           (onClick)="onToggleMobileMenu()"
           [attr.aria-expanded]="isMobileMenuOpen()"

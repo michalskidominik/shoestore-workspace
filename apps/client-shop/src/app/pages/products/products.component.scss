@@ -10,41 +10,40 @@
   @apply grid grid-cols-1 md:grid-cols-4 gap-4;
 }
 
-/* Custom PrimeNG Overrides */
+/* Modern PrimeNG Component Overrides */
 ::ng-deep .p-inputtext {
-  @apply border-slate-300 rounded-lg text-slate-700 placeholder-slate-400 focus:border-slate-500 focus:ring-1 focus:ring-slate-500;
+  @apply border-slate-200 rounded-lg text-slate-700 placeholder-slate-400;
+  @apply focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20;
+  @apply transition-all duration-200 ease-in-out;
 }
 
 ::ng-deep .p-select {
-  @apply border-slate-300 rounded-lg;
+  @apply border-slate-200 rounded-lg transition-all duration-200 ease-in-out;
 }
 
 ::ng-deep .p-select:not(.p-disabled):hover {
-  @apply border-slate-400;
+  @apply border-slate-300;
 }
 
 ::ng-deep .p-select:not(.p-disabled).p-focus {
-  @apply border-slate-500 ring-1 ring-slate-500;
+  @apply border-blue-500 ring-2 ring-blue-500/20;
 }
 
 ::ng-deep .p-select-label {
   @apply text-slate-700;
 }
 
+/* Modern SelectButton Styling */
 ::ng-deep .p-selectbutton .p-button {
-  @apply border-slate-300 bg-white text-slate-600 font-medium;
-}
-
-::ng-deep .p-selectbutton .p-button:hover {
-  @apply bg-slate-50 border-slate-400;
+  @apply border-slate-200 bg-white text-slate-600 font-medium rounded-lg;
+  @apply hover:bg-slate-50 hover:border-slate-300 hover:text-slate-700;
+  @apply transition-all duration-200 ease-in-out;
+  @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1;
 }
 
 ::ng-deep .p-selectbutton .p-button.p-highlight {
-  @apply bg-slate-700 border-slate-700 text-white;
-}
-
-::ng-deep .p-selectbutton .p-button.p-highlight:hover {
-  @apply bg-slate-800 border-slate-800;
+  @apply bg-blue-600 border-blue-600 text-white shadow-sm;
+  @apply hover:bg-blue-700 hover:border-blue-700;
 }
 
 /* DataView Customization */
