@@ -42,14 +42,27 @@ function copyDir(src, dest) {
 
 console.log('🔨 Building Nx workspace for Vercel deployment...');
 
-// Clean previous build
+// Clean problematic cache directories that interfere with Nx project graph
+console.log('\n🧹 Cleaning cache directories...');
+rimraf(path.join(root, '.angular'));
+rimraf(path.join(root, '.nx/cache'));
 rimraf(distVercel);
+
+// Ensure output directory exists
 fs.mkdirSync(distVercel, { recursive: true });
 
-// Build both Angular apps with production configuration
+// Reset Nx project graph cache
+console.log('\n🔄 Resetting Nx cache...');
+try {
+  run('npx nx reset');
+} catch {
+  console.log('⚠️ Nx reset failed, continuing...');
+}
+
+// Build both Angular apps with production configuration and correct base href
 console.log('\n📦 Building Angular applications...');
-run('npx nx build client-shop --configuration=production');
-run('npx nx build admin-panel --configuration=production');
+run('npx nx build client-shop --configuration=production --base-href=/client-shop/');
+run('npx nx build admin-panel --configuration=production --base-href=/admin-panel/');
 
 // Copy build outputs to Vercel structure
 const clientOut = path.join(root, 'dist', 'apps', 'client-shop', 'browser');

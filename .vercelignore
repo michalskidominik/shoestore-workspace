@@ -5,6 +5,11 @@ tmp
 dist
 coverage
 
+# Angular cache directories (causing Nx project graph issues)
+.angular/cache
+**/.angular/cache
+**/vite/deps
+
 # Development files
 *.log
 .env.local
