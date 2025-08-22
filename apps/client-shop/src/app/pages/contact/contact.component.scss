@@ -1,61 +1,69 @@
-/* Styles for the contact page are now primarily handled by TailwindCSS in the HTML template. */
-/* This file is kept for any future component-specific styles or PrimeNG overrides. */
+/* Professional B2B Contact Page Styles */
+/* Component-specific styles that complement Tailwind CSS */
 
-/* Styling for the contact cards to ensure consistent appearance and hover effects */
-.contact-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 1.5rem; /* p-6 */
-  background-color: white;
-  border-radius: 0.5rem; /* rounded-lg */
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06); /* shadow-md */
-  transition-property: all;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-  text-align: center;
+.contact-page {
+  /* Ensure proper background gradients work across all browsers */
+  background-attachment: fixed;
+  
+  /* Smooth scrolling for anchor links */
+  scroll-behavior: smooth;
 }
 
-.contact-card:hover {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); /* shadow-xl */
+/* Custom input styling for better form UX */
+.ng-invalid.ng-touched {
+  border-color: #ef4444 !important;
+  box-shadow: 0 0 0 1px #ef4444 !important;
 }
 
-.contact-card-icon-wrapper {
-  width: 4rem; /* w-16 */
-  height: 4rem; /* h-16 */
-  border-radius: 9999px; /* rounded-full */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 1rem; /* mb-4 */
-  transition-property: background-color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
+/* Enhanced focus states for better accessibility */
+input:focus,
+textarea:focus {
+  outline: 2px solid #3b82f6;
+  outline-offset: 2px;
 }
 
-.contact-card-title {
-  font-size: 1.25rem; /* text-xl */
-  font-weight: 600; /* font-semibold */
-  color: #1e293b; /* text-slate-800 */
-  margin-bottom: 0.25rem; /* mb-1 */
+/* Loading animation for submit button */
+.p-button-loading .p-button-icon {
+  animation: spin 1s linear infinite;
 }
 
-.contact-card-detail {
-  color: #475569; /* text-slate-600 */
-  margin-bottom: 0.75rem; /* mb-3 */
-  word-break: break-all;
-  transition-property: color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
-.contact-card-action {
-  font-size: 0.875rem; /* text-sm */
-  font-weight: 500; /* font-medium */
-  color: #64748b; /* text-slate-500 */
-  transition-property: color;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 300ms;
-  display: flex;
-  align-items: center;
+/* Enhanced hover effects for cards */
+.p-card:hover {
+  transform: translateY(-2px);
+  transition: all 0.2s ease-in-out;
+}
+
+/* Responsive form spacing */
+@media (max-width: 768px) {
+  .contact-page section {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .grid.md\\:grid-cols-2 {
+    gap: 1rem;
+  }
+}
+
+/* Custom PrimeNG card overrides for consistent spacing */
+::ng-deep .p-card .p-card-content {
+  padding: 1.5rem;
+}
+
+::ng-deep .p-card .p-card-body {
+  padding: 0;
+}
+
+/* Ensure proper text contrast on gradient backgrounds */
+.text-slate-300 {
+  color: #cbd5e1;
+}
+
+.text-blue-400 {
+  color: #60a5fa;
 }
