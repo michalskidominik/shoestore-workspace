@@ -87,6 +87,29 @@ export class SignInComponent {
     }
   }
 
+  async onMockB2BLogin(): Promise<void> {
+    this.loading.set(true);
+    this.errorMessage.set(null);
+
+    // Use predefined B2B test user credentials
+    const mockCredentials: LoginCredentials = {
+      email: 'b2b-test@sgats.com',
+      password: 'b2b123'
+    };
+
+    const result = await this.authService.login(mockCredentials);
+
+    this.loading.set(false);
+
+    if (result.success) {
+      // Get return URL from query params or default to dashboard
+      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
+      this.router.navigate([returnUrl]);
+    } else {
+      this.errorMessage.set('Failed to login with test B2B account');
+    }
+  }
+
   async onPasswordReset(): Promise<void> {
     if (this.passwordResetForm.invalid) {
       this.passwordResetForm.markAllAsTouched();

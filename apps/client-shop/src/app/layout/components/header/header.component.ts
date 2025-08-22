@@ -13,6 +13,7 @@ import { Subject } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UiStateService } from '../../../core/services/ui-state.service';
 import { AuthService } from '../../../core/services/auth.service';
+import { CartService } from '../../../shared/services/cart.service';
 
 interface NavigationItem {
   label: string;
@@ -49,6 +50,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly uiStateService = inject(UiStateService);
   private readonly authService = inject(AuthService);
+  private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
 
   // Input/Output properties
@@ -61,6 +63,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Authentication state
   readonly isAuthenticated = this.authService.isAuthenticated;
   readonly currentUser = this.authService.currentUser;
+  readonly isB2BUser = this.authService.isB2BUser;
+
+  // Cart state
+  readonly cartItemCount = this.cartService.totalItems;
+  readonly cartItems = this.cartService.items;
+  readonly cartSummary = this.cartService.summary;
 
   // Current route tracking for active navigation
   private readonly currentUrl = toSignal(
@@ -257,5 +265,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
     if (hour < 12) return 'Good morning';
     if (hour < 17) return 'Good afternoon';
     return 'Good evening';
+  }
+
+  // Cart navigation methods
+  protected navigateToCart(): void {
+    this.router.navigate(['/cart']);
+  }
+
+  protected onRemoveCartItem(productId: number, size: number): void {
+    this.cartService.removeItem(productId, size);
+  }
+
+  protected onUpdateCartQuantity(productId: number, size: number, quantity: number): void {
+    if (quantity <= 0) {
+      this.cartService.removeItem(productId, size);
+    } else {
+      this.cartService.updateQuantity(productId, size, quantity);
+    }
   }
 }

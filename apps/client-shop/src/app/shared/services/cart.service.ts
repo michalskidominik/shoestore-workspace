@@ -1,6 +1,7 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay, tap } from 'rxjs/operators';
+import { Injectable, signal, computed, inject, effect } from '@angular/core';
+import { Observable, of, fromEvent } from 'rxjs';
+import { delay, tap, filter } from 'rxjs/operators';
+import { AuthService } from '../../core/services/auth.service';
 
 export interface CartItem {
   productId: number;
@@ -29,9 +30,29 @@ export interface AddToCartRequest {
   providedIn: 'root'
 })
 export class CartService {
+  private readonly authService = inject(AuthService);
+  
+  // Storage keys
+  private readonly GUEST_CART_KEY = 'guestCart';
+  private readonly USER_CART_PREFIX = 'userCart_';
+  
   // Private signals for state management
   private readonly cartItems = signal<CartItem[]>([]);
   private readonly loading = signal<boolean>(false);
+  
+  constructor() {
+    // Load cart on initialization
+    this.loadCartFromStorage();
+    
+    // Set up cross-tab synchronization
+    this.setupCrossTabSync();
+    
+    // Set up persistence when cart changes
+    this.setupCartPersistence();
+    
+    // Handle user authentication changes
+    this.setupAuthenticationHandler();
+  }
 
   // Public computed signals
   readonly items = computed(() => this.cartItems());
@@ -98,6 +119,7 @@ export class CartService {
     });
 
     this.cartItems.set(currentItems);
+    this.persistCartToStorage();
     this.loading.set(false);
     return this.summary();
   }
@@ -111,6 +133,7 @@ export class CartService {
       item => !(item.productId === productId && item.size === size)
     );
     this.cartItems.set(filteredItems);
+    this.persistCartToStorage();
   }
 
   /**
@@ -135,6 +158,7 @@ export class CartService {
         totalPrice: quantity * item.unitPrice
       };
       this.cartItems.set(currentItems);
+      this.persistCartToStorage();
     }
   }
 
@@ -143,6 +167,7 @@ export class CartService {
    */
   clearCart(): void {
     this.cartItems.set([]);
+    this.persistCartToStorage();
   }
 
   /**
@@ -157,5 +182,222 @@ export class CartService {
    */
   getCartSummary(): Observable<CartSummary> {
     return of(this.summary());
+  }
+
+  /**
+   * Load cart from localStorage based on authentication state
+   */
+  private loadCartFromStorage(): void {
+    try {
+      const user = this.authService.currentUser();
+      const storageKey = user ? `${this.USER_CART_PREFIX}${user.id}` : this.GUEST_CART_KEY;
+      const savedCart = localStorage.getItem(storageKey);
+      
+      if (savedCart) {
+        const cartItems = JSON.parse(savedCart);
+        this.cartItems.set(cartItems);
+      }
+    } catch (error) {
+      console.warn('Failed to load cart from storage:', error);
+    }
+  }
+
+  /**
+   * Persist cart to localStorage
+   */
+  private persistCartToStorage(): void {
+    try {
+      const user = this.authService.currentUser();
+      const storageKey = user ? `${this.USER_CART_PREFIX}${user.id}` : this.GUEST_CART_KEY;
+      const cartData = JSON.stringify(this.cartItems());
+      
+      localStorage.setItem(storageKey, cartData);
+      
+      // Trigger storage event for cross-tab sync
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: storageKey,
+        newValue: cartData,
+        storageArea: localStorage
+      }));
+    } catch (error) {
+      console.warn('Failed to persist cart to storage:', error);
+    }
+  }
+
+  /**
+   * Set up cross-tab synchronization using storage events
+   */
+  private setupCrossTabSync(): void {
+    fromEvent<StorageEvent>(window, 'storage')
+      .pipe(
+        filter(event => event.key?.startsWith(this.USER_CART_PREFIX) || event.key === this.GUEST_CART_KEY)
+      )
+      .subscribe(event => {
+        const user = this.authService.currentUser();
+        const expectedKey = user ? `${this.USER_CART_PREFIX}${user.id}` : this.GUEST_CART_KEY;
+        
+        if (event.key === expectedKey && event.newValue) {
+          try {
+            const cartItems = JSON.parse(event.newValue);
+            this.cartItems.set(cartItems);
+          } catch (error) {
+            console.warn('Failed to sync cart from storage event:', error);
+          }
+        }
+      });
+  }
+
+  /**
+   * Set up cart persistence when cart changes
+   */
+  private setupCartPersistence(): void {
+    // Use effect to persist cart whenever it changes
+    effect(() => {
+      // Access the cart items to register dependency
+      this.cartItems();
+      // Persist to storage (this will run after the signal update)
+      // Note: We don't call persistCartToStorage here directly to avoid infinite loops
+      // The persistence is handled in individual methods that modify the cart
+    });
+  }
+
+  /**
+   * Handle authentication state changes for cart merging
+   */
+  private setupAuthenticationHandler(): void {
+    effect(() => {
+      const user = this.authService.currentUser();
+      if (user) {
+        this.mergeGuestCartWithUserCart(user.id);
+      }
+    });
+  }
+
+  /**
+   * Merge guest cart with user cart when user logs in
+   */
+  private mergeGuestCartWithUserCart(userId: number): void {
+    try {
+      const guestCartData = localStorage.getItem(this.GUEST_CART_KEY);
+      const userCartKey = `${this.USER_CART_PREFIX}${userId}`;
+      const userCartData = localStorage.getItem(userCartKey);
+      
+      if (!guestCartData) return; // No guest cart to merge
+      
+      const guestItems: CartItem[] = JSON.parse(guestCartData);
+      if (guestItems.length === 0) return; // Empty guest cart
+      
+      let userItems: CartItem[] = [];
+      if (userCartData) {
+        userItems = JSON.parse(userCartData);
+      }
+      
+      // Merge logic: add guest items to user cart, combining quantities for same items
+      const mergedItems = [...userItems];
+      
+      guestItems.forEach(guestItem => {
+        const existingItemIndex = mergedItems.findIndex(
+          item => item.productId === guestItem.productId && item.size === guestItem.size
+        );
+        
+        if (existingItemIndex >= 0) {
+          // Item exists, combine quantities
+          const existingItem = mergedItems[existingItemIndex];
+          const newQuantity = existingItem.quantity + guestItem.quantity;
+          mergedItems[existingItemIndex] = {
+            ...existingItem,
+            quantity: newQuantity,
+            totalPrice: newQuantity * existingItem.unitPrice
+          };
+        } else {
+          // New item, add to cart
+          mergedItems.push(guestItem);
+        }
+      });
+      
+      // Update cart state and storage
+      this.cartItems.set(mergedItems);
+      localStorage.setItem(userCartKey, JSON.stringify(mergedItems));
+      
+      // Clear guest cart
+      localStorage.removeItem(this.GUEST_CART_KEY);
+      
+    } catch (error) {
+      console.warn('Failed to merge guest cart with user cart:', error);
+    }
+  }
+
+  /**
+   * Validate cart items against stock levels (mock implementation)
+   */
+  validateCartStock(): Promise<{ valid: boolean; conflicts: Array<{ productId: number; size: number; requestedQuantity: number; availableStock: number }> }> {
+    // Mock stock validation - in real app this would call API
+    return new Promise(resolve => {
+      setTimeout(() => {
+        const conflicts: Array<{ productId: number; size: number; requestedQuantity: number; availableStock: number }> = [];
+        
+        // Simulate some stock conflicts for testing
+        this.cartItems().forEach(item => {
+          const mockStock = Math.floor(Math.random() * 20) + 5; // Random stock between 5-25
+          if (item.quantity > mockStock && Math.random() < 0.1) { // 10% chance of conflict
+            conflicts.push({
+              productId: item.productId,
+              size: item.size,
+              requestedQuantity: item.quantity,
+              availableStock: mockStock
+            });
+          }
+        });
+        
+        resolve({
+          valid: conflicts.length === 0,
+          conflicts
+        });
+      }, 500);
+    });
+  }
+
+  /**
+   * Submit order (mock implementation)
+   */
+  submitOrder(): Promise<{ success: boolean; orderId?: string; error?: string }> {
+    return new Promise(async (resolve) => {
+      this.loading.set(true);
+      
+      try {
+        // Validate stock first
+        const stockValidation = await this.validateCartStock();
+        
+        if (!stockValidation.valid) {
+          this.loading.set(false);
+          resolve({
+            success: false,
+            error: `Stock conflicts detected for ${stockValidation.conflicts.length} items`
+          });
+          return;
+        }
+        
+        // Simulate order submission
+        setTimeout(() => {
+          const orderId = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+          
+          // Clear cart on successful order
+          this.clearCart();
+          this.loading.set(false);
+          
+          resolve({
+            success: true,
+            orderId
+          });
+        }, 2000);
+        
+      } catch (error) {
+        this.loading.set(false);
+        resolve({
+          success: false,
+          error: 'Order submission failed'
+        });
+      }
+    });
   }
 }
