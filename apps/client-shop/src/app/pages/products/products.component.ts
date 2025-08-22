@@ -9,6 +9,7 @@ import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { SelectButtonModule } from 'primeng/selectbutton';
+import { ToggleButtonModule } from 'primeng/togglebutton';
 import { BadgeModule } from 'primeng/badge';
 import { TagModule } from 'primeng/tag';
 import { InputGroupModule } from 'primeng/inputgroup';
@@ -19,6 +20,15 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // Models and services
 import { Shoe, SizeTemplate } from '@shoestore/shared-models';
 import { ProductService, ProductFilters, ProductSort, ProductCategory } from '../../shared/services/product.service';
+// Import new components
+import {
+  MobileHeaderComponent,
+  MobileControlsComponent,
+  ActiveFiltersBarComponent,
+  FilterSidebarComponent,
+  MobileFiltersOverlayComponent,
+  ProductGridComponent
+} from './components';
 
 interface SortOption {
   label: string;
@@ -54,6 +64,7 @@ interface ViewOption {
     InputTextModule,
     SelectModule,
     SelectButtonModule,
+    ToggleButtonModule,
     ButtonModule,
     ProgressSpinnerModule,
     BadgeModule,
@@ -61,6 +72,13 @@ interface ViewOption {
     InputGroupModule,
     InputGroupAddonModule,
     ChipModule,
+    // New component imports
+    MobileHeaderComponent,
+    MobileControlsComponent,
+    ActiveFiltersBarComponent,
+    FilterSidebarComponent,
+    MobileFiltersOverlayComponent,
+    ProductGridComponent
   ],
   templateUrl: './products.component.html',
   styleUrls: ['./products.component.scss'],
@@ -487,5 +505,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   protected isAvailabilitySelected(availabilityValue: string): boolean {
     return this.selectedAvailability().includes(availabilityValue);
+  }
+
+  protected onRemoveFilter(event: {type: string, value: string}): void {
+    this.removeActiveFilter(event.type, event.value);
   }
 }
