@@ -86,7 +86,7 @@
           </div>
         }
 
-        <!-- Notifications (authenticated users only) -->
+<!-- Notifications (authenticated users only)
         @if (isAuthenticated()) {
           <div class="relative hidden sm:block notification-panel" data-menu-trigger>
             <p-button
@@ -100,7 +100,6 @@
               (onClick)="notificationPanel.toggle($event)"
               [attr.aria-label]="'View notifications'">
             </p-button>
-            <!-- Notification badge -->
             @if (notificationCount() > 0) {
               <p-badge
                 [value]="notificationCount() > 99 ? '99+' : notificationCount().toString()"
@@ -109,7 +108,6 @@
               </p-badge>
             }
 
-            <!-- Notification Panel -->
             <p-overlayPanel
               #notificationPanel
               styleClass="w-80 !p-0"
@@ -166,7 +164,7 @@
             </p-overlayPanel>
           </div>
         }
-
+-->
         <!-- User Actions -->
         @if (isAuthenticated()) {
           <!-- User Menu for Desktop -->

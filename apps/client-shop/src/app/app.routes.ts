@@ -42,6 +42,11 @@ export const appRoutes: Route[] = [
         loadComponent: () => import('./pages/cart/cart.component').then(m => m.CartComponent)
       },
       {
+        path: 'payment-instructions',
+        canActivate: [authGuard],
+        loadComponent: () => import('./pages/payment-instructions/payment-instructions.component').then(m => m.PaymentInstructionsComponent)
+      },
+      {
         path: 'profile',
         canActivate: [authGuard],
         loadComponent: () => import('./pages/profile/profile.component').then(m => m.ProfileComponent)

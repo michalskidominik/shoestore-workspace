@@ -144,15 +144,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
         command: () => this.navigateToOrders(),
         styleClass: 'text-slate-700 hover:text-blue-600'
       },
-      {
-        label: 'Notifications',
-        icon: 'pi pi-bell',
-        command: () => {
-          // Notification panel is now handled by PrimeNG OverlayPanel
-          // No need to close user menu as OverlayPanel handles this
-        },
-        styleClass: 'text-slate-700 hover:text-blue-600'
-      },
+      // {
+      //   label: 'Notifications',
+      //   icon: 'pi pi-bell',
+      //   command: () => {
+      //     // Notification panel is now handled by PrimeNG OverlayPanel
+      //     // No need to close user menu as OverlayPanel handles this
+      //   },
+      //   styleClass: 'text-slate-700 hover:text-blue-600'
+      // },
       {
         separator: true
       },

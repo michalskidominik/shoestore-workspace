@@ -306,48 +306,6 @@ interface GroupedCartItem {
         </div>
       </div>
     </p-dialog>
-
-    <!-- Order Success Dialog -->
-    <p-dialog
-      header="Order Submitted Successfully!"
-      [modal]="true"
-      [visible]="showSuccessDialog()"
-      (onHide)="showSuccessDialog.set(false)"
-      [dismissableMask]="false"
-      styleClass="w-full max-w-md">
-
-      <div class="p-4 text-center">
-        <i class="pi pi-check-circle text-green-600 text-4xl mb-4 block"></i>
-        <h3 class="text-xl font-semibold text-slate-900 mb-2">Order Confirmed</h3>
-        <p class="text-slate-600 mb-4">Your order has been submitted successfully.</p>
-        @if (orderId()) {
-          <div class="bg-slate-50 rounded-lg p-3 mb-4">
-            <p class="text-sm text-slate-600">Order ID:</p>
-            <p class="font-mono text-sm font-medium text-slate-900">{{ orderId() }}</p>
-          </div>
-        }
-        <p class="text-sm text-slate-500 mb-6">
-          You will receive a confirmation email shortly. Our team will review and process your order within 24 hours.
-        </p>
-
-        <div class="flex flex-col gap-2">
-          <p-button
-            label="View Order History"
-            icon="pi pi-history"
-            styleClass="w-full"
-            (onClick)="navigateToOrders()">
-          </p-button>
-          <p-button
-            label="Continue Shopping"
-            icon="pi pi-shopping-bag"
-            severity="secondary"
-            [outlined]="true"
-            styleClass="w-full"
-            (onClick)="continueShopping()">
-          </p-button>
-        </div>
-      </div>
-    </p-dialog>
   `,
   styleUrl: './cart.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -363,7 +321,6 @@ export class CartComponent {
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
   protected readonly showStockConflictDialog = signal(false);
-  protected readonly showSuccessDialog = signal(false);
   protected readonly stockConflicts = signal<StockConflict[]>([]);
   protected readonly orderId = signal<string | null>(null);
 
@@ -419,7 +376,7 @@ export class CartComponent {
 
       // Clear success message after 3 seconds
       setTimeout(() => this.successMessage.set(null), 3000);
-    } catch (error) {
+    } catch {
       this.errorMessage.set('Failed to update item quantity');
     } finally {
       this.isUpdating.set(false);
@@ -502,7 +459,13 @@ export class CartComponent {
 
       if (result.success) {
         this.orderId.set(result.orderId || null);
-        this.showSuccessDialog.set(true);
+        // Redirect to payment instructions page with order details
+        this.router.navigate(['/payment-instructions'], {
+          queryParams: {
+            orderId: result.orderId,
+            amount: this.cartService.totalPrice()
+          }
+        });
       } else {
         this.errorMessage.set(result.error || 'Failed to submit order');
       }
@@ -558,12 +521,10 @@ export class CartComponent {
   }
 
   protected navigateToOrders(): void {
-    this.showSuccessDialog.set(false);
     this.router.navigate(['/orders']);
   }
 
   protected continueShopping(): void {
-    this.showSuccessDialog.set(false);
     this.router.navigate(['/products']);
   }
 }
