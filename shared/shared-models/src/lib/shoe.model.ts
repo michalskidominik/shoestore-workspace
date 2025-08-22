@@ -8,6 +8,7 @@ export interface Shoe {
   imageUrl?: string;         // URL do obrazka (opcjonalnie)
   visible: boolean;          // czy widoczny w sklepie
   templateId: number;        // ID wybranego szablonu rozmiarówki
+  category?: string;         // kategoria produktu (np. 'sneakers', 'boots', 'dress')
   sizes: SizeAvailability[]; // tablica z cenami i stanami per rozmiar
 }
 
@@ -35,6 +36,7 @@ export interface ShoeCreateDto {
   imageFile?: File;
   visible: boolean;
   templateId: number;
+  category?: string;         // kategoria produktu
   sizes: { size: number; price: number; quantity: number }[];
 }
 

@@ -2,10 +2,45 @@ import { Injectable } from '@angular/core';
 import { Shoe, SizeTemplate } from '@shoestore/shared-models';
 import { Observable, of } from 'rxjs';
 
+// Interface for filtering options
+export interface ProductFilters {
+  searchTerm?: string;
+  brand?: string;
+  category?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  inStockOnly?: boolean;
+}
+
+// Interface for sorting options
+export interface ProductSort {
+  field: 'name' | 'price' | 'code' | 'stock';
+  direction: 'asc' | 'desc';
+}
+
+// Product category enumeration
+export interface ProductCategory {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class ProductService {
+  // ============================================
+  // DEVELOPMENT MOCK DATA - TO BE REPLACED WITH REAL BACKEND CALLS
+  // ============================================
+
+  private mockCategories: ProductCategory[] = [
+    { id: 'all', name: 'All Categories', icon: 'pi pi-list', description: 'Show all footwear' },
+    { id: 'sneakers', name: 'Sneakers', icon: 'pi pi-circle', description: 'Athletic and casual sneakers' },
+    { id: 'dress', name: 'Dress Shoes', icon: 'pi pi-star', description: 'Formal and business shoes' },
+    { id: 'boots', name: 'Boots', icon: 'pi pi-shield', description: 'Boots and ankle boots' },
+    { id: 'sandals', name: 'Sandals', icon: 'pi pi-sun', description: 'Summer footwear' }
+  ];
   private mockSizeTemplates: SizeTemplate[] = [
     {
       id: 1,
@@ -49,12 +84,14 @@ export class ProductService {
         'https://www.tradeinn.com/f/14109/141097461/adidas-runfalcon-5-buty-do-biegania.webp',
       visible: true,
       templateId: 1,
+      category: 'sneakers', // Added category field for backend filtering
       sizes: [
-        { size: 40, price: 299.99, quantity: 5 },
-        { size: 41, price: 299.99, quantity: 3 },
-        { size: 42, price: 299.99, quantity: 8 },
-        { size: 43, price: 299.99, quantity: 2 },
-        { size: 44, price: 299.99, quantity: 6 },
+        { size: 40, price: 45.99, quantity: 15 },
+        { size: 41, price: 45.99, quantity: 23 },
+        { size: 42, price: 45.99, quantity: 18 },
+        { size: 43, price: 45.99, quantity: 12 },
+        { size: 44, price: 45.99, quantity: 8 },
+        { size: 45, price: 45.99, quantity: 5 },
       ],
     },
     {
@@ -65,13 +102,14 @@ export class ProductService {
         'https://www.eva-sport.pl/3416-large_default/buty-damskie-reebok-royal-cl-jogger-.jpg',
       visible: true,
       templateId: 1,
+      category: 'sneakers',
       sizes: [
-        { size: 39, price: 399.99, quantity: 4 },
-        { size: 40, price: 399.99, quantity: 7 },
-        { size: 41, price: 399.99, quantity: 3 },
-        { size: 42, price: 399.99, quantity: 9 },
-        { size: 43, price: 399.99, quantity: 1 },
-        { size: 44, price: 399.99, quantity: 5 },
+        { size: 39, price: 89.99, quantity: 14 },
+        { size: 40, price: 89.99, quantity: 27 },
+        { size: 41, price: 89.99, quantity: 13 },
+        { size: 42, price: 89.99, quantity: 19 },
+        { size: 43, price: 89.99, quantity: 11 },
+        { size: 44, price: 89.99, quantity: 6 },
       ],
     },
     {
@@ -82,13 +120,14 @@ export class ProductService {
         'https://www.tradeinn.com/f/14109/141097461/adidas-runfalcon-5-buty-do-biegania.webp',
       visible: true,
       templateId: 1,
+      category: 'sneakers',
       sizes: [
-        { size: 38, price: 249.99, quantity: 6 },
-        { size: 39, price: 249.99, quantity: 8 },
-        { size: 40, price: 249.99, quantity: 4 },
-        { size: 41, price: 249.99, quantity: 7 },
-        { size: 42, price: 249.99, quantity: 3 },
-        { size: 43, price: 249.99, quantity: 2 },
+        { size: 38, price: 52.99, quantity: 16 },
+        { size: 39, price: 52.99, quantity: 28 },
+        { size: 40, price: 52.99, quantity: 14 },
+        { size: 41, price: 52.99, quantity: 17 },
+        { size: 42, price: 52.99, quantity: 13 },
+        { size: 43, price: 52.99, quantity: 9 },
       ],
     },
     {
@@ -99,12 +138,13 @@ export class ProductService {
         'https://www.tradeinn.com/f/14109/141097461/adidas-runfalcon-5-buty-do-biegania.webp',
       visible: true,
       templateId: 1,
+      category: 'sneakers',
       sizes: [
-        { size: 40, price: 549.99, quantity: 3 },
-        { size: 41, price: 549.99, quantity: 5 },
-        { size: 42, price: 549.99, quantity: 2 },
-        { size: 43, price: 549.99, quantity: 4 },
-        { size: 44, price: 549.99, quantity: 6 },
+        { size: 40, price: 124.99, quantity: 8 },
+        { size: 41, price: 124.99, quantity: 15 },
+        { size: 42, price: 124.99, quantity: 7 },
+        { size: 43, price: 124.99, quantity: 12 },
+        { size: 44, price: 124.99, quantity: 6 },
       ],
     },
     {
@@ -115,14 +155,15 @@ export class ProductService {
         'https://www.eva-sport.pl/3416-large_default/buty-damskie-reebok-royal-cl-jogger-.jpg',
       visible: true,
       templateId: 1,
+      category: 'sneakers',
       sizes: [
-        { size: 37, price: 199.99, quantity: 8 },
-        { size: 38, price: 199.99, quantity: 6 },
-        { size: 39, price: 199.99, quantity: 9 },
-        { size: 40, price: 199.99, quantity: 5 },
-        { size: 41, price: 199.99, quantity: 7 },
-        { size: 42, price: 199.99, quantity: 4 },
-        { size: 43, price: 199.99, quantity: 3 },
+        { size: 37, price: 32.99, quantity: 25 },
+        { size: 38, price: 32.99, quantity: 18 },
+        { size: 39, price: 32.99, quantity: 22 },
+        { size: 40, price: 32.99, quantity: 19 },
+        { size: 41, price: 32.99, quantity: 16 },
+        { size: 42, price: 32.99, quantity: 14 },
+        { size: 43, price: 32.99, quantity: 11 },
       ],
     },
     {
@@ -133,13 +174,14 @@ export class ProductService {
         'https://www.tradeinn.com/f/14111/141113410_4/adidas-runfalcon-5-buty-do-biegania.webp',
       visible: true,
       templateId: 1,
+      category: 'boots',
       sizes: [
-        { size: 38, price: 279.99, quantity: 4 },
-        { size: 39, price: 279.99, quantity: 6 },
-        { size: 40, price: 279.99, quantity: 8 },
-        { size: 41, price: 279.99, quantity: 3 },
-        { size: 42, price: 279.99, quantity: 5 },
-        { size: 43, price: 279.99, quantity: 2 },
+        { size: 38, price: 67.99, quantity: 12 },
+        { size: 39, price: 67.99, quantity: 16 },
+        { size: 40, price: 67.99, quantity: 20 },
+        { size: 41, price: 67.99, quantity: 13 },
+        { size: 42, price: 67.99, quantity: 15 },
+        { size: 43, price: 67.99, quantity: 8 },
       ],
     },
     {
@@ -150,13 +192,14 @@ export class ProductService {
         'https://www.tradeinn.com/f/14109/141097461/adidas-runfalcon-5-buty-do-biegania.webp',
       visible: true,
       templateId: 1,
+      category: 'sneakers',
       sizes: [
-        { size: 39, price: 459.99, quantity: 5 },
-        { size: 40, price: 459.99, quantity: 7 },
-        { size: 41, price: 459.99, quantity: 4 },
-        { size: 42, price: 459.99, quantity: 6 },
-        { size: 43, price: 459.99, quantity: 3 },
-        { size: 44, price: 459.99, quantity: 8 },
+        { size: 39, price: 109.99, quantity: 9 },
+        { size: 40, price: 109.99, quantity: 17 },
+        { size: 41, price: 109.99, quantity: 14 },
+        { size: 42, price: 109.99, quantity: 16 },
+        { size: 43, price: 109.99, quantity: 7 },
+        { size: 44, price: 109.99, quantity: 12 },
       ],
     },
     {
@@ -167,19 +210,105 @@ export class ProductService {
         'https://www.eva-sport.pl/3416-large_default/buty-damskie-reebok-royal-cl-jogger-.jpg',
       visible: true,
       templateId: 1,
+      category: 'dress',
       sizes: [
-        { size: 38, price: 229.99, quantity: 9 },
-        { size: 39, price: 229.99, quantity: 6 },
-        { size: 40, price: 229.99, quantity: 7 },
-        { size: 41, price: 229.99, quantity: 4 },
-        { size: 42, price: 229.99, quantity: 5 },
-        { size: 43, price: 229.99, quantity: 3 },
+        { size: 38, price: 42.99, quantity: 21 },
+        { size: 39, price: 42.99, quantity: 18 },
+        { size: 40, price: 42.99, quantity: 24 },
+        { size: 41, price: 42.99, quantity: 16 },
+        { size: 42, price: 42.99, quantity: 19 },
+        { size: 43, price: 42.99, quantity: 13 },
       ],
     },
+    {
+      id: 9,
+      code: 'NIK-DH-009',
+      name: 'Nike Dunk High Retro',
+      imageUrl:
+        'https://www.tradeinn.com/f/14109/141097461/adidas-runfalcon-5-buty-do-biegania.webp',
+      visible: true,
+      templateId: 1,
+      category: 'boots',
+      sizes: [
+        { size: 40, price: 78.99, quantity: 6 },
+        { size: 41, price: 78.99, quantity: 9 },
+        { size: 42, price: 78.99, quantity: 4 },
+        { size: 43, price: 78.99, quantity: 7 },
+        { size: 44, price: 78.99, quantity: 3 },
+      ],
+    },
+    {
+      id: 10,
+      code: 'AD-SB-010',
+      name: 'Adidas Samba Classic',
+      imageUrl:
+        'https://www.eva-sport.pl/3416-large_default/buty-damskie-reebok-royal-cl-jogger-.jpg',
+      visible: true,
+      templateId: 1,
+      category: 'dress',
+      sizes: [
+        { size: 39, price: 65.99, quantity: 0 },
+        { size: 40, price: 65.99, quantity: 11 },
+        { size: 41, price: 65.99, quantity: 8 },
+        { size: 42, price: 65.99, quantity: 14 },
+        { size: 43, price: 65.99, quantity: 6 },
+      ],
+    }
   ];
 
-  getShoes(): Observable<Shoe[]> {
-    return of(this.mockShoes);
+  // ============================================
+  // MAIN API METHODS - SIMULATING BACKEND CALLS
+  // ============================================
+
+  getShoes(filters?: ProductFilters, sort?: ProductSort): Observable<Shoe[]> {
+    // TODO: Replace with real HTTP call to backend API
+    // Example: return this.http.get<Shoe[]>('/api/products', { params: { ...filters, ...sort } });
+
+    let filtered = [...this.mockShoes];
+
+    // Apply filters (DEVELOPMENT ONLY - should be done on backend)
+    if (filters) {
+      filtered = this.applyFilters(filtered, filters);
+    }
+
+    // Apply sorting (DEVELOPMENT ONLY - should be done on backend)
+    if (sort) {
+      filtered = this.applySorting(filtered, sort);
+    }
+
+    return of(filtered);
+  }
+
+  getCategories(): Observable<ProductCategory[]> {
+    // TODO: Replace with real HTTP call to backend API
+    // Example: return this.http.get<ProductCategory[]>('/api/categories');
+    return of(this.mockCategories);
+  }
+
+  getBrands(): Observable<string[]> {
+    // TODO: Replace with real HTTP call to backend API
+    // Example: return this.http.get<string[]>('/api/brands');
+
+    // DEVELOPMENT ONLY - Extract brands from mock data
+    const brands = new Set<string>();
+    this.mockShoes.forEach(shoe => {
+      const brand = shoe.name.split(' ')[0];
+      brands.add(brand);
+    });
+    return of(Array.from(brands).sort());
+  }
+
+  getBrandStats(): Observable<Record<string, number>> {
+    // TODO: Replace with real HTTP call to backend API
+    // Example: return this.http.get<Record<string, number>>('/api/brands/stats');
+
+    // DEVELOPMENT ONLY - Calculate brand counts from mock data
+    const counts: Record<string, number> = {};
+    this.mockShoes.forEach(shoe => {
+      const brand = shoe.name.split(' ')[0];
+      counts[brand] = (counts[brand] || 0) + 1;
+    });
+    return of(counts);
   }
 
   getSizeTemplates(): Observable<SizeTemplate[]> {
@@ -192,62 +321,93 @@ export class ProductService {
     );
   }
 
-  // Pomocnicze metody dla filtrowania i sortowania
-  getAvailableBrands(): string[] {
-    const brands = new Set<string>();
-    this.mockShoes.forEach((shoe) => {
-      const brand = shoe.name.split(' ')[0]; // Pobieramy pierwszą część nazwy jako markę
-      brands.add(brand);
-    });
-    return Array.from(brands).sort();
-  }
+  // ============================================
+  // PRIVATE METHODS - DEVELOPMENT ONLY
+  // These methods simulate backend filtering/sorting logic
+  // In production, all filtering and sorting should be done on the backend
+  // ============================================
 
-  filterShoes(shoes: Shoe[], searchTerm?: string, brand?: string): Shoe[] {
+  private applyFilters(shoes: Shoe[], filters: ProductFilters): Shoe[] {
     let filtered = [...shoes];
 
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (shoe) =>
-          shoe.name.toLowerCase().includes(term) ||
-          shoe.code.toLowerCase().includes(term)
+    // Search filter
+    if (filters.searchTerm?.trim()) {
+      const term = filters.searchTerm.toLowerCase();
+      filtered = filtered.filter(shoe =>
+        shoe.name.toLowerCase().includes(term) ||
+        shoe.code.toLowerCase().includes(term)
       );
     }
 
-    if (brand && brand !== 'all') {
-      filtered = filtered.filter((shoe) =>
-        shoe.name.toLowerCase().startsWith(brand.toLowerCase())
-      );
+    // Brand filter
+    if (filters.brand && filters.brand !== 'all') {
+      filtered = filtered.filter(shoe => {
+        const brand = shoe.name.split(' ')[0].toLowerCase();
+        return brand === filters.brand?.toLowerCase();
+      });
+    }
+
+    // Category filter
+    if (filters.category && filters.category !== 'all') {
+      filtered = filtered.filter(shoe => {
+        // Use the category field from the shoe model
+        const category = shoe.category || 'sneakers'; // Fallback for shoes without category
+        return category === filters.category;
+      });
+    }
+
+    // Price range filter
+    if (filters.minPrice !== undefined || filters.maxPrice !== undefined) {
+      filtered = filtered.filter(shoe => {
+        const minPrice = Math.min(...shoe.sizes.map(size => size.price));
+        const maxPrice = Math.max(...shoe.sizes.map(size => size.price));
+
+        if (filters.minPrice !== undefined && maxPrice < filters.minPrice) return false;
+        if (filters.maxPrice !== undefined && minPrice > filters.maxPrice) return false;
+
+        return true;
+      });
+    }
+
+    // Stock filter
+    if (filters.inStockOnly) {
+      filtered = filtered.filter(shoe => {
+        const totalStock = shoe.sizes.reduce((sum, size) => sum + size.quantity, 0);
+        return totalStock > 0;
+      });
     }
 
     return filtered;
   }
 
-  sortShoes(
-    shoes: Shoe[],
-    sortBy: 'name' | 'price' | 'code',
-    direction: 'asc' | 'desc' = 'asc'
-  ): Shoe[] {
+  private applySorting(shoes: Shoe[], sort: ProductSort): Shoe[] {
     return [...shoes].sort((a, b) => {
       let comparison = 0;
 
-      switch (sortBy) {
+      switch (sort.field) {
         case 'name':
           comparison = a.name.localeCompare(b.name);
           break;
         case 'code':
           comparison = a.code.localeCompare(b.code);
           break;
-        case 'price':
-          {
-            const minPriceA = Math.min(...a.sizes.map((s: { price: any; }) => s.price));
-            const minPriceB = Math.min(...b.sizes.map((s: { price: any; }) => s.price));
-            comparison = minPriceA - minPriceB;
-          }
+        case 'price': {
+          const priceA = Math.min(...a.sizes.map(size => size.price));
+          const priceB = Math.min(...b.sizes.map(size => size.price));
+          comparison = priceA - priceB;
           break;
+        }
+        case 'stock': {
+          const stockA = a.sizes.reduce((sum, size) => sum + size.quantity, 0);
+          const stockB = b.sizes.reduce((sum, size) => sum + size.quantity, 0);
+          comparison = stockA - stockB;
+          break;
+        }
+        default:
+          comparison = a.name.localeCompare(b.name);
       }
 
-      return direction === 'desc' ? -comparison : comparison;
+      return sort.direction === 'desc' ? -comparison : comparison;
     });
   }
 }

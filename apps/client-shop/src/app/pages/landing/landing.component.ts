@@ -14,25 +14,26 @@ import { CardModule } from 'primeng/card';
 })
 export class LandingComponent {
   readonly companyName = 'MANDRAIME';
+
   readonly features = [
     {
-      title: 'Wholesale Footwear',
-      description: 'Access to premium shoe collections at wholesale prices',
+      title: 'Premium Wholesale',
+      description: 'Access to top footwear brands at competitive wholesale prices with transparent pricing structure.',
       icon: 'pi pi-shopping-bag'
     },
     {
-      title: 'Business Dashboard',
-      description: 'Comprehensive analytics and order management tools',
+      title: 'Smart Inventory',
+      description: 'Real-time stock levels, automated reorder alerts, and intelligent demand forecasting tools.',
       icon: 'pi pi-chart-bar'
     },
     {
       title: 'Bulk Ordering',
-      description: 'Streamlined ordering process for business customers',
+      description: 'Streamlined ordering process with flexible MOQs and consolidated shipping options.',
       icon: 'pi pi-box'
     },
     {
-      title: '24/7 Support',
-      description: 'Dedicated support team for your business needs',
+      title: 'Partner Support',
+      description: 'Dedicated account managers and 24/7 support team for all your business needs.',
       icon: 'pi pi-headphones'
     }
   ];

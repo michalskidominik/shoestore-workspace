@@ -1,233 +1,697 @@
-<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
-<!-- Products Catalog Page -->
-<div class="products-catalog">
-  <!-- Filter Section -->
-  <div class="filter-section">    <div class="filter-grid">
-      <!-- Search Input -->
-      <!-- <div class="filter-item">
-        <label for="search" class="block text-sm font-medium text-slate-700 mb-2">
-          Wyszukaj produkty
-        </label>
-        <p-inputText
-          id="search"
-          name="search"
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="onSearchChange()"
-          placeholder="Wpisz nazwę lub kod produktu..."
-          class="w-full"
-          [style]="{ width: '100%' }"
-        />
-      </div> -->
+<!-- Professional B2B Product Catalog with Integrated Sidebar -->
+<div class="products-catalog min-h-screen bg-slate-50 lg:bg-slate-50">
 
-      <!-- Brand Filter -->
-      <div class="filter-item">
-        <label
-          for="brand"
-          class="block text-sm font-medium text-slate-700 mb-2"
-        >
-          Marka
-        </label>        <p-select
-          id="brand"
-          name="brand"
-          [options]="brandOptions"
-          [(ngModel)]="selectedBrand"
-          (ngModelChange)="onBrandChange()"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Wybierz markę"
-          class="w-full"
-          [style]="{ width: '100%' }"
-        />
+  <!-- Mobile Header -->
+  <div class="lg:hidden bg-white border-b border-slate-200 sticky top-16 z-40 shadow-sm -mt-0">
+    <!-- Main Header Row -->
+    <div class="flex items-center justify-between px-4 py-3">
+      <div class="flex-1">
+        <h1 class="text-lg font-bold text-slate-900">Product Catalog</h1>
+        <p class="text-sm text-slate-600">{{ filteredShoes().length }} products available</p>
       </div>
-
-      <!-- Sort Options -->
-      <div class="filter-item">
-        <label for="sort" class="block text-sm font-medium text-slate-700 mb-2">
-          Sortowanie
-        </label>        <p-select
-          id="sort"
-          name="sort"
-          [options]="sortOptions"
-          [(ngModel)]="selectedSort"
-          (ngModelChange)="onSortChange()"
-          optionLabel="label"
-          optionValue="value"
-          placeholder="Sortuj według"
-          class="w-full"
-          [style]="{ width: '100%' }"
-        />
-      </div>
-
-      <!-- Size System Toggle -->
-      <div class="filter-item">
-        <label class="block text-sm font-medium text-slate-700 mb-2">
-          System rozmiarów
-        </label>        <p-selectButton
-          name="sizeSystem"
-          [options]="sizeSystemOptions"
-          [(ngModel)]="sizeSystem"
-          (ngModelChange)="onSizeSystemChange()"
-          optionLabel="label"
-          optionValue="value"
-          class="w-full"
-        />
-      </div>
+      <button
+        type="button"
+        (click)="toggleMobileFilters()"
+        class="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors"
+        [attr.aria-expanded]="showMobileFilters()"
+        aria-label="Toggle filters">
+        <i class="pi pi-filter text-sm"></i>
+        <span>Filters</span>
+        @if (hasActiveFilters()) {
+          <p-badge value="!" severity="warn" styleClass="!bg-orange-500 !text-white !text-xs !min-w-[16px] !h-[16px]"></p-badge>
+        }
+      </button>
     </div>
 
-    <!-- Clear Filters Button -->
-    <div class="mt-4 flex justify-end">
-      <p-button
-        label="Wyczyść filtry"
-        icon="pi pi-times"
-        severity="secondary"
-        [outlined]="true"
-        (onClick)="clearFilters()"
-        size="small"
-      />
-    </div>
-  </div>
+    <!-- Mobile Controls - Split into two rows for better spacing -->
+    <div class="border-t border-slate-100 bg-slate-50">
+      <!-- First Controls Row -->
+      <div class="flex items-center justify-between px-4 py-2">
+        <!-- View Toggle -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-medium text-slate-700">View:</span>
+          <p-selectButton
+            [options]="viewOptions"
+            [ngModel]="currentView()"
+            (ngModelChange)="currentView.set($event)"
+            optionLabel="label"
+            optionValue="value"
+            size="small">
+            <ng-template pTemplate="item" let-option>
+              <i [class]="option.icon + ' text-xs'"></i>
+            </ng-template>
+          </p-selectButton>
+        </div>
 
-  <!-- Loading State -->
-  <div *ngIf="loading" class="loading-state">
-    <p-progressSpinner
-      [style]="{ width: '50px', height: '50px' }"
-      styleClass="custom-spinner"
-      strokeWidth="4"
-      fill="transparent"
-      animationDuration=".8s"
-    />
-    <p class="mt-4 text-slate-600">Ładowanie produktów...</p>
-  </div>
+        <!-- Size System -->
+        <div class="flex items-center gap-2">
+          <span class="text-xs font-medium text-slate-700">Size:</span>
+          <p-selectButton
+            [options]="sizeSystemOptions"
+            [ngModel]="sizeSystem()"
+            (ngModelChange)="sizeSystem.set($event)"
+            optionLabel="label"
+            optionValue="value"
+            size="small">
+          </p-selectButton>
+        </div>
+      </div>
 
-  <!-- Products Grid -->
-  <div *ngIf="!loading">
-    <!-- Results Info -->
-    <div class="mb-6 flex justify-between items-center">
-      <p class="text-sm text-slate-600">
-        Znaleziono {{ filteredShoes.length }} produktów
-      </p>
-    </div>    <!-- DataView with Grid Layout -->
-    <p-dataView
-      #dv
-      [value]="filteredShoes"
-      [layout]="'grid'"
-      [paginator]="true"
-      [rows]="12"
-      [showCurrentPageReport]="true"
-      currentPageReportTemplate="Strona {currentPage} z {totalPages}"
-      [rowsPerPageOptions]="[12, 24, 36]"
-    >
-      <!-- Grid Template -->
-      <ng-template #grid let-items>
-        <div class="grid grid-cols-12 gap-4">
-          <div *ngFor="let shoe of items" class="col-span-12 sm:col-span-6 lg:col-span-4 xl:col-span-3 p-3">
-            <p-card class="product-card h-full">
-              <!-- Product Image -->
-              <ng-template pTemplate="header">
-                <div class="relative">
-                  <img
-                    [src]="
-                      shoe.imageUrl ||
-                      'https://via.placeholder.com/300x200/e2e8f0/64748b?text=Brak+zdjęcia'
-                    "
-                    [alt]="shoe.name"
-                    class="product-image"
-                    loading="lazy"
-                  />
-                  <!-- Stock Badge -->
-                  <div
-                    class="absolute top-2 right-2 px-2 py-1 rounded-md text-xs font-medium"
-                    [ngClass]="{
-                      'bg-green-100 text-green-800': getTotalQuantity(shoe) > 10,
-                      'bg-yellow-100 text-yellow-800':
-                        getTotalQuantity(shoe) > 0 &&
-                        getTotalQuantity(shoe) <= 10,
-                      'bg-red-100 text-red-800': getTotalQuantity(shoe) === 0
-                    }"
-                  >
-                    {{
-                      getTotalQuantity(shoe) > 0 ? 'Dostępny' : 'Brak w magazynie'
-                    }}
-                  </div>
-                </div>
-              </ng-template>
-
-              <!-- Product Content -->
-              <div class="product-content">
-                <!-- Product Name -->
-                <h3 class="product-name">{{ shoe.name }}</h3>
-
-                <!-- Product Code -->
-                <p class="product-code">Kod: {{ shoe.code }}</p>
-
-                <!-- Price -->
-                <div class="product-price">
-                  od
-                  {{
-                    getMinPrice(shoe)
-                      | currency : 'EUR' : 'symbol' : '1.2-2'
-                  }}
-                </div>
-
-                <!-- Size Range -->
-                <div class="product-sizes">
-                  <span class="text-sm text-slate-600 mr-2">Rozmiary:</span>
-                  <span class="size-display">{{ getSizeRange(shoe) }}</span>
-                </div>
-
-                <!-- Stock Info -->
-                <div class="mt-3 text-sm text-slate-500">
-                  Dostępnych: {{ getTotalQuantity(shoe) }} par
-                </div>
+      <!-- Second Controls Row -->
+      <div class="flex items-center justify-center px-4 py-2 border-t border-slate-200">
+        <!-- Sort -->
+        <div class="flex items-center gap-2 flex-1 justify-center">
+          <span class="text-xs font-medium text-slate-700">Sort:</span>
+          <p-select
+            [options]="sortOptions"
+            [ngModel]="selectedSort()"
+            (ngModelChange)="selectedSort.set($event)"
+            optionLabel="label"
+            optionValue="value"
+            class="w-48"
+            size="small"
+            placeholder="Sort">
+            <ng-template pTemplate="selectedItem" let-option>
+              <div class="flex items-center gap-1">
+                <i [class]="option.icon + ' text-slate-500 text-xs'"></i>
+                <span class="text-xs">{{ option.label }}</span>
               </div>
+            </ng-template>
+            <ng-template pTemplate="item" let-option>
+              <div class="flex items-center gap-2">
+                <i [class]="option.icon + ' text-slate-500 text-sm'"></i>
+                <span class="text-sm">{{ option.label }}</span>
+              </div>
+            </ng-template>
+          </p-select>
+        </div>
+      </div>
+    </div>
+  </div>
 
-              <!-- Card Footer with Actions -->
-              <ng-template pTemplate="footer">
-                <div class="flex gap-2">
-                  <p-button
-                    label="Szczegóły"
-                    icon="pi pi-eye"
-                    [outlined]="true"
-                    size="small"
-                    class="flex-1"
-                    [disabled]="getTotalQuantity(shoe) === 0"
-                  />
-                  <p-button
-                    label="Dodaj do koszyka"
-                    icon="pi pi-shopping-cart"
-                    size="small"
-                    class="flex-1"
-                    [disabled]="getTotalQuantity(shoe) === 0"
-                  />
+  <!-- Main Layout Container -->
+  <div class="flex min-h-screen">
+
+    <!-- Desktop Sidebar / Mobile Filters Overlay -->
+    <aside class="lg:w-80 lg:flex-shrink-0 lg:sticky lg:top-16 lg:overflow-y-auto">
+      <!-- Desktop Sidebar (Always Visible) -->
+      <div class="hidden lg:block bg-white border-r border-slate-200 h-full">
+        <div class="p-6">
+          <!-- Sidebar Header -->
+          <div class="mb-6">
+            <h2 class="text-xl font-bold text-slate-900 mb-2">Filter Products</h2>
+            <p class="text-sm text-slate-600">Refine your product search</p>
+          </div>
+
+          <!-- Quick Stats -->
+          <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="bg-slate-50 rounded-lg p-3 text-center">
+              <div class="text-lg font-bold text-blue-600">{{ allShoes().length }}</div>
+              <div class="text-xs text-slate-600">Total Products</div>
+            </div>
+            <div class="bg-slate-50 rounded-lg p-3 text-center">
+              <div class="text-lg font-bold text-green-600">{{ filteredShoes().length }}</div>
+              <div class="text-xs text-slate-600">Available</div>
+            </div>
+          </div>
+
+          <!-- Search -->
+          <div class="mb-6">
+            <div class="text-sm font-semibold text-slate-700 mb-2">Search</div>
+            <p-inputGroup>
+              <p-inputGroupAddon>
+                <i class="pi pi-search text-slate-500"></i>
+              </p-inputGroupAddon>
+              <input
+                type="text"
+                pInputText
+                placeholder="Product name or code..."
+                [ngModel]="searchTerm()"
+                (ngModelChange)="onSearchInput($event)"
+                class="flex-1 !border-l-0 focus:!border-blue-500"
+                aria-label="Search products">
+              @if (searchTerm()) {
+                <p-inputGroupAddon class="cursor-pointer hover:bg-slate-50" (click)="searchTerm.set('')">
+                  <i class="pi pi-times text-slate-400"></i>
+                </p-inputGroupAddon>
+              }
+            </p-inputGroup>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="mb-6">
+            <div class="text-sm font-semibold text-slate-700 mb-3">Category</div>
+            <div class="space-y-2">
+              @for (category of categoryOptions(); track category.id) {
+                <label class="flex items-center cursor-pointer group">
+                  <input
+                    type="radio"
+                    name="category"
+                    [value]="category.id"
+                    [checked]="selectedCategory() === category.id"
+                    (change)="selectedCategory.set(category.id)"
+                    class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
+                  <div class="ml-3 flex items-center gap-2 flex-1">
+                    <i [class]="category.icon + ' text-slate-500 text-sm'"></i>
+                    <span class="text-sm text-slate-700 group-hover:text-slate-900">{{ category.name }}</span>
+                  </div>
+                </label>
+              }
+            </div>
+          </div>
+
+          <!-- Brand Filter -->
+          <div class="mb-6">
+            <div class="text-sm font-semibold text-slate-700 mb-3">Brand</div>
+            <div class="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300">
+              @for (brand of brandOptions(); track brand.value) {
+                <label class="flex items-center justify-between cursor-pointer group">
+                  <div class="flex items-center">
+                    <input
+                      type="radio"
+                      name="brand"
+                      [value]="brand.value"
+                      [checked]="selectedBrand() === brand.value"
+                      (change)="selectedBrand.set(brand.value)"
+                      class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
+                    <span class="ml-3 text-sm text-slate-700 group-hover:text-slate-900">{{ brand.label }}</span>
+                  </div>
+                  @if (brand.count) {
+                    <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">{{ brand.count }}</span>
+                  }
+                </label>
+              }
+            </div>
+          </div>
+
+          <!-- Active Filters -->
+          @if (hasActiveFilters()) {
+            <div class="border-t border-slate-200 pt-4">
+              <div class="flex items-center justify-between mb-3">
+                <span class="text-sm font-semibold text-slate-700">Active Filters</span>
+                <button
+                  type="button"
+                  (click)="clearFilters()"
+                  class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+                  Clear All
+                </button>
+              </div>
+              <div class="space-y-2">
+                @if (searchTerm()) {
+                  <div class="flex items-center justify-between bg-blue-50 px-3 py-2 rounded-lg">
+                    <span class="text-sm text-blue-800">Search: {{ searchTerm() }}</span>
+                    <button type="button" (click)="searchTerm.set('')" class="text-blue-600 hover:text-blue-800">
+                      <i class="pi pi-times text-xs"></i>
+                    </button>
+                  </div>
+                }
+                @if (selectedBrand() !== 'all') {
+                  <div class="flex items-center justify-between bg-green-50 px-3 py-2 rounded-lg">
+                    <span class="text-sm text-green-800">Brand: {{ selectedBrand() }}</span>
+                    <button type="button" (click)="selectedBrand.set('all')" class="text-green-600 hover:text-green-800">
+                      <i class="pi pi-times text-xs"></i>
+                    </button>
+                  </div>
+                }
+                @if (selectedCategory() !== 'all') {
+                  <div class="flex items-center justify-between bg-orange-50 px-3 py-2 rounded-lg">
+                    <span class="text-sm text-orange-800">Category: {{ selectedCategory() }}</span>
+                    <button type="button" (click)="selectedCategory.set('all')" class="text-orange-600 hover:text-orange-800">
+                      <i class="pi pi-times text-xs"></i>
+                    </button>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Mobile Filters Overlay -->
+      <div
+        class="lg:hidden fixed inset-0 z-50 transition-transform duration-300 ease-in-out"
+        [class.translate-x-0]="showMobileFilters()"
+        [class.translate-x-full]="!showMobileFilters()">
+
+        <!-- Backdrop -->
+        <div
+          class="absolute inset-0 bg-black/50 backdrop-blur-sm"
+          (click)="toggleMobileFilters()"
+          (keydown.enter)="toggleMobileFilters()"
+          (keydown.space)="toggleMobileFilters()"
+          tabindex="0"
+          role="button"
+          aria-label="Close filters"></div>
+
+        <!-- Mobile Filters Panel -->
+        <div class="absolute right-0 top-0 h-full w-80 max-w-[calc(100vw-2rem)] bg-white shadow-xl overflow-y-auto">
+          <!-- Mobile Header -->
+          <div class="sticky top-0 bg-white border-b border-slate-200 px-6 py-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-lg font-semibold text-slate-900">Filters</h3>
+              <button
+                type="button"
+                (click)="toggleMobileFilters()"
+                class="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                aria-label="Close filters">
+                <i class="pi pi-times text-slate-600"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Mobile Filters Content -->
+          <div class="p-6">
+            <!-- Search -->
+            <div class="mb-6">
+              <div class="text-sm font-semibold text-slate-700 mb-2">Search</div>
+              <p-inputGroup>
+                <p-inputGroupAddon>
+                  <i class="pi pi-search text-slate-500"></i>
+                </p-inputGroupAddon>
+                <input
+                  type="text"
+                  pInputText
+                  placeholder="Product name or code..."
+                  [ngModel]="searchTerm()"
+                  (ngModelChange)="onSearchInput($event)"
+                  class="flex-1 !border-l-0 focus:!border-blue-500">
+              </p-inputGroup>
+            </div>
+
+            <!-- Category Filter -->
+            <div class="mb-6">
+              <div class="text-sm font-semibold text-slate-700 mb-3">Category</div>
+              <div class="space-y-2">
+                @for (category of categoryOptions(); track category.id) {
+                  <label class="flex items-center cursor-pointer">
+                    <input
+                      type="radio"
+                      name="mobile-category"
+                      [value]="category.id"
+                      [checked]="selectedCategory() === category.id"
+                      (change)="selectedCategory.set(category.id)"
+                      class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
+                    <div class="ml-3 flex items-center gap-2">
+                      <i [class]="category.icon + ' text-slate-500 text-sm'"></i>
+                      <span class="text-sm text-slate-700">{{ category.name }}</span>
+                    </div>
+                  </label>
+                }
+              </div>
+            </div>
+
+            <!-- Brand Filter -->
+            <div class="mb-6">
+              <div class="text-sm font-semibold text-slate-700 mb-3">Brand</div>
+              <div class="space-y-2 max-h-48 overflow-y-auto">
+                @for (brand of brandOptions(); track brand.value) {
+                  <label class="flex items-center justify-between cursor-pointer">
+                    <div class="flex items-center">
+                      <input
+                        type="radio"
+                        name="mobile-brand"
+                        [value]="brand.value"
+                        [checked]="selectedBrand() === brand.value"
+                        (change)="selectedBrand.set(brand.value)"
+                        class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500">
+                      <span class="ml-3 text-sm text-slate-700">{{ brand.label }}</span>
+                    </div>
+                    @if (brand.count) {
+                      <span class="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded-full">{{ brand.count }}</span>
+                    }
+                  </label>
+                }
+              </div>
+            </div>
+
+            <!-- Apply/Clear Actions -->
+            <div class="flex gap-3 pt-4 border-t border-slate-200">
+              <button
+                type="button"
+                (click)="clearFilters()"
+                class="flex-1 px-4 py-3 text-sm font-medium text-slate-700 bg-slate-100 rounded-lg hover:bg-slate-200 transition-colors">
+                Clear All
+              </button>
+              <button
+                type="button"
+                (click)="toggleMobileFilters()"
+                class="flex-1 px-4 py-3 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors">
+                Apply Filters
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 lg:pl-6">
+      <!-- Main Content Header (Desktop Only) -->
+      <div class="hidden lg:block bg-white border border-slate-200 rounded-lg mb-6">
+        <div class="px-6 py-4 border-b border-slate-200">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="text-2xl font-bold text-slate-900">Product Catalog</h1>
+              <p class="text-sm text-slate-600 mt-1">
+                Browse our extensive wholesale footwear collection
+              </p>
+            </div>
+            <div class="flex items-center gap-4">
+              <div class="text-center">
+                <div class="text-xl font-bold text-blue-600">{{ brandOptions().length - 1 }}</div>
+                <div class="text-xs text-slate-600">Brands</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- View Options & Items Per Page -->
+        <div class="px-6 py-4 flex items-center justify-between">
+          <div class="flex items-center gap-4">
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-slate-700">View:</span>
+              <p-selectButton
+                [options]="viewOptions"
+                [ngModel]="currentView()"
+                (ngModelChange)="currentView.set($event)"
+                optionLabel="label"
+                optionValue="value"
+                class="flex-shrink-0">
+                <ng-template pTemplate="item" let-option>
+                  <i [class]="option.icon"></i>
+                </ng-template>
+              </p-selectButton>
+            </div>
+
+            <!-- Size System -->
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-slate-700">Size:</span>
+              <p-selectButton
+                [options]="sizeSystemOptions"
+                [ngModel]="sizeSystem()"
+                (ngModelChange)="sizeSystem.set($event)"
+                optionLabel="label"
+                optionValue="value"
+                size="small">
+              </p-selectButton>
+            </div>
+
+            <!-- Sort By Dropdown -->
+            <div class="flex items-center gap-2">
+              <span class="text-sm font-medium text-slate-700">Sort by:</span>
+              <p-select
+                [options]="sortOptions"
+                [ngModel]="selectedSort()"
+                (ngModelChange)="selectedSort.set($event)"
+                optionLabel="label"
+                optionValue="value"
+                class="w-48"
+                size="small"
+                placeholder="Select sort order">
+                <ng-template pTemplate="selectedItem" let-option>
+                  <div class="flex items-center gap-2">
+                    <i [class]="option.icon + ' text-slate-500 text-sm'"></i>
+                    <span class="text-sm">{{ option.label }}</span>
+                  </div>
+                </ng-template>
+                <ng-template pTemplate="item" let-option>
+                  <div class="flex items-center gap-2">
+                    <i [class]="option.icon + ' text-slate-500 text-sm'"></i>
+                    <span>{{ option.label }}</span>
+                  </div>
+                </ng-template>
+              </p-select>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <span class="text-sm text-slate-600">Show:</span>
+            <p-select
+              [options]="itemsPerPageOptions"
+              [ngModel]="itemsPerPage()"
+              (ngModelChange)="itemsPerPage.set($event)"
+              optionLabel="label"
+              optionValue="value"
+              class="w-32"
+              size="small">
+            </p-select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      @if (loading()) {
+        <div class="flex items-center justify-center py-20">
+          <div class="text-center">
+            <p-progressSpinner
+              [style]="{ width: '50px', height: '50px' }"
+              strokeWidth="4"
+              fill="transparent"
+              animationDuration=".8s">
+            </p-progressSpinner>
+            <p class="mt-4 text-slate-600 font-medium">Loading product catalog...</p>
+          </div>
+        </div>
+      }
+
+      <!-- Error State -->
+      @if (error() && !loading()) {
+        <div class="flex items-center justify-center py-20">
+          <div class="text-center max-w-md mx-auto">
+            <div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+              <i class="pi pi-exclamation-triangle text-red-600 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-semibold text-slate-900 mb-3">Unable to Load Products</h3>
+            <p class="text-slate-600 mb-6">{{ error() }}</p>
+            <p-button
+              label="Try Again"
+              icon="pi pi-refresh"
+              severity="primary"
+              (onClick)="retryLoad()">
+            </p-button>
+          </div>
+        </div>
+      }
+
+      <!-- Products Grid -->
+      @if (!loading() && !error()) {
+        <div class="bg-white border border-slate-200 rounded-lg overflow-hidden mt-0 lg:mt-0">
+          <!-- Results Header - Hidden on mobile since info is in mobile header -->
+          <div class="hidden lg:block px-6 py-4 border-b border-slate-200 bg-slate-50">
+            <div class="flex items-center justify-between">
+              <div>
+                <h2 class="text-lg font-semibold text-slate-900">
+                  {{ filteredShoes().length }} Products Found
+                </h2>
+                <p class="text-sm text-slate-600 mt-1">
+                  Professional wholesale footwear for your retail business
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mobile Results Summary -->
+          <div class="lg:hidden px-4 py-3 border-b border-slate-200 bg-slate-50">
+            <p class="text-sm text-slate-600">
+              Professional wholesale footwear for your retail business
+            </p>
+          </div>
+
+          <!-- Products DataView -->
+          <div class="p-6">
+            <p-dataView
+              [value]="filteredShoes()"
+              [layout]="currentView()"
+              [paginator]="true"
+              [rows]="itemsPerPage()"
+              [showCurrentPageReport]="true"
+              currentPageReportTemplate="Showing {first} to {last} of {totalRecords} products"
+              [rowsPerPageOptions]="[12, 24, 48]"
+              [alwaysShowPaginator]="false">
+
+              <!-- Grid Layout -->
+              <ng-template #grid let-products>
+                <div [class]="currentView() === 'grid'
+                  ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6'
+                  : 'space-y-4'">
+
+                  @for (shoe of products; track shoe.id) {
+                    <div [class]="currentView() === 'grid'
+                      ? 'group bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-lg hover:border-blue-300 transition-all duration-300 overflow-hidden'
+                      : 'group bg-white rounded-xl shadow-sm border border-slate-200 hover:shadow-md hover:border-blue-300 transition-all duration-300 overflow-hidden'">
+
+                      @if (currentView() === 'grid') {
+                        <!-- Grid Card Layout -->
+                        <div class="relative">
+                          <!-- Product Image -->
+                          <div class="aspect-square bg-slate-50 overflow-hidden">
+                            <img
+                              [src]="shoe.imageUrl || 'https://via.placeholder.com/400x400/f1f5f9/64748b?text=No+Image'"
+                              [alt]="shoe.name"
+                              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              loading="lazy">
+                          </div>
+
+                          <!-- Stock Badge -->
+                          <div class="absolute top-3 right-3">
+                            <p-tag
+                              [value]="getStockStatus(shoe).label"
+                              [severity]="getStockStatus(shoe).severity"
+                              [icon]="getStockStatus(shoe).icon"
+                              styleClass="!text-xs !px-2 !py-1">
+                            </p-tag>
+                          </div>
+
+                          <!-- Quick Actions Overlay -->
+                          <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center gap-2">
+                            <p-button
+                              icon="pi pi-eye"
+                              severity="primary"
+                              [rounded]="true"
+                              size="small"
+                              (onClick)="onViewDetails(shoe)"
+                              [attr.aria-label]="'View details for ' + shoe.name">
+                            </p-button>
+                            <p-button
+                              icon="pi pi-shopping-cart"
+                              severity="success"
+                              [rounded]="true"
+                              size="small"
+                              (onClick)="onQuickOrder(shoe)"
+                              [attr.aria-label]="'Quick order for ' + shoe.name">
+                            </p-button>
+                          </div>
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="p-4">
+                          <!-- Product Name & Code -->
+                          <div class="mb-3">
+                            <h3 class="font-semibold text-slate-900 text-base mb-1 line-clamp-2 group-hover:text-blue-900 transition-colors">
+                              {{ shoe.name }}
+                            </h3>
+                            <p class="text-sm text-slate-500 font-mono">{{ shoe.code }}</p>
+                          </div>
+
+                          <!-- Price Range -->
+                          <div class="mb-3">
+                            <div class="text-lg font-bold text-blue-600">{{ getPriceRange(shoe) }}</div>
+                            <div class="text-xs text-slate-600">Wholesale pricing</div>
+                          </div>
+
+                          <!-- Size & Stock Info -->
+                          <div class="flex items-center justify-between text-sm text-slate-600 mb-4">
+                            <div>
+                              <span class="font-medium">{{ getSizeRange(shoe) }}</span>
+                            </div>
+                            <div>
+                              <span>{{ getAvailableSizes(shoe) }} sizes</span>
+                            </div>
+                          </div>
+
+                          <!-- Actions -->
+                          <div class="flex gap-2">
+                            <p-button
+                              label="Details"
+                              icon="pi pi-eye"
+                              severity="secondary"
+                              [outlined]="true"
+                              size="small"
+                              class="flex-1"
+                              (onClick)="onViewDetails(shoe)">
+                            </p-button>
+                            <p-button
+                              label="Order"
+                              icon="pi pi-shopping-cart"
+                              severity="primary"
+                              size="small"
+                              class="flex-1"
+                              (onClick)="onQuickOrder(shoe)">
+                            </p-button>
+                          </div>
+                        </div>
+                      } @else {
+                        <!-- List Layout -->
+                        <div class="flex gap-4 p-4">
+                          <!-- Product Image -->
+                          <div class="flex-shrink-0 w-20 h-20 bg-slate-50 rounded-lg overflow-hidden">
+                            <img
+                              [src]="shoe.imageUrl || 'https://via.placeholder.com/80x80/f1f5f9/64748b?text=No+Image'"
+                              [alt]="shoe.name"
+                              class="w-full h-full object-cover"
+                              loading="lazy">
+                          </div>
+
+                          <!-- Product Info -->
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-start justify-between mb-2">
+                              <div class="flex-1 min-w-0">
+                                <h3 class="font-semibold text-slate-900 text-sm mb-1 truncate">{{ shoe.name }}</h3>
+                                <p class="text-xs text-slate-500 font-mono mb-2">{{ shoe.code }}</p>
+                                <div class="flex items-center gap-4 text-xs text-slate-600">
+                                  <span>{{ getSizeRange(shoe) }}</span>
+                                  <span>{{ getAvailableSizes(shoe) }} sizes</span>
+                                </div>
+                              </div>
+                              <div class="flex flex-col items-end">
+                                <div class="text-sm font-bold text-blue-600 mb-1">{{ getPriceRange(shoe) }}</div>
+                                <p-tag
+                                  [value]="getStockStatus(shoe).label"
+                                  [severity]="getStockStatus(shoe).severity"
+                                  styleClass="!text-xs">
+                                </p-tag>
+                              </div>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="flex gap-2">
+                              <p-button
+                                label="Details"
+                                icon="pi pi-eye"
+                                severity="secondary"
+                                [outlined]="true"
+                                size="small"
+                                (onClick)="onViewDetails(shoe)">
+                              </p-button>
+                              <p-button
+                                label="Order"
+                                icon="pi pi-shopping-cart"
+                                severity="primary"
+                                size="small"
+                                (onClick)="onQuickOrder(shoe)">
+                              </p-button>
+                            </div>
+                          </div>
+                        </div>
+                      }
+                    </div>
+                  }
                 </div>
               </ng-template>
-            </p-card>
-          </div>
-        </div>
-      </ng-template>
 
-      <!-- Empty State -->
-      <ng-template #empty>
-        <div class="no-results">
-          <div class="text-center">
-            <i class="pi pi-search no-results-icon"></i>
-            <h3 class="no-results-text">Brak wyników</h3>
-            <p class="no-results-description">
-              Nie znaleziono produktów spełniających kryteria wyszukiwania.
-              <br />
-              Spróbuj zmienić filtry lub wyczyścić wyszukiwanie.
-            </p>
-            <p-button
-              label="Wyczyść filtry"
-              icon="pi pi-times"
-              severity="secondary"
-              [outlined]="true"
-              (onClick)="clearFilters()"
-              class="mt-4"
-            />
+              <!-- Empty State -->
+              <ng-template #empty>
+                <div class="text-center py-20">
+                  <div class="w-24 h-24 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <i class="pi pi-search text-slate-400 text-3xl"></i>
+                  </div>
+                  <h3 class="text-xl font-semibold text-slate-900 mb-3">No Products Found</h3>
+                  <p class="text-slate-600 mb-6 max-w-md mx-auto">
+                    We couldn't find any products matching your current filters.
+                    Try adjusting your search criteria or clearing the filters.
+                  </p>
+                  <p-button
+                    label="Clear All Filters"
+                    icon="pi pi-filter-slash"
+                    severity="primary"
+                    (onClick)="clearFilters()">
+                  </p-button>
+                </div>
+              </ng-template>
+            </p-dataView>
           </div>
         </div>
-      </ng-template>
-    </p-dataView>
+      }
+    </main>
   </div>
 </div>

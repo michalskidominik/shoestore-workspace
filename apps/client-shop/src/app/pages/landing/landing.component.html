@@ -1,66 +1,321 @@
-<div class="landing-page min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+<<!-- Professional B2B Footwear Supplier Landing Page -->
+<div class="landing-page min-h-screen bg-white">
+
   <!-- Hero Section -->
-  <section class="relative py-20 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-7xl mx-auto text-center">
-      <!-- Company Logo -->
-      <div class="flex justify-center mb-8">
-        <div class="bg-gradient-to-br from-blue-600 to-blue-700 p-4 rounded-2xl shadow-xl">
-          <i class="pi pi-box text-white text-4xl" aria-hidden="true"></i>
+  <section class="relative bg-gradient-to-br from-slate-50 via-white to-blue-50/30 pt-16 pb-24">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 items-center">
+
+        <!-- Hero Content -->
+        <div class="space-y-8">
+          <!-- Company Badge -->
+          <div class="inline-flex items-center gap-3 px-4 py-2 bg-blue-50 border border-blue-200 rounded-full">
+            <div class="bg-blue-600 p-1.5 rounded-lg">
+              <i class="pi pi-box text-white text-sm" aria-hidden="true"></i>
+            </div>
+            <span class="text-sm font-semibold text-blue-900 tracking-wide">{{ companyName }} B2B</span>
+            <span class="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full font-medium">Wholesale</span>
+          </div>
+
+          <!-- Main Headline -->
+          <div class="space-y-6">
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight">
+              Your Trusted
+              <span class="text-blue-600 block">Footwear Supplier</span>
+            </h1>
+            <p class="text-lg sm:text-xl text-slate-600 leading-relaxed max-w-xl">
+              Premium wholesale footwear for retailers across Europe. Streamline your inventory with our professional B2B platform designed for growing shoe stores.
+            </p>
+          </div>
+
+          <!-- Key Statistics -->
+          <div class="grid grid-cols-3 gap-6 py-6 border-t border-slate-200">
+            <div class="text-center">
+              <div class="text-2xl font-bold text-slate-900">50+</div>
+              <div class="text-sm text-slate-600 font-medium">Partner Stores</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-slate-900">15</div>
+              <div class="text-sm text-slate-600 font-medium">Countries</div>
+            </div>
+            <div class="text-center">
+              <div class="text-2xl font-bold text-slate-900">1000+</div>
+              <div class="text-sm text-slate-600 font-medium">SKUs Available</div>
+            </div>
+          </div>
+
+          <!-- Primary CTA -->
+          <div class="flex flex-col sm:flex-row gap-4">
+            <p-button
+              label="View Catalog"
+              icon="pi pi-shopping-bag"
+              severity="primary"
+              size="large"
+              routerLink="/products"
+              styleClass="!px-8 !py-4 !text-base font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+            </p-button>
+            <p-button
+              label="Partner Login"
+              icon="pi pi-sign-in"
+              severity="secondary"
+              [outlined]="true"
+              size="large"
+              routerLink="/sign-in"
+              styleClass="!px-8 !py-4 !text-base font-semibold border-2 hover:!bg-slate-50 transition-all duration-200">
+            </p-button>
+          </div>
+        </div>
+
+        <!-- Hero Visual -->
+        <div class="relative lg:h-96">
+          <div class="absolute inset-0 bg-gradient-to-r from-blue-600 to-blue-700 rounded-2xl shadow-2xl transform rotate-3"></div>
+          <div class="relative bg-white rounded-2xl shadow-xl p-6 transform -rotate-1 hover:rotate-0 transition-transform duration-300">
+            <div class="space-y-6">
+              <!-- Header -->
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <i class="pi pi-shopping-cart text-blue-600 text-sm" aria-hidden="true"></i>
+                  </div>
+                  <h3 class="text-lg font-semibold text-slate-900">Quick Restock</h3>
+                </div>
+                <div class="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">In Stock</div>
+              </div>
+
+              <!-- Product Preview -->
+              <div class="bg-slate-50 rounded-xl p-4">
+                <div class="flex items-center gap-4 mb-4">
+                  <div class="w-16 h-16 bg-gradient-to-br from-slate-200 to-slate-300 rounded-lg flex items-center justify-center">
+                    <i class="pi pi-box text-slate-600 text-xl" aria-hidden="true"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-semibold text-slate-900">Nike Air Max 270</h4>
+                    <p class="text-sm text-slate-600">Style: #AM270-BLK-001</p>
+                    <p class="text-sm font-semibold text-blue-600">€45.99 wholesale</p>
+                  </div>
+                </div>
+
+                <!-- Size Selection Grid -->
+                <div class="space-y-3">
+                  <div class="text-xs font-medium text-slate-700 uppercase tracking-wide">Select Sizes & Quantities</div>
+                  <div class="grid grid-cols-4 gap-2">
+                    @for (size of [
+                      { size: '39', qty: 0, available: true },
+                      { size: '40', qty: 2, available: true },
+                      { size: '41', qty: 5, available: true },
+                      { size: '42', qty: 3, available: true },
+                      { size: '43', qty: 2, available: true },
+                      { size: '44', qty: 1, available: true },
+                      { size: '45', qty: 0, available: false },
+                      { size: '46', qty: 0, available: true }
+                    ]; track size.size) {
+                      <div [class]="size.available
+                        ? (size.qty > 0
+                          ? 'bg-blue-50 border-blue-200 text-blue-900'
+                          : 'bg-white border-slate-200 text-slate-700 hover:border-slate-300')
+                        : 'bg-slate-100 border-slate-200 text-slate-400'"
+                        class="border rounded-lg p-2 text-center transition-colors cursor-pointer">
+                        <div class="text-xs font-medium">{{ size.size }}</div>
+                        <div class="text-xs mt-1">
+                          @if (!size.available) {
+                            <span class="text-red-500">Out</span>
+                          } @else if (size.qty > 0) {
+                            <span class="font-semibold">{{ size.qty }}</span>
+                          } @else {
+                            <span class="text-slate-400">0</span>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+
+                <!-- Order Summary -->
+                <div class="mt-4 pt-4 border-t border-slate-200">
+                  <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-600">Total Units: <span class="font-semibold">13 pairs</span></span>
+                    <span class="text-slate-900 font-semibold">€597.87</span>
+                  </div>
+                  <div class="mt-2">
+                    <div class="bg-blue-600 text-white text-xs font-medium py-2 px-3 rounded-lg text-center hover:bg-blue-700 transition-colors cursor-pointer">
+                      Add to Cart
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Quick Stats -->
+              <div class="grid grid-cols-2 gap-4 text-center">
+                <div class="p-3 bg-green-50 rounded-lg">
+                  <div class="text-lg font-bold text-green-700">2 min</div>
+                  <div class="text-xs text-green-600">Order Time</div>
+                </div>
+                <div class="p-3 bg-blue-50 rounded-lg">
+                  <div class="text-lg font-bold text-blue-700">1-2 days</div>
+                  <div class="text-xs text-blue-600">Delivery</div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
+    </div>
+  </section>
 
-      <!-- Hero Content -->
-      <h1 class="text-5xl md:text-6xl font-bold text-slate-900 mb-6 leading-tight">
-        Welcome to <span class="text-blue-600">{{ companyName }}</span>
-      </h1>
-      <p class="text-xl md:text-2xl text-slate-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-        Your trusted B2B partner for premium footwear. Streamline your inventory management with our professional wholesale platform.
-      </p>
-
-      <!-- CTA Buttons -->
-      <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
-        <p-button
-          label="Browse Products"
-          icon="pi pi-shopping-bag"
-          severity="primary"
-          size="large"
-          routerLink="/products">
-        </p-button>
-        <p-button
-          label="Business Sign In"
-          icon="pi pi-sign-in"
-          severity="secondary"
-          [outlined]="true"
-          size="large"
-          routerLink="/sign-in">
-        </p-button>
+  <!-- Trust Indicators -->
+  <section class="py-12 bg-slate-50 border-y border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-8">
+        <p class="text-sm font-medium text-slate-600 uppercase tracking-wider">Why Retailers Choose Us</p>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+        @for (credential of [
+          { icon: 'pi pi-verified', label: 'EU Certified', subtitle: 'Quality Standards' },
+          { icon: 'pi pi-truck', label: '48h Delivery', subtitle: 'Fast Shipping' },
+          { icon: 'pi pi-shield', label: 'Secure Payment', subtitle: 'Protected Transactions' },
+          { icon: 'pi pi-heart', label: 'Satisfaction Guarantee', subtitle: 'Happy Partners' }
+        ]; track credential.label) {
+          <div class="text-center p-4">
+            <div class="inline-flex items-center justify-center w-12 h-12 bg-blue-100 rounded-xl mb-3">
+              <i [class]="credential.icon + ' text-blue-600 text-lg'" aria-hidden="true"></i>
+            </div>
+            <div class="text-sm font-semibold text-slate-900">{{ credential.label }}</div>
+            <div class="text-xs text-slate-600">{{ credential.subtitle }}</div>
+          </div>
+        }
       </div>
     </div>
   </section>
 
   <!-- Features Section -->
-  <section class="py-16 px-4 sm:px-6 lg:px-8 bg-white">
-    <div class="max-w-7xl mx-auto">
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+      <!-- Section Header -->
       <div class="text-center mb-16">
-        <h2 class="text-3xl md:text-4xl font-bold text-slate-900 mb-4">
-          Why Choose {{ companyName }}?
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+          Built for B2B Success
         </h2>
         <p class="text-lg text-slate-600 max-w-2xl mx-auto">
-          Professional tools designed specifically for business customers in the footwear industry.
+          Everything you need to manage your footwear inventory efficiently and grow your retail business.
         </p>
       </div>
 
       <!-- Features Grid -->
       <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
         @for (feature of features; track feature.title) {
-          <div class="text-center p-6 rounded-xl bg-slate-50 hover:bg-white hover:shadow-lg transition-all duration-300 border border-slate-100">
-            <div class="flex justify-center mb-4">
-              <div class="bg-blue-100 p-3 rounded-xl">
-                <i [class]="feature.icon + ' text-blue-600 text-2xl'" aria-hidden="true"></i>
+          <div class="group relative">
+            <div class="h-full p-8 bg-white border border-slate-200 rounded-2xl hover:border-blue-300 hover:shadow-lg transition-all duration-300">
+              <!-- Feature Icon -->
+              <div class="mb-6">
+                <div class="inline-flex p-4 bg-blue-50 rounded-xl group-hover:bg-blue-100 transition-colors duration-300">
+                  <i [class]="feature.icon + ' text-blue-600 text-2xl'" aria-hidden="true"></i>
+                </div>
               </div>
+
+              <!-- Feature Content -->
+              <h3 class="text-xl font-semibold text-slate-900 mb-3 group-hover:text-blue-900 transition-colors duration-300">
+                {{ feature.title }}
+              </h3>
+              <p class="text-slate-600 leading-relaxed">
+                {{ feature.description }}
+              </p>
             </div>
-            <h3 class="text-xl font-semibold text-slate-900 mb-3">{{ feature.title }}</h3>
-            <p class="text-slate-600 leading-relaxed">{{ feature.description }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Process Section -->
+  <section class="py-20 bg-slate-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+          How It Works
+        </h2>
+        <p class="text-lg text-slate-600 max-w-2xl mx-auto">
+          Simple, streamlined process to get your store stocked with premium footwear.
+        </p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        @for (step of [
+          { number: '01', title: 'Create Account', description: 'Register your business and get verified as a retail partner', icon: 'pi pi-user-plus' },
+          { number: '02', title: 'Browse Catalog', description: 'Access our extensive catalog with real-time pricing and availability', icon: 'pi pi-search' },
+          { number: '03', title: 'Place Orders', description: 'Order with flexible quantities and fast delivery to your store', icon: 'pi pi-shopping-cart' }
+        ]; track step.number) {
+          <div class="relative text-center">
+            <!-- Step Number -->
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-blue-600 text-white text-xl font-bold rounded-full mb-6">
+              {{ step.number }}
+            </div>
+
+            <!-- Step Content -->
+            <h3 class="text-xl font-semibold text-slate-900 mb-3">{{ step.title }}</h3>
+            <p class="text-slate-600 leading-relaxed">{{ step.description }}</p>
+
+            <!-- Connector Line (except for last item) -->
+            @if (step.number !== '03') {
+              <div class="hidden md:block absolute top-8 left-1/2 w-full h-0.5 bg-slate-300 transform translate-x-8"></div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Proof Section -->
+  <section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center mb-16">
+        <h2 class="text-3xl sm:text-4xl font-bold text-slate-900 mb-4">
+          What Our Partners Say
+        </h2>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-8">
+        @for (testimonial of [
+          {
+            quote: 'MANDRAIME has revolutionized our inventory management. The wholesale prices and quality are unmatched.',
+            author: 'Maria Santos',
+            role: 'Store Owner',
+            company: 'FootSteps Barcelona',
+            rating: 5
+          },
+          {
+            quote: 'Fast delivery and excellent customer service. Our customers love the premium brands we can now offer.',
+            author: 'Thomas Mueller',
+            role: 'Managing Director',
+            company: 'Shoe Palace Berlin',
+            rating: 5
+          },
+          {
+            quote: 'The B2B platform is intuitive and the product range is exactly what our store needed to compete.',
+            author: 'Elena Rossi',
+            role: 'Buyer',
+            company: 'Milano Sneakers',
+            rating: 5
+          }
+        ]; track testimonial.author) {
+          <div class="bg-slate-50 rounded-2xl p-8 border border-slate-200">
+            <!-- Rating -->
+            <div class="flex gap-1 mb-4">
+              @for (star of [1,2,3,4,5]; track star) {
+                <i class="pi pi-star-fill text-yellow-400" aria-hidden="true"></i>
+              }
+            </div>
+
+            <!-- Quote -->
+            <blockquote class="text-slate-700 italic mb-6 leading-relaxed">
+              "{{ testimonial.quote }}"
+            </blockquote>
+
+            <!-- Author -->
+            <div class="border-t border-slate-200 pt-4">
+              <div class="font-semibold text-slate-900">{{ testimonial.author }}</div>
+              <div class="text-sm text-slate-600">{{ testimonial.role }}, {{ testimonial.company }}</div>
+            </div>
           </div>
         }
       </div>
@@ -68,32 +323,52 @@
   </section>
 
   <!-- CTA Section -->
-  <section class="py-16 px-4 sm:px-6 lg:px-8 bg-slate-900">
-    <div class="max-w-4xl mx-auto text-center">
-      <h2 class="text-3xl md:text-4xl font-bold text-white mb-6">
-        Ready to Start Your Business Journey?
+  <section class="py-20 bg-gradient-to-r from-slate-900 to-slate-800">
+    <div class="max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8">
+      <h2 class="text-3xl sm:text-4xl font-bold text-white mb-6">
+        Ready to Grow Your Footwear Business?
       </h2>
-      <p class="text-xl text-slate-300 mb-8 leading-relaxed">
-        Join thousands of retailers who trust {{ companyName }} for their footwear needs.
+      <p class="text-xl text-slate-300 mb-8 leading-relaxed max-w-2xl mx-auto">
+        Join {{ companyName }}'s network of successful retailers. Get access to premium brands, competitive wholesale pricing, and dedicated support.
       </p>
+
+      <!-- CTA Buttons -->
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <p-button
-          label="Get Started Today"
+          label="Start Partnership"
           icon="pi pi-arrow-right"
           severity="primary"
           size="large"
           routerLink="/sign-in"
-          class="bg-blue-600 hover:bg-blue-700 text-white shadow-lg hover:shadow-xl">
+          styleClass="!bg-blue-600 hover:!bg-blue-700 !border-blue-600 hover:!border-blue-700 !px-8 !py-4 !text-base font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
         </p-button>
         <p-button
-          label="Contact Sales"
+          label="Schedule Demo"
           icon="pi pi-phone"
           severity="secondary"
           [outlined]="true"
           size="large"
           routerLink="/contact"
-          class="border-white text-white hover:bg-white hover:text-slate-900">
+          styleClass="!border-2 !border-white !text-white hover:!bg-white hover:!text-slate-900 !px-8 !py-4 !text-base font-semibold transition-all duration-200">
         </p-button>
+      </div>
+
+      <!-- Trust Badge -->
+      <div class="mt-12 pt-8 border-t border-slate-700">
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-6 text-slate-400">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-shield text-green-400" aria-hidden="true"></i>
+            <span class="text-sm">Secure Payments</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-truck text-blue-400" aria-hidden="true"></i>
+            <span class="text-sm">Fast Delivery</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <i class="pi pi-headphones text-purple-400" aria-hidden="true"></i>
+            <span class="text-sm">24/7 Support</span>
+          </div>
+        </div>
       </div>
     </div>
   </section>
