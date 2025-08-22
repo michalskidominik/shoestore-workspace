@@ -25,7 +25,7 @@ export class ClientPanelLayoutComponent {
   private router = inject(Router);
 
   readonly isSidebarVisible = this.uiStateService.isSidebarVisible;
-  readonly companyName = 'SGATS SHOES SHOP';
+  readonly companyName = 'MANDRAIME';
 
   // Track current route to show sidebar only on /products page
   private currentUrl = toSignal(

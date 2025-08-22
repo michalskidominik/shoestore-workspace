@@ -1,69 +1,29 @@
-/* About Us Page Styles */
+/* Styles for the about us page are now primarily handled by TailwindCSS in the HTML template. */
+/* This file is kept for any future component-specific styles or PrimeNG overrides. */
 
-.about-us-page {
+/* About Us Page Styles */
+.about-us-page-container {
   min-height: 100vh;
 }
 
 /* Hero Section */
 .hero-section {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #a855f7 100%);
   position: relative;
   overflow: hidden;
 }
 
-.hero-section::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background:
-    radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-  pointer-events: none;
-}
-
-/* Card hover effects */
-p-card {
+/* Card hover effects consistent with contact page */
+.bg-white {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-p-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+.shadow-md:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 
-/* Stats animation */
-.stats-grid > div {
-  animation: fadeInUp 0.6s ease-out;
+.shadow-sm:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
-
-.stats-grid > div:nth-child(1) { animation-delay: 0.1s; }
-.stats-grid > div:nth-child(2) { animation-delay: 0.2s; }
-.stats-grid > div:nth-child(3) { animation-delay: 0.3s; }
-.stats-grid > div:nth-child(4) { animation-delay: 0.4s; }
-
-/* Values section */
-.values-grid > div {
-  animation: fadeInUp 0.6s ease-out;
-  animation-fill-mode: backwards;
-}
-
-.values-grid > div:nth-child(1) { animation-delay: 0.1s; }
-.values-grid > div:nth-child(2) { animation-delay: 0.2s; }
-.values-grid > div:nth-child(3) { animation-delay: 0.3s; }
-.values-grid > div:nth-child(4) { animation-delay: 0.4s; }
-
-/* Team cards */
-.team-grid p-card {
-  animation: fadeInUp 0.6s ease-out;
-  animation-fill-mode: backwards;
-}
-
-.team-grid p-card:nth-child(1) { animation-delay: 0.1s; }
-.team-grid p-card:nth-child(2) { animation-delay: 0.2s; }
-.team-grid p-card:nth-child(3) { animation-delay: 0.3s; }
 
 /* Button hover effects */
 p-button button {
@@ -78,46 +38,10 @@ p-button button:hover {
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .hero-section {
-    padding: 3rem 0;
-  }
-
-  .hero-section h1 {
-    font-size: 2.5rem;
-  }
-
-  .hero-section p {
-    font-size: 1.125rem;
+    padding: 2rem 0;
   }
 
   section {
     padding: 2rem 0;
   }
-}
-
-/* Animations */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* Section backgrounds */
-section:nth-child(even) {
-  position: relative;
-}
-
-section:nth-child(even)::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, rgba(249, 250, 251, 0.5) 0%, rgba(243, 244, 246, 0.5) 100%);
-  pointer-events: none;
 }

@@ -1,0 +1,233 @@
+<!-- eslint-disable @angular-eslint/template/label-has-associated-control -->
+<!-- Products Catalog Page -->
+<div class="products-catalog">
+  <!-- Filter Section -->
+  <div class="filter-section">    <div class="filter-grid">
+      <!-- Search Input -->
+      <!-- <div class="filter-item">
+        <label for="search" class="block text-sm font-medium text-slate-700 mb-2">
+          Wyszukaj produkty
+        </label>
+        <p-inputText
+          id="search"
+          name="search"
+          [(ngModel)]="searchTerm"
+          (ngModelChange)="onSearchChange()"
+          placeholder="Wpisz nazwę lub kod produktu..."
+          class="w-full"
+          [style]="{ width: '100%' }"
+        />
+      </div> -->
+
+      <!-- Brand Filter -->
+      <div class="filter-item">
+        <label
+          for="brand"
+          class="block text-sm font-medium text-slate-700 mb-2"
+        >
+          Marka
+        </label>        <p-select
+          id="brand"
+          name="brand"
+          [options]="brandOptions"
+          [(ngModel)]="selectedBrand"
+          (ngModelChange)="onBrandChange()"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Wybierz markę"
+          class="w-full"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+
+      <!-- Sort Options -->
+      <div class="filter-item">
+        <label for="sort" class="block text-sm font-medium text-slate-700 mb-2">
+          Sortowanie
+        </label>        <p-select
+          id="sort"
+          name="sort"
+          [options]="sortOptions"
+          [(ngModel)]="selectedSort"
+          (ngModelChange)="onSortChange()"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Sortuj według"
+          class="w-full"
+          [style]="{ width: '100%' }"
+        />
+      </div>
+
+      <!-- Size System Toggle -->
+      <div class="filter-item">
+        <label class="block text-sm font-medium text-slate-700 mb-2">
+          System rozmiarów
+        </label>        <p-selectButton
+          name="sizeSystem"
+          [options]="sizeSystemOptions"
+          [(ngModel)]="sizeSystem"
+          (ngModelChange)="onSizeSystemChange()"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full"
+        />
+      </div>
+    </div>
+
+    <!-- Clear Filters Button -->
+    <div class="mt-4 flex justify-end">
+      <p-button
+        label="Wyczyść filtry"
+        icon="pi pi-times"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="clearFilters()"
+        size="small"
+      />
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <p-progressSpinner
+      [style]="{ width: '50px', height: '50px' }"
+      styleClass="custom-spinner"
+      strokeWidth="4"
+      fill="transparent"
+      animationDuration=".8s"
+    />
+    <p class="mt-4 text-slate-600">Ładowanie produktów...</p>
+  </div>
+
+  <!-- Products Grid -->
+  <div *ngIf="!loading">
+    <!-- Results Info -->
+    <div class="mb-6 flex justify-between items-center">
+      <p class="text-sm text-slate-600">
+        Znaleziono {{ filteredShoes.length }} produktów
+      </p>
+    </div>    <!-- DataView with Grid Layout -->
+    <p-dataView
+      #dv
+      [value]="filteredShoes"
+      [layout]="'grid'"
+      [paginator]="true"
+      [rows]="12"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Strona {currentPage} z {totalPages}"
+      [rowsPerPageOptions]="[12, 24, 36]"
+    >
+      <!-- Grid Template -->
+      <ng-template #grid let-items>
+        <div class="grid grid-cols-12 gap-4">
+          <div *ngFor="let shoe of items" class="col-span-12 sm:col-span-6 lg:col-span-4 xl:col-span-3 p-3">
+            <p-card class="product-card h-full">
+              <!-- Product Image -->
+              <ng-template pTemplate="header">
+                <div class="relative">
+                  <img
+                    [src]="
+                      shoe.imageUrl ||
+                      'https://via.placeholder.com/300x200/e2e8f0/64748b?text=Brak+zdjęcia'
+                    "
+                    [alt]="shoe.name"
+                    class="product-image"
+                    loading="lazy"
+                  />
+                  <!-- Stock Badge -->
+                  <div
+                    class="absolute top-2 right-2 px-2 py-1 rounded-md text-xs font-medium"
+                    [ngClass]="{
+                      'bg-green-100 text-green-800': getTotalQuantity(shoe) > 10,
+                      'bg-yellow-100 text-yellow-800':
+                        getTotalQuantity(shoe) > 0 &&
+                        getTotalQuantity(shoe) <= 10,
+                      'bg-red-100 text-red-800': getTotalQuantity(shoe) === 0
+                    }"
+                  >
+                    {{
+                      getTotalQuantity(shoe) > 0 ? 'Dostępny' : 'Brak w magazynie'
+                    }}
+                  </div>
+                </div>
+              </ng-template>
+
+              <!-- Product Content -->
+              <div class="product-content">
+                <!-- Product Name -->
+                <h3 class="product-name">{{ shoe.name }}</h3>
+
+                <!-- Product Code -->
+                <p class="product-code">Kod: {{ shoe.code }}</p>
+
+                <!-- Price -->
+                <div class="product-price">
+                  od
+                  {{
+                    getMinPrice(shoe)
+                      | currency : 'EUR' : 'symbol' : '1.2-2'
+                  }}
+                </div>
+
+                <!-- Size Range -->
+                <div class="product-sizes">
+                  <span class="text-sm text-slate-600 mr-2">Rozmiary:</span>
+                  <span class="size-display">{{ getSizeRange(shoe) }}</span>
+                </div>
+
+                <!-- Stock Info -->
+                <div class="mt-3 text-sm text-slate-500">
+                  Dostępnych: {{ getTotalQuantity(shoe) }} par
+                </div>
+              </div>
+
+              <!-- Card Footer with Actions -->
+              <ng-template pTemplate="footer">
+                <div class="flex gap-2">
+                  <p-button
+                    label="Szczegóły"
+                    icon="pi pi-eye"
+                    [outlined]="true"
+                    size="small"
+                    class="flex-1"
+                    [disabled]="getTotalQuantity(shoe) === 0"
+                  />
+                  <p-button
+                    label="Dodaj do koszyka"
+                    icon="pi pi-shopping-cart"
+                    size="small"
+                    class="flex-1"
+                    [disabled]="getTotalQuantity(shoe) === 0"
+                  />
+                </div>
+              </ng-template>
+            </p-card>
+          </div>
+        </div>
+      </ng-template>
+
+      <!-- Empty State -->
+      <ng-template #empty>
+        <div class="no-results">
+          <div class="text-center">
+            <i class="pi pi-search no-results-icon"></i>
+            <h3 class="no-results-text">Brak wyników</h3>
+            <p class="no-results-description">
+              Nie znaleziono produktów spełniających kryteria wyszukiwania.
+              <br />
+              Spróbuj zmienić filtry lub wyczyścić wyszukiwanie.
+            </p>
+            <p-button
+              label="Wyczyść filtry"
+              icon="pi pi-times"
+              severity="secondary"
+              [outlined]="true"
+              (onClick)="clearFilters()"
+              class="mt-4"
+            />
+          </div>
+        </div>
+      </ng-template>
+    </p-dataView>
+  </div>
+</div>

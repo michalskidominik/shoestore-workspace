@@ -1,4 +1,5 @@
 <div class="contact-page-container font-sans">
+  <p-toast></p-toast>
   <!-- Header Section -->
   <section class="hero-section bg-slate-100 text-slate-800 py-10 md:py-12">
     <div class="max-w-4xl mx-auto text-center px-6">
@@ -25,6 +26,7 @@
           </div>
           <h3 class="contact-card-title">Email Us</h3>
           <p class="contact-card-detail group-hover:text-blue-700">{{ contactInfo.email }}</p>
+          <p class="text-sm text-slate-500 mt-1 mb-2 px-2">Best for inquiries about offers and partnerships.</p>
           <span class="contact-card-action group-hover:text-blue-600">Send an Email <i class="pi pi-arrow-right ml-1 text-sm"></i></span>
         </a>
 
@@ -34,7 +36,8 @@
             <i class="pi pi-phone text-green-600 text-2xl"></i>
           </div>
           <h3 class="contact-card-title">Call Us</h3>
-          <p class="contact-card-detail group-hover:text-green-700">{{ contactInfo.phone }}</p>
+          <p class="contact-card-detail group-hover:text-green-700">{{ formattedPhoneNumber }}</p>
+          <p class="text-sm text-slate-500 mt-1 mb-2 px-2">For urgent matters and order discussions.</p>
           <span class="contact-card-action group-hover:text-green-600">Call Now <i class="pi pi-arrow-right ml-1 text-sm"></i></span>
         </a>
 
@@ -44,7 +47,8 @@
             <i class="pi pi-whatsapp text-teal-600 text-2xl"></i>
           </div>
           <h3 class="contact-card-title">WhatsApp</h3>
-          <p class="contact-card-detail group-hover:text-teal-700">{{ contactInfo.whatsapp }}</p>
+          <p class="contact-card-detail group-hover:text-teal-700">{{ formattedPhoneNumber }}</p>
+          <p class="text-sm text-slate-500 mt-1 mb-2 px-2">Ideal for quick questions about status or availability.</p>
           <span class="contact-card-action group-hover:text-teal-600">Chat on WhatsApp <i class="pi pi-arrow-right ml-1 text-sm"></i></span>
         </a>
       </div>
@@ -55,10 +59,54 @@
   <section class="py-12 md:py-16 bg-white">
     <div class="max-w-4xl mx-auto px-6 text-center">
       <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-4">We're Ready to Assist You</h2>
-      <p class="text-slate-600 leading-relaxed md:text-lg mb-8">
+      <p class="text-slate-600 leading-relaxed md:text-lg mb-4">
         Our dedicated team is available during business hours to answer your questions, provide support, or discuss your needs. Don't hesitate to get in touch!
       </p>
-      <p-button label="Back to Home" icon="pi pi-home" styleClass="p-button-secondary corporate-button" routerLink="/"></p-button>
+      <p class="text-slate-600 leading-relaxed md:text-lg mb-8">
+        Business Hours: Monday to Friday, 8:00 AM - 4:00 PM
+      </p>
+    </div>
+  </section>
+
+  <!-- Company Details Section -->
+  <section class="py-12 md:py-16 bg-slate-50">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <hr class="my-8 border-slate-300 md:hidden"> <!-- Hidden on md and up -->
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-8">
+        <i class="pi pi-briefcase mr-2 text-slate-700"></i>Company Details
+      </h2>
+      <div class="grid md:grid-cols-2 gap-x-8 gap-y-6 text-slate-700 text-left">
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
+            <i class="pi pi-building mr-2 text-blue-500"></i>Registered Company Name
+          </h3>
+          <p class="text-slate-600 pl-8">{{ companyDetails.name }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
+            <i class="pi pi-map-marker mr-2 text-green-500"></i>Registered Address
+          </h3>
+          <p class="text-slate-600 pl-8">{{ companyDetails.address }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
+            <i class="pi pi-id-card mr-2 text-purple-500"></i>VAT ID (NIP)
+          </h3>
+          <p class="text-slate-600 pl-8">{{ companyDetails.vatId }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
+            <i class="pi pi-chart-bar mr-2 text-orange-500"></i>REGON
+          </h3>
+          <p class="text-slate-600 pl-8">{{ companyDetails.regon }}</p>
+        </div>
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300 md:col-span-2">
+          <h3 class="text-lg font-semibold text-slate-800 mb-3 flex items-center">
+            <i class="pi pi-book mr-2 text-red-500"></i>KRS
+          </h3>
+          <p class="text-slate-600 pl-8">{{ companyDetails.krs }}</p>
+        </div>
+      </div>
     </div>
   </section>
 </div>

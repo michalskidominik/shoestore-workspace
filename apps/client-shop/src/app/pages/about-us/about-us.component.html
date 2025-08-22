@@ -1,120 +1,106 @@
-<div class="about-us-page">
-  <!-- Hero Section -->
-  <section class="hero-section bg-gradient-to-r from-purple-600 to-purple-800 text-white py-16">
+<div class="about-us-page-container font-sans">
+  <!-- Header Section -->
+  <section class="hero-section bg-slate-100 text-slate-800 py-10 md:py-12">
     <div class="max-w-4xl mx-auto text-center px-6">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">About {{ companyInfo.name }}</h1>
-      <p class="text-xl md:text-2xl text-purple-100 mb-8">
+      <h1 class="text-3xl md:text-4xl font-semibold mb-2">About {{ companyInfo.name }}</h1>
+      <p class="text-lg md:text-xl text-slate-600 mb-6">
         Your trusted partner in premium footwear since {{ companyInfo.founded }}
       </p>
       <div class="flex justify-center">
-        <div class="bg-white/20 p-4 rounded-full">
-          <i class="pi pi-shopping-bag text-4xl"></i>
+        <div class="bg-slate-200 p-3 rounded-full">
+          <i class="pi pi-shopping-bag text-2xl text-slate-700"></i>
         </div>
       </div>
     </div>
   </section>
-
   <!-- Mission & Vision Section -->
-  <section class="py-16 bg-gray-50">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="grid md:grid-cols-2 gap-8">
-        <p-card class="h-full">
-          <ng-template pTemplate="header">
-            <div class="flex items-center gap-3 p-6 pb-0">
-              <div class="bg-purple-100 p-3 rounded-full">
-                <i class="pi pi-flag text-purple-600 text-xl"></i>
-              </div>
-              <h2 class="text-2xl font-bold text-gray-800">Our Mission</h2>
+  <section class="py-12 md:py-16 bg-slate-50">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 gap-6 md:gap-8">
+        <!-- Mission Card -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="bg-blue-100 p-3 rounded-full">
+              <i class="pi pi-flag text-blue-600 text-xl"></i>
             </div>
-          </ng-template>
-          <p class="text-gray-600 leading-relaxed">
+            <h2 class="text-xl md:text-2xl font-bold text-slate-800">Our Mission</h2>
+          </div>
+          <p class="text-slate-600 leading-relaxed">
             {{ companyInfo.mission }}
           </p>
-        </p-card>
+        </div>
 
-        <p-card class="h-full">
-          <ng-template pTemplate="header">
-            <div class="flex items-center gap-3 p-6 pb-0">
-              <div class="bg-blue-100 p-3 rounded-full">
-                <i class="pi pi-eye text-blue-600 text-xl"></i>
-              </div>
-              <h2 class="text-2xl font-bold text-gray-800">Our Vision</h2>
+        <!-- Vision Card -->
+        <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="bg-green-100 p-3 rounded-full">
+              <i class="pi pi-eye text-green-600 text-xl"></i>
             </div>
-          </ng-template>
-          <p class="text-gray-600 leading-relaxed">
+            <h2 class="text-xl md:text-2xl font-bold text-slate-800">Our Vision</h2>
+          </div>
+          <p class="text-slate-600 leading-relaxed">
             {{ companyInfo.vision }}
           </p>
-        </p-card>
+        </div>
       </div>
     </div>
   </section>
-
   <!-- Stats Section -->
-  <section class="py-16 bg-white">
-    <div class="max-w-6xl mx-auto px-6">
-      <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Our Impact</h2>
+  <section class="py-12 md:py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-8">Our Impact</h2>
       <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-        <div *ngFor="let stat of stats" class="text-center">
-          <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg">
-            <div class="text-3xl font-bold text-purple-600 mb-2">{{ stat.value }}</div>
-            <div class="text-gray-600 font-medium">{{ stat.label }}</div>
-          </div>
+        <div *ngFor="let stat of stats" class="bg-slate-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div class="text-2xl md:text-3xl font-bold text-slate-700 mb-2">{{ stat.value }}</div>
+          <div class="text-slate-600 font-medium">{{ stat.label }}</div>
+        </div>
+        <div class="bg-slate-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div class="text-2xl md:text-3xl font-bold text-slate-700 mb-2">100+</div>
+          <div class="text-slate-600 font-medium">Shoe Models</div>
+        </div>
+        <div class="bg-slate-50 p-6 rounded-lg shadow-sm hover:shadow-md transition-shadow duration-300">
+          <div class="text-2xl md:text-3xl font-bold text-slate-700 mb-2">98%</div>
+          <div class="text-slate-600 font-medium">Customer Satisfaction</div>
         </div>
       </div>
     </div>
   </section>
-
   <!-- Values Section -->
-  <section class="py-16 bg-gray-50">
-    <div class="max-w-6xl mx-auto px-6">
-      <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Our Values</h2>
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+  <section class="py-12 md:py-16 bg-slate-50">
+    <div class="max-w-4xl mx-auto px-6">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-8 text-center">Our Values</h2>
+      <div class="grid md:grid-cols-2 gap-6 md:gap-8">
         <div *ngFor="let value of companyInfo.values; let i = index"
-             class="text-center p-6 bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow">
-          <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-            <i class="pi pi-check text-purple-600 text-xl"></i>
+             class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
+          <div class="flex items-center gap-4">
+            <div class="bg-blue-100 w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0">
+              <i class="pi pi-check text-blue-600 text-lg"></i>
+            </div>
+            <div>
+              <h3 class="font-semibold text-slate-800 text-lg mb-1">{{ value }}</h3>
+              <p class="text-sm text-slate-600"
+                 [innerHTML]="getValueDescription(i)"></p>
+            </div>
           </div>
-          <h3 class="font-semibold text-gray-800 mb-2">{{ value }}</h3>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- Team Section -->
-  <section class="py-16 bg-white">
-    <div class="max-w-6xl mx-auto px-6">
-      <h2 class="text-3xl font-bold text-center text-gray-800 mb-12">Meet Our Team</h2>
-      <div class="grid md:grid-cols-3 gap-8">
-        <p-card *ngFor="let member of teamMembers" class="text-center">
-          <ng-template pTemplate="header">
-            <div class="p-6 pb-0">
-              <div class="bg-gradient-to-br from-purple-100 to-purple-200 w-24 h-24 rounded-full flex items-center justify-center mx-auto mb-4">
-                <i class="pi pi-user text-purple-600 text-3xl"></i>
-              </div>
-              <h3 class="text-xl font-bold text-gray-800 mb-1">{{ member.name }}</h3>
-              <p class="text-purple-600 font-medium mb-4">{{ member.role }}</p>
-            </div>
-          </ng-template>
-          <p class="text-gray-600 text-sm leading-relaxed">
-            {{ member.description }}
-          </p>
-        </p-card>
-      </div>
-    </div>
-  </section>
-
-  <!-- CTA Section -->
-  <section class="py-16 bg-gradient-to-r from-purple-600 to-purple-800 text-white">
-    <div class="max-w-4xl mx-auto text-center px-6">
-      <h2 class="text-3xl font-bold mb-4">Ready to Step Into Quality?</h2>
-      <p class="text-xl text-purple-100 mb-8">
-        Discover our collection of premium shoes designed for comfort and style.
+  <!-- Company Information Section -->
+  <section class="py-12 md:py-16 bg-white">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mb-4">Why Choose MANDRAIME?</h2>
+      <p class="text-slate-600 leading-relaxed md:text-lg mb-4">
+        We combine traditional craftsmanship with modern technology to create shoes that not only look great but also provide exceptional comfort and durability.
+      </p>
+      <p class="text-slate-600 leading-relaxed md:text-lg mb-8">
+        Our commitment to quality and customer satisfaction has made us a trusted name in the footwear industry.
       </p>
       <div class="flex flex-col sm:flex-row gap-4 justify-center">
         <p-button
           label="Shop Now"
           icon="pi pi-shopping-cart"
-          styleClass="bg-white text-purple-600 border-white hover:bg-gray-100"
+          styleClass="bg-slate-700 text-white border-slate-700 hover:bg-slate-800"
           size="large"
           routerLink="/products">
         </p-button>
@@ -123,7 +109,7 @@
           icon="pi pi-envelope"
           severity="secondary"
           [outlined]="true"
-          styleClass="border-white text-white hover:bg-white hover:text-purple-600"
+          styleClass="border-slate-700 text-slate-700 hover:bg-slate-700 hover:text-white"
           size="large"
           routerLink="/contact">
         </p-button>

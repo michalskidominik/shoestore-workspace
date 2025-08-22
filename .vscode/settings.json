@@ -1,3 +1,12 @@
 {
-    "nxConsole.generateAiAgentRules": true
+    "nxConsole.generateAiAgentRules": true,
+    "chat.mcp.serverSampling": {
+        "shoestore-workspace/.vscode/mcp.json: angular-cli": {
+            "allowedModels": [
+                "github.copilot-chat/gpt-4.1",
+                "github.copilot-chat/o3-mini",
+                "github.copilot-chat/o4-mini"
+            ]
+        }
+    }
 }

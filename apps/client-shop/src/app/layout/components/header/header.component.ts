@@ -17,7 +17,7 @@ export class HeaderComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
 
-  companyName = input<string>('SGATS SHOES SHOP');
+  companyName = input<string>('MANDRAIME');
   logout = output<void>();
 
   // Authentication state

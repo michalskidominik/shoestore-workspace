@@ -47,7 +47,7 @@ export interface ShoeQueryParams {
   search?: string;            // wyszukiwanie po kodzie/nazwie
   brand?: string;             // filtr po marce
   minAvailability?: number;   // filtr po minimalnej dostępności (np. ile w magazynie)
-  sortBy?: 'code' | 'name';   // sortowanie
+  sortBy?: 'code' | 'name' | 'price';   // sortowanie
   sortDirection?: 'asc' | 'desc';
   page?: number;
   pageSize?: number;

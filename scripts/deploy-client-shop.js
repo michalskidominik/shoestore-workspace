@@ -22,7 +22,7 @@ function copyRecursive(src, dest) {
 try {
   const tempDir = path.join(__dirname, '../temp-client-shop-deploy');
   const distDir = path.join(__dirname, '../dist/apps/client-shop/browser');
-  
+
   // Clean temp directory
   if (fs.existsSync(tempDir)) {
     fs.rmSync(tempDir, { recursive: true, force: true });
@@ -57,12 +57,12 @@ try {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SGATS SHOES SHOP - Applications</title>
+    <title>MANDRAIME - Applications</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
     <div class="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">SGATS SHOES SHOP</h1>
+        <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">MANDRAIME</h1>
         <div class="space-y-4">
             <a href="./client-shop/" class="block w-full bg-blue-500 hover:bg-blue-600 text-white text-center py-3 px-4 rounded-lg transition-colors">
                 🛍️ Client Shop
@@ -86,7 +86,7 @@ try {
   execSync('git add .', { stdio: 'inherit' });
   execSync('git config user.email "action@github.com"', { stdio: 'inherit' });
   execSync('git config user.name "GitHub Actions"', { stdio: 'inherit' });
-  
+
   try {
     execSync('git commit -m "chore: deploy client-shop"', { stdio: 'inherit' });
     execSync('git push origin gh-pages', { stdio: 'inherit' });
