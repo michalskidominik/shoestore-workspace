@@ -1,5 +1,5 @@
 <!-- Professional B2B Product Catalog with Integrated Sidebar -->
-<div class="products-catalog min-h-screen bg-slate-50 lg:bg-slate-50">
+<div class="products-catalog min-h-screen bg-slate-50">
 
   <!-- Mobile Header Component -->
   <app-mobile-header
@@ -28,6 +28,7 @@
 
   <!-- Mobile Active Filters Bar Component -->
   <app-active-filters-bar
+    class="lg:hidden"
     [hasActiveFilters]="hasActiveFilters()"
     [activeFilters]="activeFilters()"
     [productCount]="filteredShoes().length"
@@ -56,7 +57,7 @@
         [activeFilters]="activeFilters()"
         [hasActiveFilters]="hasActiveFilters()"
         (searchChange)="onSearchInput($event)"
-        (searchClear)="searchTerm.set('')"
+        (clearSearch)="searchTerm.set('')"
         (toggleCategory)="toggleCategoryFilter($event)"
         (toggleBrand)="toggleBrandFilter($event)"
         (toggleAvailability)="toggleAvailabilityFilter($event)"
@@ -76,6 +77,7 @@
         [selectedAvailability]="selectedAvailability()"
         (toggleFilters)="toggleMobileFilters()"
         (searchChange)="onSearchInput($event)"
+        (clearSearch)="searchTerm.set('')"
         (toggleCategory)="toggleCategoryFilter($event)"
         (toggleBrand)="toggleBrandFilter($event)"
         (toggleAvailability)="toggleAvailabilityFilter($event)"
@@ -111,7 +113,7 @@
                   optionValue="value"
                   [ngModel]="currentView()"
                   (ngModelChange)="currentView.set($event)"
-                  styleClass="!text-xs">
+                  styleClass="!text-sm">
                 </p-selectButton>
               </div>
 
@@ -124,7 +126,7 @@
                   optionValue="value"
                   [ngModel]="sizeSystem()"
                   (ngModelChange)="sizeSystem.set($event)"
-                  styleClass="!text-xs">
+                  styleClass="!text-sm">
                 </p-selectButton>
               </div>
             </div>
@@ -141,7 +143,7 @@
                   [ngModel]="selectedSort()"
                   (ngModelChange)="selectedSort.set($event)"
                   placeholder="Sort by"
-                  styleClass="!w-40 !text-xs">
+                  styleClass="!w-40 !text-sm">
                 </p-select>
               </div>
 
@@ -154,7 +156,7 @@
                   optionValue="value"
                   [ngModel]="itemsPerPage()"
                   (ngModelChange)="itemsPerPage.set($event)"
-                  styleClass="!w-40 !text-xs">
+                  styleClass="!w-40 !text-sm">
                 </p-select>
               </div>
             </div>

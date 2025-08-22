@@ -99,7 +99,7 @@ type ImageSize = 'small' | 'medium' | 'large';
                 severity="secondary"
                 [outlined]="true"
                 size="small"
-                styleClass="!text-xs !py-1 !px-2 lg:!py-1.5 w-full lg:w-auto"
+                styleClass="!text-xs !py-1.5 !px-2 w-full lg:w-auto"
                 (onClick)="onViewDetails()">
               </p-button>
               <p-button
@@ -108,7 +108,7 @@ type ImageSize = 'small' | 'medium' | 'large';
                 severity="primary"
                 size="small"
                 [disabled]="!hasStock()"
-                styleClass="!text-xs !py-1 !px-2 lg:!py-1.5 w-full lg:w-auto"
+                styleClass="!text-xs !py-1.5 !px-2 w-full lg:w-auto"
                 (onClick)="onAddToCart()">
               </p-button>
             </div>

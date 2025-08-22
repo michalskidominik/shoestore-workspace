@@ -68,7 +68,7 @@ interface ActiveFilter {
               placeholder="Product name or code..."
               [ngModel]="searchTerm()"
               (ngModelChange)="searchChange.emit($event)"
-              class="flex-1 !border-l-0 focus:!border-blue-500"
+              class="flex-1 !border-l-0 focus:!border-blue-500 !text-sm"
               aria-label="Search products">
             @if (searchTerm()) {
               <p-inputGroupAddon class="cursor-pointer hover:bg-slate-50" (click)="clearSearch.emit()">

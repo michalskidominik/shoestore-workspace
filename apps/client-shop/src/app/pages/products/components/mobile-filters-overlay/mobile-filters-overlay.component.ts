@@ -74,7 +74,13 @@ interface AvailabilityOption {
                 placeholder="Product name or code..."
                 [ngModel]="searchTerm()"
                 (ngModelChange)="searchChange.emit($event)"
-                class="flex-1 !border-l-0 focus:!border-blue-500">
+                class="flex-1 !border-l-0 focus:!border-blue-500 !text-sm"
+                aria-label="Search products">
+              @if (searchTerm()) {
+                <p-inputGroupAddon class="cursor-pointer hover:bg-slate-50" (click)="clearSearch.emit()">
+                  <i class="pi pi-times text-slate-400"></i>
+                </p-inputGroupAddon>
+              }
             </p-inputGroup>
           </div>
 
@@ -176,6 +182,7 @@ export class MobileFiltersOverlayComponent {
   // Outputs
   readonly toggleFilters = output<void>();
   readonly searchChange = output<string>();
+  readonly clearSearch = output<void>();
   readonly toggleCategory = output<string>();
   readonly toggleBrand = output<string>();
   readonly toggleAvailability = output<string>();

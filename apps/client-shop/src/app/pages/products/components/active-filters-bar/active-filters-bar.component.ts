@@ -73,7 +73,7 @@ interface ActiveFilter {
           </p-badge>
         </div>
         <div class="flex items-center gap-2">
-          <span class="text-xs text-slate-600">
+          <span class="text-sm text-slate-600">
             @if (filterLoading()) {
               <i class="pi pi-spin pi-spinner text-xs mr-1"></i>
             }
@@ -82,7 +82,7 @@ interface ActiveFilter {
           <button
             type="button"
             (click)="clearAllFilters.emit()"
-            class="text-xs text-blue-600 hover:text-blue-800 font-medium">
+            class="text-sm text-blue-600 hover:text-blue-800 font-medium">
             Clear
           </button>
         </div>
