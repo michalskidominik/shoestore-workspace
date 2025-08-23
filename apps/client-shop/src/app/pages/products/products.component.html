@@ -10,21 +10,23 @@
   </app-mobile-header>
 
   <!-- Mobile Controls Component -->
-  <app-mobile-controls
-    class="lg:hidden"
-    [viewOptions]="viewOptions"
-    [currentView]="currentView()"
-    [sizeSystemOptions]="sizeSystemOptions"
-    [sizeSystem]="sizeSystem()"
-    [sortOptions]="sortOptions"
-    [selectedSort]="selectedSort()"
-    [itemsPerPageOptions]="itemsPerPageOptions"
-    [itemsPerPage]="itemsPerPage()"
-    (viewChange)="currentView.set($event)"
-    (sizeSystemChange)="sizeSystem.set($event)"
-    (sortChange)="selectedSort.set($event)"
-    (itemsPerPageChange)="itemsPerPage.set($event)">
-  </app-mobile-controls>
+  @if (isAuthenticated()) {
+    <app-mobile-controls
+      class="lg:hidden"
+      [viewOptions]="viewOptions"
+      [currentView]="currentView()"
+      [sizeSystemOptions]="sizeSystemOptions"
+      [sizeSystem]="sizeSystem()"
+      [sortOptions]="sortOptions"
+      [selectedSort]="selectedSort()"
+      [itemsPerPageOptions]="itemsPerPageOptions"
+      [itemsPerPage]="itemsPerPage()"
+      (viewChange)="currentView.set($event)"
+      (sizeSystemChange)="sizeSystem.set($event)"
+      (sortChange)="selectedSort.set($event)"
+      (itemsPerPageChange)="itemsPerPage.set($event)">
+    </app-mobile-controls>
+  }
 
   <!-- Mobile Active Filters Bar Component -->
   <app-active-filters-bar
@@ -41,26 +43,20 @@
   <div class="flex min-h-screen">
 
     <!-- Desktop Sidebar / Mobile Filters Overlay -->
-    <aside class="lg:w-80 lg:flex-shrink-0 lg:sticky lg:top-16 lg:overflow-y-auto">
+    <aside class="lg:w-80 lg:flex-shrink-0 lg:sticky lg:top-16 lg:h-screen lg:overflow-y-auto">
       <!-- Desktop Sidebar Component -->
       <app-filter-sidebar
         class="hidden lg:block"
         [totalProducts]="allShoes().length"
         [filteredProducts]="filteredShoes().length"
         [searchTerm]="searchTerm()"
-        [categoryOptions]="categoryOptions()"
         [brandOptions]="brandOptions()"
-        [availabilityOptions]="availabilityOptions"
-        [selectedCategories]="selectedCategories()"
         [selectedBrands]="selectedBrands()"
-        [selectedAvailability]="selectedAvailability()"
         [activeFilters]="activeFilters()"
         [hasActiveFilters]="hasActiveFilters()"
         (searchChange)="onSearchInput($event)"
         (clearSearch)="searchTerm.set('')"
-        (toggleCategory)="toggleCategoryFilter($event)"
         (toggleBrand)="toggleBrandFilter($event)"
-        (toggleAvailability)="toggleAvailabilityFilter($event)"
         (clearAllFilters)="clearFilters()"
         (removeFilter)="onRemoveFilter($event)">
       </app-filter-sidebar>
@@ -69,18 +65,12 @@
       <app-mobile-filters-overlay
         [showFilters]="showMobileFilters()"
         [searchTerm]="searchTerm()"
-        [categoryOptions]="categoryOptions()"
         [brandOptions]="brandOptions()"
-        [availabilityOptions]="availabilityOptions"
-        [selectedCategories]="selectedCategories()"
         [selectedBrands]="selectedBrands()"
-        [selectedAvailability]="selectedAvailability()"
         (toggleFilters)="toggleMobileFilters()"
         (searchChange)="onSearchInput($event)"
         (clearSearch)="searchTerm.set('')"
-        (toggleCategory)="toggleCategoryFilter($event)"
         (toggleBrand)="toggleBrandFilter($event)"
-        (toggleAvailability)="toggleAvailabilityFilter($event)"
         (clearAllFilters)="clearFilters()">
       </app-mobile-filters-overlay>
     </aside>
@@ -117,49 +107,53 @@
                 </p-selectButton>
               </div>
 
-              <!-- Size System -->
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-slate-700">Size:</span>
-                <p-selectButton
-                  [options]="sizeSystemOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  [ngModel]="sizeSystem()"
-                  (ngModelChange)="sizeSystem.set($event)"
-                  styleClass="!text-sm">
-                </p-selectButton>
-              </div>
+              <!-- Size System - Only for authenticated users -->
+              @if (isAuthenticated()) {
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-slate-700">Size:</span>
+                  <p-selectButton
+                    [options]="sizeSystemOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="sizeSystem()"
+                    (ngModelChange)="sizeSystem.set($event)"
+                    styleClass="!text-sm">
+                  </p-selectButton>
+                </div>
+              }
             </div>
 
-            <!-- Sort and Show Controls -->
-            <div class="flex flex-row gap-2">
-              <!-- Sort -->
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-slate-700">Sort:</span>
-                <p-select
-                  [options]="sortOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  [ngModel]="selectedSort()"
-                  (ngModelChange)="selectedSort.set($event)"
-                  placeholder="Sort by"
-                  styleClass="!w-40 !text-sm">
-                </p-select>
-              </div>
+            <!-- Sort and Show Controls - Only for authenticated users -->
+            @if (isAuthenticated()) {
+              <div class="flex flex-row gap-2">
+                <!-- Sort -->
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-slate-700">Sort:</span>
+                  <p-select
+                    [options]="sortOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="selectedSort()"
+                    (ngModelChange)="selectedSort.set($event)"
+                    placeholder="Sort by"
+                    styleClass="!w-40 !text-sm">
+                  </p-select>
+                </div>
 
-              <!-- Items Per Page -->
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-slate-700">Show:</span>
-                <p-select
-                  [options]="itemsPerPageOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  [ngModel]="itemsPerPage()"
-                  (ngModelChange)="itemsPerPage.set($event)"
-                  styleClass="!w-40 !text-sm">
-                </p-select>
+                <!-- Items Per Page -->
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-slate-700">Show:</span>
+                  <p-select
+                    [options]="itemsPerPageOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="itemsPerPage()"
+                    (ngModelChange)="itemsPerPage.set($event)"
+                    styleClass="!w-40 !text-sm">
+                  </p-select>
+                </div>
               </div>
-            </div>
+            }
           </div>
         </div>
       </div>
@@ -219,9 +213,6 @@
                 <h2 class="text-lg font-semibold text-slate-900">
                   {{ filteredShoes().length }} Products Found
                 </h2>
-                <p class="text-sm text-slate-600 mt-1">
-                  Professional wholesale footwear for your retail business
-                </p>
               </div>
             </div>
           </div>
@@ -249,7 +240,7 @@
     </main>
   </div>
 
-  <!-- Mobile Order Dialog -->
+  <!-- Order Dialog -->
   <p-dialog
     [(visible)]="showMobileOrderDialog"
     [modal]="true"
@@ -257,12 +248,12 @@
     [resizable]="false"
     [dismissableMask]="true"
     [closeOnEscape]="true"
-    styleClass="mobile-order-dialog w-full h-full max-w-none max-h-none m-0 bg-white"
+    styleClass="order-dialog w-full h-full max-w-none max-h-none m-0 bg-white lg:w-auto lg:h-auto lg:max-w-2xl lg:max-h-[80vh] lg:m-4"
     [showHeader]="false"
     position="center">
 
     @if (selectedProductForOrder()) {
-      <div class="flex flex-col h-full">
+      <div class="flex flex-col h-full lg:h-auto lg:min-h-96">
         <!-- Custom Header -->
         <div class="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
           <div class="flex items-center gap-3">
@@ -271,7 +262,8 @@
               class="flex items-center justify-center w-8 h-8 text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded-full transition-colors"
               (click)="onMobileOrderCancel()"
               [attr.aria-label]="'Close order dialog'">
-              <i class="pi pi-arrow-left text-lg"></i>
+              <i class="pi pi-arrow-left text-lg lg:hidden"></i>
+              <i class="pi pi-times text-lg hidden lg:block"></i>
             </button>
             <div>
               <h2 class="text-lg font-semibold text-slate-900">Place Order</h2>
@@ -281,7 +273,7 @@
         </div>
 
         <!-- Order Form Container -->
-        <div class="flex-1 overflow-y-auto p-4">
+        <div class="flex-1 overflow-y-auto p-4 lg:p-6">
           <app-quick-order
             [product]="selectedProductForOrder()!"
             [sizeSystem]="sizeSystem()"

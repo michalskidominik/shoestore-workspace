@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-footer',
@@ -49,12 +50,14 @@ import { RouterLink } from '@angular/router';
               <a routerLink="/products" class="block text-sm text-slate-400 hover:text-blue-400 transition-colors">
                 Product Catalog
               </a>
-              <a routerLink="/orders" class="block text-sm text-slate-400 hover:text-blue-400 transition-colors">
-                Order Management
-              </a>
-              <a routerLink="/dashboard" class="block text-sm text-slate-400 hover:text-blue-400 transition-colors">
-                Business Dashboard
-              </a>
+              @if (isAuthenticated()) {
+                <a routerLink="/orders" class="block text-sm text-slate-400 hover:text-blue-400 transition-colors">
+                  Order Management
+                </a>
+                <a routerLink="/dashboard" class="block text-sm text-slate-400 hover:text-blue-400 transition-colors">
+                  Business Dashboard
+                </a>
+              }
             </nav>
           </div>
 
@@ -86,8 +89,8 @@ import { RouterLink } from '@angular/router';
               </div>
               <div class="flex items-center justify-center sm:justify-start gap-3">
                 <i class="pi pi-phone text-blue-400 text-sm flex-shrink-0"></i>
-                <a href="tel:+48123456789" class="text-sm text-slate-400 hover:text-blue-400 transition-colors">
-                  +48 123 456 789
+                <a href="tel:+48453085149" class="text-sm text-slate-400 hover:text-blue-400 transition-colors">
+                  +48 453 085 149
                 </a>
               </div>
               <div class="flex items-center justify-center sm:justify-start gap-3">
@@ -99,8 +102,7 @@ import { RouterLink } from '@angular/router';
               <div class="flex items-start justify-center sm:justify-start gap-3">
                 <i class="pi pi-clock text-blue-400 text-sm mt-0.5 flex-shrink-0"></i>
                 <div class="text-sm text-slate-400">
-                  <p>Monday - Friday</p>
-                  <p>8:00 AM - 4:00 PM (CET)</p>
+                  <p>24/7</p>
                 </div>
               </div>
             </div>
@@ -134,6 +136,10 @@ export class FooterComponent {
   // Inputs
   readonly companyName = input.required<string>();
 
+  // Services
+  private readonly authService = inject(AuthService);
+
   // Computed properties
   readonly currentYear = new Date().getFullYear();
+  readonly isAuthenticated = this.authService.isAuthenticated;
 }

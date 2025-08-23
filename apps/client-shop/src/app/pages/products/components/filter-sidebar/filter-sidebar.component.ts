@@ -11,17 +11,6 @@ interface BrandOption {
   count?: number;
 }
 
-interface CategoryOption {
-  id: string;
-  name: string;
-  icon: string;
-}
-
-interface AvailabilityOption {
-  label: string;
-  value: string;
-}
-
 interface ActiveFilter {
   type: string;
   label: string;
@@ -36,7 +25,7 @@ interface ActiveFilter {
   template: `
     <!-- Desktop Sidebar (Always Visible) -->
     <div class="hidden lg:block bg-white border-r border-slate-200 h-full">
-      <div class="p-6">
+      <div class="p-6 h-full flex flex-col">
         <!-- Sidebar Header -->
         <div class="mb-6">
           <h2 class="text-xl font-bold text-slate-900 mb-2">Filter Products</h2>
@@ -78,32 +67,10 @@ interface ActiveFilter {
           </p-inputGroup>
         </div>
 
-        <!-- Category Filter -->
-        <div class="mb-6">
-          <div class="text-sm font-semibold text-slate-700 mb-3">Category</div>
-          <div class="space-y-2">
-            @for (category of categoryOptions(); track category.id) {
-              @if (category.id !== 'all') {
-                <label class="flex items-center cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    [checked]="isCategorySelected(category.id)"
-                    (change)="toggleCategory.emit(category.id)"
-                    class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 rounded">
-                  <div class="ml-3 flex items-center gap-2 flex-1">
-                    <i [class]="category.icon + ' text-slate-500 text-sm'"></i>
-                    <span class="text-sm text-slate-700 group-hover:text-slate-900">{{ category.name }}</span>
-                  </div>
-                </label>
-              }
-            }
-          </div>
-        </div>
-
         <!-- Brand Filter -->
-        <div class="mb-6">
+        <div class="mb-6 flex-1 flex flex-col min-h-0">
           <div class="text-sm font-semibold text-slate-700 mb-3">Brand</div>
-          <div class="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300">
+          <div class="space-y-2 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 pr-2">
             @for (brand of brandOptions(); track brand.value) {
               @if (brand.value !== 'all') {
                 <label class="flex items-center justify-between cursor-pointer group">
@@ -124,26 +91,9 @@ interface ActiveFilter {
           </div>
         </div>
 
-        <!-- Availability Filter -->
-        <div class="mb-6">
-          <div class="text-sm font-semibold text-slate-700 mb-3">Stock Status</div>
-          <div class="space-y-2">
-            @for (availability of availabilityOptions(); track availability.value) {
-              <label class="flex items-center cursor-pointer group">
-                <input
-                  type="checkbox"
-                  [checked]="isAvailabilitySelected(availability.value)"
-                  (change)="toggleAvailability.emit(availability.value)"
-                  class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 rounded">
-                <span class="ml-3 text-sm text-slate-700 group-hover:text-slate-900">{{ availability.label }}</span>
-              </label>
-            }
-          </div>
-        </div>
-
         <!-- Active Filters -->
         @if (hasActiveFilters()) {
-          <div class="border-t border-slate-200 pt-4">
+          <div class="border-t border-slate-200 pt-4 mt-auto flex-shrink-0">
             <div class="flex items-center justify-between mb-3">
               <span class="text-sm font-semibold text-slate-700">Active Filters</span>
               <button
@@ -178,34 +128,20 @@ export class FilterSidebarComponent {
   readonly totalProducts = input.required<number>();
   readonly filteredProducts = input.required<number>();
   readonly searchTerm = input.required<string>();
-  readonly categoryOptions = input.required<CategoryOption[]>();
   readonly brandOptions = input.required<BrandOption[]>();
-  readonly availabilityOptions = input.required<AvailabilityOption[]>();
-  readonly selectedCategories = input.required<string[]>();
   readonly selectedBrands = input.required<string[]>();
-  readonly selectedAvailability = input.required<string[]>();
   readonly activeFilters = input.required<ActiveFilter[]>();
   readonly hasActiveFilters = input.required<boolean>();
 
   // Outputs
   readonly searchChange = output<string>();
   readonly clearSearch = output<void>();
-  readonly toggleCategory = output<string>();
   readonly toggleBrand = output<string>();
-  readonly toggleAvailability = output<string>();
   readonly removeFilter = output<{type: string, value: string}>();
   readonly clearAllFilters = output<void>();
 
   // Helper methods for template
-  isCategorySelected(categoryId: string): boolean {
-    return this.selectedCategories().includes(categoryId);
-  }
-
   isBrandSelected(brandValue: string): boolean {
     return this.selectedBrands().includes(brandValue);
-  }
-
-  isAvailabilitySelected(availabilityValue: string): boolean {
-    return this.selectedAvailability().includes(availabilityValue);
   }
 }
