@@ -1,0 +1,257 @@
+<div class="sign-in-container min-h-screen flex flex-col items-center justify-center bg-transparent p-6 md:p-12 font-sans">
+  <!-- Logo is now inside form-section -->
+  <div class="form-section w-full max-w-2xl bg-white px-6 md:px-12 py-8 md:py-12">
+    <div class="w-full">
+      <!-- Logo -->
+      <div class="mb-6 text-center hidden md:block">
+        <img src="logo.jpg" alt="MANDRAIME Logo" class="h-32 w-auto inline-block" />
+      </div>
+
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <h2 class="text-3xl font-bold text-slate-900 mb-2">Request B2B Access</h2>
+        <p class="text-slate-600">Complete the form below to request access to MANDRAIME</p>
+      </div>
+
+      <!-- Request Access Form -->
+      <form [formGroup]="requestForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <!-- Error Message -->
+        <p-message
+          *ngIf="errorMessage()"
+          severity="error"
+          [text]="errorMessage()!"
+          class="block mb-6 w-full">
+        </p-message>
+
+        <!-- Company Information Section -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">Company Information</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Company Name Field -->
+            <div class="field">
+              <label for="companyName" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
+                Company Name <span class="text-red-500">*</span>
+              </label>
+              <input
+                pInputText
+                id="companyName"
+                type="text"
+                formControlName="companyName"
+                placeholder="Enter company name"
+                class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
+                [class.border-red-500]="isFieldInvalid('companyName')" />
+              <small
+                *ngIf="isFieldInvalid('companyName')"
+                class="text-red-500 block mt-1">
+                {{ getFieldError('companyName') }}
+              </small>
+            </div>
+
+            <!-- VAT ID Field -->
+            <div class="field">
+              <label for="vatId" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
+                VAT ID <span class="text-red-500">*</span>
+              </label>
+              <input
+                pInputText
+                id="vatId"
+                type="text"
+                formControlName="vatId"
+                placeholder="Enter VAT ID"
+                class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
+                [class.border-red-500]="isFieldInvalid('vatId')" />
+              <small
+                *ngIf="isFieldInvalid('vatId')"
+                class="text-red-500 block mt-1">
+                {{ getFieldError('vatId') }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact Information Section -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">Contact Information</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Email Field -->
+            <div class="field">
+              <label for="email" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
+                Email Address <span class="text-red-500">*</span>
+              </label>
+              <input
+                pInputText
+                id="email"
+                type="email"
+                formControlName="email"
+                placeholder="Enter your email"
+                autocomplete="email"
+                class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
+                [class.border-red-500]="isFieldInvalid('email')" />
+              <small
+                *ngIf="isFieldInvalid('email')"
+                class="text-red-500 block mt-1">
+                {{ getFieldError('email') }}
+              </small>
+            </div>
+
+            <!-- Phone Number Field -->
+            <div class="field">
+              <label for="phoneNumber" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
+                Phone Number <span class="text-red-500">*</span>
+              </label>
+              <input
+                pInputText
+                id="phoneNumber"
+                type="tel"
+                formControlName="phoneNumber"
+                placeholder="Enter phone number"
+                autocomplete="tel"
+                class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
+                [class.border-red-500]="isFieldInvalid('phoneNumber')" />
+              <small
+                *ngIf="isFieldInvalid('phoneNumber')"
+                class="text-red-500 block mt-1">
+                {{ getFieldError('phoneNumber') }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delivery Address Section -->
+        <div class="mb-8">
+          <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">Delivery Address</h3>
+
+          <!-- Street Address -->
+          <div class="field mb-6">
+            <label for="street" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
+              Street Address <span class="text-red-500">*</span>
+            </label>
+            <input
+              pInputText
+              id="street"
+              type="text"
+              formControlName="street"
+              placeholder="Enter street address"
+              autocomplete="street-address"
+              class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
+              [class.border-red-500]="isFieldInvalid('street')" />
+            <small
+              *ngIf="isFieldInvalid('street')"
+              class="text-red-500 block mt-1">
+              {{ getFieldError('street') }}
+            </small>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- City Field -->
+            <div class="field">
+              <label for="city" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
+                City <span class="text-red-500">*</span>
+              </label>
+              <input
+                pInputText
+                id="city"
+                type="text"
+                formControlName="city"
+                placeholder="Enter city"
+                autocomplete="address-level2"
+                class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
+                [class.border-red-500]="isFieldInvalid('city')" />
+              <small
+                *ngIf="isFieldInvalid('city')"
+                class="text-red-500 block mt-1">
+                {{ getFieldError('city') }}
+              </small>
+            </div>
+
+            <!-- Postal Code Field -->
+            <div class="field">
+              <label for="postalCode" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
+                Postal Code <span class="text-red-500">*</span>
+              </label>
+              <input
+                pInputText
+                id="postalCode"
+                type="text"
+                formControlName="postalCode"
+                placeholder="Enter postal code"
+                autocomplete="postal-code"
+                class="w-full h-12 px-4 text-slate-900 bg-white border border-slate-300 rounded-lg text-base font-medium transition-all duration-300 ease-in-out focus:ring-1 focus:ring-slate-600 focus:shadow-md focus:border-slate-600 focus:outline-none"
+                [class.border-red-500]="isFieldInvalid('postalCode')" />
+              <small
+                *ngIf="isFieldInvalid('postalCode')"
+                class="text-red-500 block mt-1">
+                {{ getFieldError('postalCode') }}
+              </small>
+            </div>
+
+            <!-- Country Field -->
+            <div class="field">
+              <label for="country" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
+                Country <span class="text-red-500">*</span>
+              </label>
+              <p-select
+                formControlName="country"
+                [options]="countries"
+                placeholder="Select country"
+                optionLabel="label"
+                optionValue="value"
+                [class.ng-invalid]="isFieldInvalid('country')"
+                styleClass="w-full">
+              </p-select>
+              <small
+                *ngIf="isFieldInvalid('country')"
+                class="text-red-500 block mt-1">
+                {{ getFieldError('country') }}
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Terms and Conditions -->
+        <div class="field mb-8">
+          <div class="flex items-start gap-3">
+            <p-checkbox
+              formControlName="acceptsTerms"
+              [binary]="true"
+              [class.ng-invalid]="isFieldInvalid('acceptsTerms')">
+            </p-checkbox>
+            <label for="acceptsTerms" class="text-sm text-slate-700 leading-5">
+              I confirm that registration and use of this site is equivalent to accepting the
+              <a href="/regulations" target="_blank" class="text-slate-600 hover:text-slate-900 underline font-medium">
+                Terms and Conditions
+              </a>
+              <span class="text-red-500">*</span>
+            </label>
+          </div>
+          <small
+            *ngIf="isFieldInvalid('acceptsTerms')"
+            class="text-red-500 block mt-1 ml-8">
+            {{ getFieldError('acceptsTerms') }}
+          </small>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+          <a
+            routerLink="/sign-in"
+            class="text-slate-600 hover:text-slate-900 text-sm font-medium underline">
+            Back to Sign In
+          </a>
+
+          <p-button
+            type="submit"
+            label="Submit Registration Request"
+            icon="pi pi-send"
+            [loading]="loading()"
+            [disabled]="requestForm.invalid"
+            styleClass="corporate-button">
+          </p-button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

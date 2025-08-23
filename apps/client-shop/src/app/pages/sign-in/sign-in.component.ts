@@ -37,15 +37,12 @@ export class SignInComponent {
   // Form and state management
   loginForm: FormGroup;
   passwordResetForm: FormGroup;
-  accessRequestForm: FormGroup;
 
   // UI state
   loading = signal(false);
   errorMessage = signal<string | null>(null);
   showPasswordResetDialog = signal(false);
-  showAccessRequestDialog = signal(false);
   resetPasswordLoading = signal(false);
-  accessRequestLoading = signal(false);
   successMessage = signal<string | null>(null);
 
   constructor() {
@@ -56,11 +53,6 @@ export class SignInComponent {
 
     this.passwordResetForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]]
-    });
-
-    this.accessRequestForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      company: ['', [Validators.required, Validators.minLength(2)]]
     });
   }
 
@@ -128,32 +120,13 @@ export class SignInComponent {
     }
   }
 
-  async onAccessRequest(): Promise<void> {
-    if (this.accessRequestForm.invalid) {
-      this.accessRequestForm.markAllAsTouched();
-      return;
-    }
-
-    this.accessRequestLoading.set(true);
-    const { email, company } = this.accessRequestForm.value;
-    const result = await this.authService.requestAccess(email, company);
-    this.accessRequestLoading.set(false);
-
-    if (result.success) {
-      this.successMessage.set(result.message);
-      this.showAccessRequestDialog.set(false);
-      this.accessRequestForm.reset();
-    }
-  }
-
   onShowPasswordReset(): void {
     this.showPasswordResetDialog.set(true);
     this.passwordResetForm.reset();
   }
 
   onShowAccessRequest(): void {
-    this.showAccessRequestDialog.set(true);
-    this.accessRequestForm.reset();
+    this.router.navigate(['/request-access']);
   }
 
   // Helper methods for form validation
