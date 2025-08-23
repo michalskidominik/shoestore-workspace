@@ -27,9 +27,9 @@ import { MessageService } from 'primeng/api';
 export class ContactComponent {
   readonly contactInfo = {
     email: 'contact@mandraime.com',
-    phone: '+48 812 121 121',
-    whatsapp: '+48 812 121 121',
-    companyName: 'MANDRAIME'
+    phone: '+48 453 085 149',
+    whatsapp: '+48 453 085 149',
+    companyName: 'MANDRAIME SUPPLY'
   };
 
   readonly companyDetails = {
@@ -41,10 +41,10 @@ export class ContactComponent {
   };
 
   readonly businessInfo = {
-    hours: 'Monday - Friday, 8:00 AM - 4:00 PM (CET)',
+    hours: '24/7 - Always Available',
     languages: ['English', 'Polish'],
     specialization: 'B2B Footwear Wholesale',
-    coverage: '15+ Countries in Europe'
+    coverage: '27 Countries in Europe'
   };
 
   protected readonly isSubmitting = signal(false);
@@ -100,7 +100,7 @@ export class ContactComponent {
   protected onSubmitContactForm() {
     if (this.contactForm.valid) {
       this.isSubmitting.set(true);
-      
+
       // Simulate form submission
       setTimeout(() => {
         this.messageService.add({
