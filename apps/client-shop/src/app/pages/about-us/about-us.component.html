@@ -121,7 +121,7 @@
   <!-- Business Capabilities Section -->
   <div class="bg-white border border-slate-200 rounded-lg p-6 mb-8">
     <div class="mb-6">
-      <h2 class="text-xl font-bold text-slate-900 mb-2">Professional B2B Services</h2>
+      <h2 class="text-xl font-bold text-slate-900 mb-2">What makes us different</h2>
       <p class="text-sm text-slate-600">
         Comprehensive wholesale solutions designed to help retail partners succeed in the competitive footwear market.
       </p>
@@ -142,29 +142,6 @@
     </div>
   </div>
 
-  <!-- Company Values Section -->
-  <div class="bg-white border border-slate-200 rounded-lg p-6 mb-8">
-    <div class="mb-6">
-      <h2 class="text-xl font-bold text-slate-900 mb-2">Our Business Values</h2>
-      <p class="text-sm text-slate-600">
-        The principles that guide our partnerships and drive our commitment to excellence in every business relationship.
-      </p>
-    </div>
-
-    <div class="grid md:grid-cols-2 gap-6">
-      <div *ngFor="let value of companyInfo.values; let i = index" class="p-4 border border-slate-200 rounded-lg">
-        <div class="flex items-start gap-4">
-          <div class="bg-green-100 p-3 rounded-xl flex-shrink-0">
-            <i class="pi pi-check text-green-600 text-lg"></i>
-          </div>
-          <div class="flex-1">
-            <h3 class="text-base font-semibold text-slate-900 mb-2">{{ value }}</h3>
-            <p class="text-sm text-slate-600 leading-relaxed" [innerHTML]="getValueDescription(i)"></p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
   <!-- Company Information & Credentials -->
   <div class="bg-white border border-slate-200 rounded-lg p-6 mb-8">
     <div class="mb-6">
@@ -203,16 +180,6 @@
           <div><span class="font-medium">VAT ID:</span> {{ companyDetails.vatId }}</div>
           <div><span class="font-medium">REGON:</span> {{ companyDetails.regon }}</div>
           <div><span class="font-medium">KRS:</span> {{ companyDetails.krs }}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Certifications -->
-    <div class="pt-6 border-t border-slate-200">
-      <h3 class="text-base font-semibold text-slate-900 mb-4 text-center">Business Certifications & Standards</h3>
-      <div class="flex flex-wrap justify-center gap-3">
-        <div *ngFor="let cert of businessInfo.certifications" class="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium border border-slate-200">
-          <i class="pi pi-shield-check mr-2"></i>{{ cert }}
         </div>
       </div>
     </div>
