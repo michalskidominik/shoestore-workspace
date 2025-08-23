@@ -1,0 +1,19 @@
+@reference "tailwindcss";
+/* Request Access Success Page Styles */
+
+/* Corporate Button Styling */
+::ng-deep .corporate-button button {
+  @apply bg-gradient-to-r from-slate-700 to-slate-600 border border-slate-700 text-white font-semibold tracking-wider h-12 rounded-lg transition-all duration-300 ease-in-out shadow-md;
+}
+
+::ng-deep .corporate-button button:hover {
+  @apply bg-gradient-to-r from-slate-800 to-slate-700 border-slate-800 -translate-y-px shadow-lg;
+}
+
+::ng-deep .corporate-button button:focus {
+  @apply outline-none ring-2 ring-slate-500;
+}
+
+::ng-deep .corporate-button button:active {
+  @apply translate-y-0 shadow-sm;
+}

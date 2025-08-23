@@ -13,6 +13,18 @@ export const appRoutes: Route[] = [
     canActivate: [guestGuard],
     loadComponent: () => import('./pages/sign-in/sign-in.component').then(m => m.SignInComponent)
   },
+  // Request access page (for guests only)
+  {
+    path: 'request-access',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./pages/request-access/request-access.component').then(m => m.RequestAccessComponent)
+  },
+  // Request access success page (for guests only)
+  {
+    path: 'request-access-success',
+    canActivate: [guestGuard],
+    loadComponent: () => import('./pages/request-access-success/request-access-success.component').then(m => m.RequestAccessSuccessComponent)
+  },
   // Main layout with auth protection for some routes
   {
     path: '',
