@@ -4,7 +4,7 @@
     <div class="w-full">
       <!-- Logo -->
       <div class="mb-6 text-center hidden md:block">
-        <img src="logo.svg" alt="MANDRAIME Logo" class="h-16 w-auto inline-block" />
+        <img src="logo.jpg" alt="MANDRAIME Logo" class="h-32 w-auto inline-block" />
       </div>
 
       <!-- Header -->
@@ -27,7 +27,7 @@
         <!-- Company Information Section -->
         <div class="mb-8">
           <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">Company Information</h3>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Company Name Field -->
             <div class="field">
@@ -74,7 +74,7 @@
         <!-- Contact Information Section -->
         <div class="mb-8">
           <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">Contact Information</h3>
-          
+
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             <!-- Email Field -->
             <div class="field">
@@ -123,7 +123,7 @@
         <!-- Delivery Address Section -->
         <div class="mb-8">
           <h3 class="text-lg font-semibold text-slate-800 mb-4 border-b border-slate-200 pb-2">Delivery Address</h3>
-          
+
           <!-- Street Address -->
           <div class="field mb-6">
             <label for="street" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
@@ -193,7 +193,7 @@
               <label for="country" class="block text-sm font-semibold text-slate-800 mb-2 tracking-wide">
                 Country <span class="text-red-500">*</span>
               </label>
-              <p-dropdown
+              <p-select
                 formControlName="country"
                 [options]="countries"
                 placeholder="Select country"
@@ -201,7 +201,7 @@
                 optionValue="value"
                 [class.ng-invalid]="isFieldInvalid('country')"
                 styleClass="w-full">
-              </p-dropdown>
+              </p-select>
               <small
                 *ngIf="isFieldInvalid('country')"
                 class="text-red-500 block mt-1">
@@ -220,10 +220,10 @@
               [class.ng-invalid]="isFieldInvalid('acceptsTerms')">
             </p-checkbox>
             <label for="acceptsTerms" class="text-sm text-slate-700 leading-5">
-              I confirm that registration and use of this site is equivalent to accepting the 
+              I confirm that registration and use of this site is equivalent to accepting the
               <a href="/regulations" target="_blank" class="text-slate-600 hover:text-slate-900 underline font-medium">
                 Terms and Conditions
-              </a> 
+              </a>
               <span class="text-red-500">*</span>
             </label>
           </div>
@@ -241,7 +241,7 @@
             class="text-slate-600 hover:text-slate-900 text-sm font-medium underline">
             Back to Sign In
           </a>
-          
+
           <p-button
             type="submit"
             label="Submit Registration Request"

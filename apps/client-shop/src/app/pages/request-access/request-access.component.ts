@@ -7,7 +7,7 @@ import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { CheckboxModule } from 'primeng/checkbox';
-import { DropdownModule } from 'primeng/dropdown';
+import { SelectModule } from 'primeng/select';
 import { RegistrationRequestService, RegistrationRequest } from '../../core/services/registration-request.service';
 
 @Component({
@@ -22,7 +22,7 @@ import { RegistrationRequestService, RegistrationRequest } from '../../core/serv
     InputTextModule,
     MessageModule,
     CheckboxModule,
-    DropdownModule
+    SelectModule
   ],
   templateUrl: './request-access.component.html',
   styleUrl: './request-access.component.scss',
@@ -77,7 +77,7 @@ export class RequestAccessComponent {
       email: ['', [Validators.required, Validators.email]],
       companyName: ['', [Validators.required, Validators.minLength(2)]],
       vatId: ['', [Validators.required, Validators.minLength(5)]],
-      phoneNumber: ['', [Validators.required, Validators.pattern(/^[+]?[\d\s\-\(\)]+$/)]],
+      phoneNumber: ['', [Validators.required, Validators.pattern(/^[+]?[\d\s\-()]+$/)]],
       street: ['', [Validators.required]],
       city: ['', [Validators.required]],
       postalCode: ['', [Validators.required]],

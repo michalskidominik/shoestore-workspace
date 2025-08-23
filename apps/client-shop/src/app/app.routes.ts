@@ -37,6 +37,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'dashboard',
+        canActivate: [authGuard],
         loadComponent: () => import('./pages/dashboard/dashboard.component').then(m => m.DashboardComponent)
       },
       {
@@ -81,6 +82,6 @@ export const appRoutes: Route[] = [
   },
   {
     path: '**',
-    redirectTo: '/dashboard'
+    redirectTo: '/landing'
   }
 ];
