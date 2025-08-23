@@ -13,6 +13,8 @@ import { DividerModule } from 'primeng/divider';
   styleUrl: './about-us.component.scss',
 })
 export class AboutUsComponent {
+  readonly companyName = 'MANDRAIME SUPPLY';
+
   readonly companyInfo = {
     name: 'MANDRAIME SUPPLY',
     founded: '2020',
@@ -38,16 +40,16 @@ export class AboutUsComponent {
 
   readonly businessInfo = {
     specialization: 'B2B Footwear Wholesale',
-    coverage: '15+ Countries in Europe',
+    coverage: '27 Countries in Europe',
     responseTime: '24h',
-    partnerStores: '50+',
+    partnerStores: '100+',
     languages: ['English', 'Polish'],
     certifications: ['EU Quality Standards', 'ISO 9001:2015', 'Sustainable Manufacturing']
   };
 
   readonly stats = [
-    { label: 'Partner Stores', value: '50+', icon: 'pi pi-building' },
-    { label: 'Countries Served', value: '15+', icon: 'pi pi-globe' },
+    { label: 'Partner Stores', value: '100+', icon: 'pi pi-building' },
+    { label: 'Countries Served', value: '27', icon: 'pi pi-globe' },
     { label: 'SKUs Available', value: '100+', icon: 'pi pi-box' },
     { label: 'Years of Excellence', value: '5+', icon: 'pi pi-calendar' },
   ];

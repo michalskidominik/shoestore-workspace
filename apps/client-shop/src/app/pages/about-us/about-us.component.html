@@ -6,7 +6,7 @@
     <div class="px-6 py-4 border-b border-slate-200">
       <div class="flex items-center justify-between">
         <div>
-          <h1 class="text-2xl font-bold text-slate-900">About {{ companyInfo.name }}</h1>
+          <h1 class="text-2xl font-bold text-slate-900">About {{ companyName }}</h1>
           <p class="text-sm text-slate-600 mt-1">
             Your trusted B2B footwear supplier since {{ companyInfo.founded }} - Empowering retailers across Europe
           </p>
@@ -15,11 +15,11 @@
           <div class="bg-blue-600 p-1.5 rounded-lg">
             <i class="pi pi-building text-white text-sm" aria-hidden="true"></i>
           </div>
-          <span class="text-sm font-semibold text-blue-900">{{ companyInfo.name }} B2B</span>
+          <span class="text-sm font-semibold text-blue-900">{{ companyName }}</span>
         </div>
       </div>
     </div>
-    
+
     <!-- Business Stats -->
     <div class="px-6 py-4 bg-slate-50/50">
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -55,7 +55,7 @@
   </div>
   <!-- Mission & Vision Section -->
   <div class="grid lg:grid-cols-2 gap-8 mb-8">
-    
+
     <!-- Mission & Vision Cards -->
     <div>
       <div class="bg-white border border-slate-200 rounded-lg p-6 mb-6">
@@ -65,7 +65,7 @@
             Driving the European footwear retail market through professional partnerships and exceptional service.
           </p>
         </div>
-        
+
         <div class="space-y-6">
           <!-- Mission Card -->
           <div class="p-4 border border-slate-200 rounded-lg">
@@ -79,7 +79,7 @@
               {{ companyInfo.mission }}
             </p>
           </div>
-          
+
           <!-- Vision Card -->
           <div class="p-4 border border-slate-200 rounded-lg">
             <div class="flex items-center gap-3 mb-3">
@@ -105,7 +105,7 @@
             Proven track record of success in the European footwear wholesale market.
           </p>
         </div>
-        
+
         <div class="grid grid-cols-2 gap-4">
           <div *ngFor="let stat of stats" class="text-center p-4 border border-slate-200 rounded-lg">
             <div class="bg-slate-100 p-3 rounded-xl w-fit mx-auto mb-3">
@@ -191,9 +191,9 @@
       <div class="bg-blue-100 p-4 rounded-xl w-fit mx-auto mb-4">
         <i class="pi pi-handshake text-blue-600 text-2xl"></i>
       </div>
-      <h2 class="text-xl font-bold text-slate-900 mb-2">Ready to Partner with {{ companyInfo.name }}?</h2>
+      <h2 class="text-xl font-bold text-slate-900 mb-2">Ready to Partner with {{ companyName }}?</h2>
       <p class="text-sm text-slate-600 max-w-2xl mx-auto">
-        Join our growing network of successful retail partners. Get access to our full wholesale catalog, 
+        Join our growing network of successful retail partners. Get access to our full wholesale catalog,
         dedicated support, and competitive pricing designed to help your business thrive.
       </p>
     </div>
