@@ -9,7 +9,7 @@ import { PasswordModule } from 'primeng/password';
 import { MessageModule } from 'primeng/message';
 import { DividerModule } from 'primeng/divider';
 import { DialogModule } from 'primeng/dialog';
-import { AuthService, LoginCredentials } from '../../core/services/auth.service';
+import { AuthStore, LoginCredentials } from '../../core/stores/auth.store';
 
 @Component({
   selector: 'app-sign-in',
@@ -29,21 +29,23 @@ import { AuthService, LoginCredentials } from '../../core/services/auth.service'
   styleUrl: './sign-in.component.scss'
 })
 export class SignInComponent {
-  private authService = inject(AuthService);
-  private router = inject(Router);
-  private route = inject(ActivatedRoute);
-  private fb = inject(FormBuilder);
+  private readonly authStore = inject(AuthStore);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly fb = inject(FormBuilder);
 
-  // Form and state management
+  // Replace local signals with store signals
+  protected readonly loading = this.authStore.isLoading;
+  protected readonly errorMessage = this.authStore.error;
+
+  // Keep local UI state for dialogs
+  protected readonly showPasswordResetDialog = signal(false);
+  protected readonly resetPasswordLoading = signal(false);
+  protected readonly successMessage = signal<string | null>(null);
+
+  // Form setup
   loginForm: FormGroup;
   passwordResetForm: FormGroup;
-
-  // UI state
-  loading = signal(false);
-  errorMessage = signal<string | null>(null);
-  showPasswordResetDialog = signal(false);
-  resetPasswordLoading = signal(false);
-  successMessage = signal<string | null>(null);
 
   constructor() {
     this.loginForm = this.fb.group({
@@ -62,44 +64,18 @@ export class SignInComponent {
       return;
     }
 
-    this.loading.set(true);
-    this.errorMessage.set(null);
-
     const credentials: LoginCredentials = this.loginForm.value;
-    const result = await this.authService.login(credentials);
-
-    this.loading.set(false);
-
-    if (result.success) {
-      // Get return URL from query params or default to dashboard
-      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-      this.router.navigate([returnUrl]);
-    } else {
-      this.errorMessage.set(result.error || 'Login failed');
-    }
+    this.authStore.login(credentials);
   }
 
   async onMockB2BLogin(): Promise<void> {
-    this.loading.set(true);
-    this.errorMessage.set(null);
-
     // Use predefined B2B test user credentials
     const mockCredentials: LoginCredentials = {
       email: 'b2b-test@sgats.com',
       password: 'b2b123'
     };
 
-    const result = await this.authService.login(mockCredentials);
-
-    this.loading.set(false);
-
-    if (result.success) {
-      // Get return URL from query params or default to dashboard
-      const returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/dashboard';
-      this.router.navigate([returnUrl]);
-    } else {
-      this.errorMessage.set('Failed to login with test B2B account');
-    }
+    this.authStore.login(mockCredentials);
   }
 
   async onPasswordReset(): Promise<void> {
@@ -110,13 +86,15 @@ export class SignInComponent {
 
     this.resetPasswordLoading.set(true);
     const email = this.passwordResetForm.get('email')?.value;
-    const result = await this.authService.requestPasswordReset(email);
-    this.resetPasswordLoading.set(false);
-
-    if (result.success) {
-      this.successMessage.set(result.message);
-      this.showPasswordResetDialog.set(false);
-      this.passwordResetForm.reset();
+    if (email) {
+      this.authStore.requestPasswordReset(email);
+      // Simulate delay for UI feedback
+      setTimeout(() => {
+        this.resetPasswordLoading.set(false);
+        this.successMessage.set('Password reset instructions have been sent to your email.');
+        this.showPasswordResetDialog.set(false);
+        this.passwordResetForm.reset();
+      }, 500);
     }
   }
 

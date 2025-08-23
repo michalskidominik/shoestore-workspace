@@ -13,7 +13,7 @@ import { filter, map, takeUntil } from 'rxjs';
 import { Subject } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UiStateService } from '../../../core/services/ui-state.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthStore } from '../../../core/stores/auth.store';
 import { CartService } from '../../../shared/services/cart.service';
 import { CartPanelComponent } from './components/cart-panel/cart-panel.component';
 
@@ -53,7 +53,7 @@ interface NavigationItem {
 export class HeaderComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly uiStateService = inject(UiStateService);
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly cartService = inject(CartService);
   private readonly router = inject(Router);
 
@@ -65,8 +65,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   protected readonly isMobileMenuOpen = signal(false);
 
   // Authentication state
-  readonly isAuthenticated = this.authService.isAuthenticated;
-  readonly currentUser = this.authService.currentUser;
+  readonly isAuthenticated = this.authStore.isAuthenticated;
+  readonly currentUser = this.authStore.user;
   // All users are B2B - no need for isB2BUser property
 
   // Cart state
@@ -110,6 +110,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
+    // Initialize authentication when app starts
+    this.authStore.initializeAuth();
+    
     // Close menus when clicking outside
     document.addEventListener('click', this.handleDocumentClick.bind(this));
   }
@@ -198,7 +201,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   protected onLogout(): void {
-    this.authService.logout();
+    this.authStore.logout();
     this.logout.emit();
     // PrimeNG OverlayPanel will close automatically
   }
