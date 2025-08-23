@@ -105,17 +105,6 @@ type ImageSize = 'small' | 'medium' | 'large';
               </p-button>
             </div>
           </div>
-
-          <!-- Order Form -->
-          @if (showQuickOrder()) {
-            <app-quick-order
-              [product]="product()"
-              [sizeSystem]="sizeSystem()"
-              [isSubmitting]="quickOrderSubmitting()"
-              (placeOrder)="onQuickOrderSubmit($event)"
-              (cancelOrder)="onQuickOrderCancel()">
-            </app-quick-order>
-          }
         </div>
       } @else {
         <!-- List Layout -->
@@ -175,19 +164,6 @@ type ImageSize = 'small' | 'medium' | 'large';
             </p-button>
           </div>
         </div>
-
-        <!-- Order Form for List Layout -->
-        @if (showQuickOrder()) {
-          <div class="mt-3 border-t border-slate-200 pt-3">
-            <app-quick-order
-              [product]="product()"
-              [sizeSystem]="sizeSystem()"
-              [isSubmitting]="quickOrderSubmitting()"
-              (placeOrder)="onQuickOrderSubmit($event)"
-              (cancelOrder)="onQuickOrderCancel()">
-            </app-quick-order>
-          </div>
-        }
       }
     </div>
   `,
@@ -218,10 +194,6 @@ export class ProductCardComponent {
   readonly addToCart = output<Shoe>();
   readonly viewDetails = output<Shoe>();
 
-  // State for quick order
-  protected readonly showQuickOrder = signal<boolean>(false);
-  protected readonly quickOrderSubmitting = signal<boolean>(false);
-
   // Event handlers
   protected onAddToCart(): void {
     const shoe = this.product();
@@ -238,62 +210,8 @@ export class ProductCardComponent {
 
   // Quick Order methods
   protected onQuickOrder(): void {
-    // On mobile, emit addToCart event to trigger mobile dialog
-    // On desktop, show inline form
-    if (this.isMobile()) {
-      this.onAddToCart();
-    } else {
-      this.showQuickOrder.set(true);
-    }
-  }
-
-  protected onQuickOrderCancel(): void {
-    this.showQuickOrder.set(false);
-  }
-
-  protected onQuickOrderSubmit(orderData: OrderData): void {
-    this.quickOrderSubmitting.set(true);
-
-    const request: AddToCartRequest = {
-      productId: orderData.productId,
-      productCode: this.product().code,
-      productName: this.product().name,
-      items: orderData.items
-    };
-
-    this.cartService.addToCart(request).subscribe({
-      next: () => {
-        this.quickOrderSubmitting.set(false);
-        this.showQuickOrder.set(false);
-
-        // Show success toast with undo option
-        const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
-        this.toastService.showSuccess(
-          `Added ${totalItems} items to cart`,
-          5000,
-          {
-            label: 'Undo',
-            handler: () => this.undoLastCartAction(orderData)
-          }
-        );
-      },
-      error: (error) => {
-        this.quickOrderSubmitting.set(false);
-        this.toastService.showError(
-          'Failed to add items to cart. Please try again.',
-          7000
-        );
-        console.error('Failed to add to cart:', error);
-      }
-    });
-  }
-
-  private undoLastCartAction(orderData: OrderData): void {
-    // Remove the items that were just added
-    orderData.items.forEach(item => {
-      this.cartService.removeItem(orderData.productId, item.size);
-    });
-    this.toastService.showInfo('Items removed from cart');
+    // Always emit addToCart event to trigger modal dialog for both desktop and mobile
+    this.onAddToCart();
   }
 
   // Helper methods

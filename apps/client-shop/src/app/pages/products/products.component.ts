@@ -313,10 +313,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // ============================================
 
   protected onMobileOrder(product: Shoe): void {
-    if (this.isMobile()) {
-      this.selectedProductForOrder.set(product);
-      this.showMobileOrderDialog.set(true);
-    }
+    // Show order dialog for both desktop and mobile
+    this.selectedProductForOrder.set(product);
+    this.showMobileOrderDialog.set(true);
   }
 
   protected onMobileOrderSubmit(orderData: OrderData): void {

@@ -234,7 +234,7 @@
     </main>
   </div>
 
-  <!-- Mobile Order Dialog -->
+  <!-- Order Dialog -->
   <p-dialog
     [(visible)]="showMobileOrderDialog"
     [modal]="true"
@@ -242,12 +242,12 @@
     [resizable]="false"
     [dismissableMask]="true"
     [closeOnEscape]="true"
-    styleClass="mobile-order-dialog w-full h-full max-w-none max-h-none m-0 bg-white"
+    styleClass="order-dialog w-full h-full max-w-none max-h-none m-0 bg-white lg:w-auto lg:h-auto lg:max-w-2xl lg:max-h-[80vh] lg:m-4"
     [showHeader]="false"
     position="center">
 
     @if (selectedProductForOrder()) {
-      <div class="flex flex-col h-full">
+      <div class="flex flex-col h-full lg:h-auto lg:min-h-96">
         <!-- Custom Header -->
         <div class="flex items-center justify-between p-4 border-b border-slate-200 bg-slate-50">
           <div class="flex items-center gap-3">
@@ -256,7 +256,8 @@
               class="flex items-center justify-center w-8 h-8 text-slate-600 hover:text-slate-900 hover:bg-slate-200 rounded-full transition-colors"
               (click)="onMobileOrderCancel()"
               [attr.aria-label]="'Close order dialog'">
-              <i class="pi pi-arrow-left text-lg"></i>
+              <i class="pi pi-arrow-left text-lg lg:hidden"></i>
+              <i class="pi pi-times text-lg hidden lg:block"></i>
             </button>
             <div>
               <h2 class="text-lg font-semibold text-slate-900">Place Order</h2>
@@ -266,7 +267,7 @@
         </div>
 
         <!-- Order Form Container -->
-        <div class="flex-1 overflow-y-auto p-4">
+        <div class="flex-1 overflow-y-auto p-4 lg:p-6">
           <app-quick-order
             [product]="selectedProductForOrder()!"
             [sizeSystem]="sizeSystem()"
