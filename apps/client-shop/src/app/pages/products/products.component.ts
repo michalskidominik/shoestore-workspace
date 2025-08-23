@@ -382,7 +382,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   protected clearFilters(): void {
-    this.clearAllFilters();
+    this.searchTerm.set('');
+    this.selectedBrands.set([]);
   }
 
   protected onQuickOrder(shoe: Shoe): void {
@@ -539,6 +540,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   protected onRemoveFilter(event: {type: string, value: string}): void {
-    this.removeActiveFilter(event.type, event.value);
+    if (event.type === 'search') {
+      this.searchTerm.set('');
+    } else if (event.type === 'brand') {
+      const current = this.selectedBrands();
+      this.selectedBrands.set(current.filter(b => b !== event.value));
+    }
   }
 }
