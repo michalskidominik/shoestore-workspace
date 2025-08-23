@@ -101,7 +101,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // State signals
   protected readonly allShoes = signal<Shoe[]>([]);
   protected readonly sizeTemplates = signal<SizeTemplate[]>([]);
-  protected readonly categories = signal<ProductCategory[]>([]);
   protected readonly brands = signal<string[]>([]);
   protected readonly brandStats = signal<Record<string, number>>({});
   protected readonly loading = signal(true);
@@ -117,8 +116,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // Filter signals
   protected readonly searchTerm = signal('');
   protected readonly selectedBrands = signal<string[]>([]);
-  protected readonly selectedCategories = signal<string[]>([]);
-  protected readonly selectedAvailability = signal<string[]>([]);
   protected readonly selectedSort = signal('name-asc');
   protected readonly sizeSystem = signal<'eu' | 'us'>('eu');
   protected readonly currentView = signal<'grid' | 'list'>('grid');
@@ -148,13 +145,9 @@ export class ProductsComponent implements OnInit, OnDestroy {
     ];
   });
 
-  protected readonly categoryOptions = computed(() => this.categories());
-
   protected readonly hasActiveFilters = computed(() => {
     return this.searchTerm() !== '' ||
-           this.selectedBrands().length > 0 ||
-           this.selectedCategories().length > 0 ||
-           this.selectedAvailability().length > 0;
+           this.selectedBrands().length > 0;
   });
 
   // Active filters for display
@@ -182,27 +175,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
       });
     });
 
-    // Category filters
-    this.selectedCategories().forEach(category => {
-      const categoryOption = this.categoryOptions().find(c => c.id === category);
-      filters.push({
-        type: 'category',
-        label: 'Category',
-        value: category,
-        displayValue: categoryOption?.name || category
-      });
-    });
-
-    // Availability filters
-    this.selectedAvailability().forEach(availability => {
-      filters.push({
-        type: 'availability',
-        label: 'Stock',
-        value: availability,
-        displayValue: availability
-      });
-    });
-
     return filters;
   });
 
@@ -211,8 +183,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
     { label: 'Name Z-A', value: 'name-desc', icon: 'pi pi-sort-alpha-up' },
     { label: 'Price Low to High', value: 'price-asc', icon: 'pi pi-sort-numeric-down' },
     { label: 'Price High to Low', value: 'price-desc', icon: 'pi pi-sort-numeric-up' },
-    { label: 'Stock Level', value: 'stock-desc', icon: 'pi pi-box' },
-    { label: 'Product Code', value: 'code-asc', icon: 'pi pi-hashtag' }
+    { label: 'Sort By Stock Descending', value: 'stock-desc', icon: 'pi pi-box' },
+    { label: 'Sort By Stock Ascending', value: 'stock-asc', icon: 'pi pi-box' }
   ];
 
   readonly sizeSystemOptions: SizeSystemOption[] = [
@@ -229,13 +201,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
     { label: '12 per page', value: 12 },
     { label: '24 per page', value: 24 },
     { label: '48 per page', value: 48 }
-  ];
-
-  readonly availabilityOptions = [
-    { label: 'In Stock', value: 'in-stock' },
-    { label: 'Low Stock', value: 'low-stock' },
-    { label: 'Pre-Order', value: 'pre-order' },
-    { label: 'Made to Order', value: 'made-to-order' }
   ];
 
   constructor() {
@@ -256,12 +221,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
       // Track all filter changes
       this.searchTerm();
       this.selectedBrands();
-      this.selectedCategories();
-      this.selectedAvailability();
       this.selectedSort();
 
       // Only reload if we have initial data (avoid loading on component init)
-      if (this.categories().length > 0) {
+      if (this.brands().length > 0) {
         this.loadFilteredProducts();
       }
     });
@@ -292,15 +255,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   private async loadStaticData(): Promise<void> {
     try {
-      const [templates, categories, brands, brandStats] = await Promise.all([
+      const [templates, brands, brandStats] = await Promise.all([
         this.productService.getSizeTemplates().toPromise(),
-        this.productService.getCategories().toPromise(),
         this.productService.getBrands().toPromise(),
         this.productService.getBrandStats().toPromise()
       ]);
 
       this.sizeTemplates.set(templates || []);
-      this.categories.set(categories || []);
       this.brands.set(brands || []);
       this.brandStats.set(brandStats || {});
     } catch (error) {
@@ -332,7 +293,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
     return {
       searchTerm: this.searchTerm() || undefined,
       brands: this.selectedBrands().length > 0 ? this.selectedBrands() : undefined,
-      categories: this.selectedCategories().length > 0 ? this.selectedCategories() : undefined,
     };
   }
 
@@ -575,69 +535,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
     setTimeout(() => this.filterLoading.set(false), 300);
   }
 
-  protected toggleCategoryFilter(categoryId: string): void {
-    this.filterLoading.set(true);
-    const current = this.selectedCategories();
-    const index = current.indexOf(categoryId);
-
-    if (index === -1) {
-      this.selectedCategories.set([...current, categoryId]);
-    } else {
-      this.selectedCategories.set(current.filter(c => c !== categoryId));
-    }
-
-    setTimeout(() => this.filterLoading.set(false), 300);
-  }
-
-  protected toggleAvailabilityFilter(availabilityValue: string): void {
-    const current = this.selectedAvailability();
-    const index = current.indexOf(availabilityValue);
-
-    if (index === -1) {
-      this.selectedAvailability.set([...current, availabilityValue]);
-    } else {
-      this.selectedAvailability.set(current.filter(a => a !== availabilityValue));
-    }
-  }
-
-  protected removeActiveFilter(filterType: string, filterValue: string): void {
-    this.filterLoading.set(true);
-    switch (filterType) {
-      case 'search':
-        this.searchTerm.set('');
-        break;
-      case 'brand':
-        this.toggleBrandFilter(filterValue);
-        return; // toggleBrandFilter already handles loading
-      case 'category':
-        this.toggleCategoryFilter(filterValue);
-        return; // toggleCategoryFilter already handles loading
-      case 'availability':
-        this.toggleAvailabilityFilter(filterValue);
-        return;
-    }
-    setTimeout(() => this.filterLoading.set(false), 300);
-  }
-
-  protected clearAllFilters(): void {
-    this.filterLoading.set(true);
-    this.searchTerm.set('');
-    this.selectedBrands.set([]);
-    this.selectedCategories.set([]);
-    this.selectedAvailability.set([]);
-    setTimeout(() => this.filterLoading.set(false), 300);
-  }
-
   protected isBrandSelected(brandValue: string): boolean {
     return this.selectedBrands().includes(brandValue);
-  }
-
-  protected isCategorySelected(categoryId: string): boolean {
-    return this.selectedCategories().includes(categoryId);
-  }
-
-  protected isAvailabilitySelected(availabilityValue: string): boolean {
-    return this.selectedAvailability().includes(availabilityValue);
   }
 
   protected onRemoveFilter(event: {type: string, value: string}): void {

@@ -24,7 +24,7 @@ import { ToastComponent } from '../shared/components/toast/toast.component';
 export class ClientPanelLayoutComponent {
   private router = inject(Router);
 
-  readonly companyName = 'MANDRAIME';
+  readonly companyName = 'MANDRAIME SUPPLY';
   readonly currentYear = new Date().getFullYear();
 
   // Track current route for different content wrapper styling

@@ -48,19 +48,13 @@
         [totalProducts]="allShoes().length"
         [filteredProducts]="filteredShoes().length"
         [searchTerm]="searchTerm()"
-        [categoryOptions]="categoryOptions()"
         [brandOptions]="brandOptions()"
-        [availabilityOptions]="availabilityOptions"
-        [selectedCategories]="selectedCategories()"
         [selectedBrands]="selectedBrands()"
-        [selectedAvailability]="selectedAvailability()"
         [activeFilters]="activeFilters()"
         [hasActiveFilters]="hasActiveFilters()"
         (searchChange)="onSearchInput($event)"
         (clearSearch)="searchTerm.set('')"
-        (toggleCategory)="toggleCategoryFilter($event)"
         (toggleBrand)="toggleBrandFilter($event)"
-        (toggleAvailability)="toggleAvailabilityFilter($event)"
         (clearAllFilters)="clearFilters()"
         (removeFilter)="onRemoveFilter($event)">
       </app-filter-sidebar>
@@ -69,18 +63,12 @@
       <app-mobile-filters-overlay
         [showFilters]="showMobileFilters()"
         [searchTerm]="searchTerm()"
-        [categoryOptions]="categoryOptions()"
         [brandOptions]="brandOptions()"
-        [availabilityOptions]="availabilityOptions"
-        [selectedCategories]="selectedCategories()"
         [selectedBrands]="selectedBrands()"
-        [selectedAvailability]="selectedAvailability()"
         (toggleFilters)="toggleMobileFilters()"
         (searchChange)="onSearchInput($event)"
         (clearSearch)="searchTerm.set('')"
-        (toggleCategory)="toggleCategoryFilter($event)"
         (toggleBrand)="toggleBrandFilter($event)"
-        (toggleAvailability)="toggleAvailabilityFilter($event)"
         (clearAllFilters)="clearFilters()">
       </app-mobile-filters-overlay>
     </aside>
@@ -219,9 +207,6 @@
                 <h2 class="text-lg font-semibold text-slate-900">
                   {{ filteredShoes().length }} Products Found
                 </h2>
-                <p class="text-sm text-slate-600 mt-1">
-                  Professional wholesale footwear for your retail business
-                </p>
               </div>
             </div>
           </div>

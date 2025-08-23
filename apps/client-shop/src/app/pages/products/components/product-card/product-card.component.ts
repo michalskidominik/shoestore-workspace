@@ -37,16 +37,6 @@ type ImageSize = 'small' | 'medium' | 'large';
               loading="lazy">
           </div>
 
-          <!-- Stock Badge -->
-          <div class="absolute top-1 right-1 lg:top-2 lg:right-2">
-            <p-tag
-              [value]="getStockStatus().label"
-              [severity]="getStockStatus().severity"
-              [icon]="getStockStatus().icon"
-              styleClass="!text-xs !px-1 !py-0.5 !font-medium lg:!px-2 lg:!py-1">
-            </p-tag>
-          </div>
-
           <!-- Quick Actions Overlay - Simplified for mobile -->
           <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2 lg:gap-3">
             <p-button
@@ -84,7 +74,6 @@ type ImageSize = 'small' | 'medium' | 'large';
           <!-- Price Range -->
           <div class="mb-1 lg:mb-2">
             <div class="text-sm lg:text-base font-bold text-blue-600">{{ getPriceRange() }}</div>
-            <div class="text-xs text-slate-600 hidden lg:block">Wholesale</div>
           </div>
 
           <!-- Size & Stock Info with Actions - Mobile optimized -->
@@ -152,11 +141,6 @@ type ImageSize = 'small' | 'medium' | 'large';
             </div>
             <div class="flex flex-col items-end">
               <div class="text-sm font-bold text-blue-600 mb-1">{{ getPriceRange() }}</div>
-              <p-tag
-                [value]="getStockStatus().label"
-                [severity]="getStockStatus().severity"
-                styleClass="!text-xs !px-2 !py-1">
-              </p-tag>
             </div>
           </div>
 

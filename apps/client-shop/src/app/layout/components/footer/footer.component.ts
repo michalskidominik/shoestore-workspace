@@ -86,8 +86,8 @@ import { RouterLink } from '@angular/router';
               </div>
               <div class="flex items-center justify-center sm:justify-start gap-3">
                 <i class="pi pi-phone text-blue-400 text-sm flex-shrink-0"></i>
-                <a href="tel:+48123456789" class="text-sm text-slate-400 hover:text-blue-400 transition-colors">
-                  +48 123 456 789
+                <a href="tel:+48453085149" class="text-sm text-slate-400 hover:text-blue-400 transition-colors">
+                  +48 453 085 149
                 </a>
               </div>
               <div class="flex items-center justify-center sm:justify-start gap-3">
@@ -99,8 +99,7 @@ import { RouterLink } from '@angular/router';
               <div class="flex items-start justify-center sm:justify-start gap-3">
                 <i class="pi pi-clock text-blue-400 text-sm mt-0.5 flex-shrink-0"></i>
                 <div class="text-sm text-slate-400">
-                  <p>Monday - Friday</p>
-                  <p>8:00 AM - 4:00 PM (CET)</p>
+                  <p>24/7</p>
                 </div>
               </div>
             </div>

@@ -11,17 +11,6 @@ interface BrandOption {
   count?: number;
 }
 
-interface CategoryOption {
-  id: string;
-  name: string;
-  icon: string;
-}
-
-interface AvailabilityOption {
-  label: string;
-  value: string;
-}
-
 interface ActiveFilter {
   type: string;
   label: string;
@@ -78,28 +67,6 @@ interface ActiveFilter {
           </p-inputGroup>
         </div>
 
-        <!-- Category Filter -->
-        <div class="mb-6">
-          <div class="text-sm font-semibold text-slate-700 mb-3">Category</div>
-          <div class="space-y-2">
-            @for (category of categoryOptions(); track category.id) {
-              @if (category.id !== 'all') {
-                <label class="flex items-center cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    [checked]="isCategorySelected(category.id)"
-                    (change)="toggleCategory.emit(category.id)"
-                    class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 rounded">
-                  <div class="ml-3 flex items-center gap-2 flex-1">
-                    <i [class]="category.icon + ' text-slate-500 text-sm'"></i>
-                    <span class="text-sm text-slate-700 group-hover:text-slate-900">{{ category.name }}</span>
-                  </div>
-                </label>
-              }
-            }
-          </div>
-        </div>
-
         <!-- Brand Filter -->
         <div class="mb-6">
           <div class="text-sm font-semibold text-slate-700 mb-3">Brand</div>
@@ -120,23 +87,6 @@ interface ActiveFilter {
                   }
                 </label>
               }
-            }
-          </div>
-        </div>
-
-        <!-- Availability Filter -->
-        <div class="mb-6">
-          <div class="text-sm font-semibold text-slate-700 mb-3">Stock Status</div>
-          <div class="space-y-2">
-            @for (availability of availabilityOptions(); track availability.value) {
-              <label class="flex items-center cursor-pointer group">
-                <input
-                  type="checkbox"
-                  [checked]="isAvailabilitySelected(availability.value)"
-                  (change)="toggleAvailability.emit(availability.value)"
-                  class="w-4 h-4 text-blue-600 border-slate-300 focus:ring-blue-500 rounded">
-                <span class="ml-3 text-sm text-slate-700 group-hover:text-slate-900">{{ availability.label }}</span>
-              </label>
             }
           </div>
         </div>
@@ -178,34 +128,20 @@ export class FilterSidebarComponent {
   readonly totalProducts = input.required<number>();
   readonly filteredProducts = input.required<number>();
   readonly searchTerm = input.required<string>();
-  readonly categoryOptions = input.required<CategoryOption[]>();
   readonly brandOptions = input.required<BrandOption[]>();
-  readonly availabilityOptions = input.required<AvailabilityOption[]>();
-  readonly selectedCategories = input.required<string[]>();
   readonly selectedBrands = input.required<string[]>();
-  readonly selectedAvailability = input.required<string[]>();
   readonly activeFilters = input.required<ActiveFilter[]>();
   readonly hasActiveFilters = input.required<boolean>();
 
   // Outputs
   readonly searchChange = output<string>();
   readonly clearSearch = output<void>();
-  readonly toggleCategory = output<string>();
   readonly toggleBrand = output<string>();
-  readonly toggleAvailability = output<string>();
   readonly removeFilter = output<{type: string, value: string}>();
   readonly clearAllFilters = output<void>();
 
   // Helper methods for template
-  isCategorySelected(categoryId: string): boolean {
-    return this.selectedCategories().includes(categoryId);
-  }
-
   isBrandSelected(brandValue: string): boolean {
     return this.selectedBrands().includes(brandValue);
-  }
-
-  isAvailabilitySelected(availabilityValue: string): boolean {
-    return this.selectedAvailability().includes(availabilityValue);
   }
 }
