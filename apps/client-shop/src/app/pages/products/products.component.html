@@ -10,21 +10,23 @@
   </app-mobile-header>
 
   <!-- Mobile Controls Component -->
-  <app-mobile-controls
-    class="lg:hidden"
-    [viewOptions]="viewOptions"
-    [currentView]="currentView()"
-    [sizeSystemOptions]="sizeSystemOptions"
-    [sizeSystem]="sizeSystem()"
-    [sortOptions]="sortOptions"
-    [selectedSort]="selectedSort()"
-    [itemsPerPageOptions]="itemsPerPageOptions"
-    [itemsPerPage]="itemsPerPage()"
-    (viewChange)="currentView.set($event)"
-    (sizeSystemChange)="sizeSystem.set($event)"
-    (sortChange)="selectedSort.set($event)"
-    (itemsPerPageChange)="itemsPerPage.set($event)">
-  </app-mobile-controls>
+  @if (isAuthenticated()) {
+    <app-mobile-controls
+      class="lg:hidden"
+      [viewOptions]="viewOptions"
+      [currentView]="currentView()"
+      [sizeSystemOptions]="sizeSystemOptions"
+      [sizeSystem]="sizeSystem()"
+      [sortOptions]="sortOptions"
+      [selectedSort]="selectedSort()"
+      [itemsPerPageOptions]="itemsPerPageOptions"
+      [itemsPerPage]="itemsPerPage()"
+      (viewChange)="currentView.set($event)"
+      (sizeSystemChange)="sizeSystem.set($event)"
+      (sortChange)="selectedSort.set($event)"
+      (itemsPerPageChange)="itemsPerPage.set($event)">
+    </app-mobile-controls>
+  }
 
   <!-- Mobile Active Filters Bar Component -->
   <app-active-filters-bar
@@ -41,7 +43,7 @@
   <div class="flex min-h-screen">
 
     <!-- Desktop Sidebar / Mobile Filters Overlay -->
-    <aside class="lg:w-80 lg:flex-shrink-0 lg:sticky lg:top-16 lg:overflow-y-auto">
+    <aside class="lg:w-80 lg:flex-shrink-0 lg:sticky lg:top-16 lg:h-screen lg:overflow-y-auto">
       <!-- Desktop Sidebar Component -->
       <app-filter-sidebar
         class="hidden lg:block"
@@ -105,49 +107,53 @@
                 </p-selectButton>
               </div>
 
-              <!-- Size System -->
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-slate-700">Size:</span>
-                <p-selectButton
-                  [options]="sizeSystemOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  [ngModel]="sizeSystem()"
-                  (ngModelChange)="sizeSystem.set($event)"
-                  styleClass="!text-sm">
-                </p-selectButton>
-              </div>
+              <!-- Size System - Only for authenticated users -->
+              @if (isAuthenticated()) {
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-slate-700">Size:</span>
+                  <p-selectButton
+                    [options]="sizeSystemOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="sizeSystem()"
+                    (ngModelChange)="sizeSystem.set($event)"
+                    styleClass="!text-sm">
+                  </p-selectButton>
+                </div>
+              }
             </div>
 
-            <!-- Sort and Show Controls -->
-            <div class="flex flex-row gap-2">
-              <!-- Sort -->
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-slate-700">Sort:</span>
-                <p-select
-                  [options]="sortOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  [ngModel]="selectedSort()"
-                  (ngModelChange)="selectedSort.set($event)"
-                  placeholder="Sort by"
-                  styleClass="!w-40 !text-sm">
-                </p-select>
-              </div>
+            <!-- Sort and Show Controls - Only for authenticated users -->
+            @if (isAuthenticated()) {
+              <div class="flex flex-row gap-2">
+                <!-- Sort -->
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-slate-700">Sort:</span>
+                  <p-select
+                    [options]="sortOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="selectedSort()"
+                    (ngModelChange)="selectedSort.set($event)"
+                    placeholder="Sort by"
+                    styleClass="!w-40 !text-sm">
+                  </p-select>
+                </div>
 
-              <!-- Items Per Page -->
-              <div class="flex items-center gap-2">
-                <span class="text-sm font-medium text-slate-700">Show:</span>
-                <p-select
-                  [options]="itemsPerPageOptions"
-                  optionLabel="label"
-                  optionValue="value"
-                  [ngModel]="itemsPerPage()"
-                  (ngModelChange)="itemsPerPage.set($event)"
-                  styleClass="!w-40 !text-sm">
-                </p-select>
+                <!-- Items Per Page -->
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-medium text-slate-700">Show:</span>
+                  <p-select
+                    [options]="itemsPerPageOptions"
+                    optionLabel="label"
+                    optionValue="value"
+                    [ngModel]="itemsPerPage()"
+                    (ngModelChange)="itemsPerPage.set($event)"
+                    styleClass="!w-40 !text-sm">
+                  </p-select>
+                </div>
               </div>
-            </div>
+            }
           </div>
         </div>
       </div>

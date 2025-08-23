@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, computed, signal, effect, ChangeDetectionStrategy, inject, HostListener } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { DataViewModule } from 'primeng/dataview';
@@ -20,9 +21,10 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // Models and services
 import { Shoe, SizeTemplate, SizeAvailability } from '@shoestore/shared-models';
-import { ProductService, ProductFilters, ProductSort, ProductCategory } from '../../shared/services/product.service';
+import { ProductService, ProductFilters, ProductSort } from '../../shared/services/product.service';
 import { CartService, AddToCartRequest } from '../../shared/services/cart.service';
 import { ToastService } from '../../shared/services/toast.service';
+import { AuthService } from '../../core/services/auth.service';
 // Import order component
 import { QuickOrderComponent, OrderData } from './components/quick-order/quick-order.component';
 // Import new components
@@ -97,6 +99,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private readonly productService = inject(ProductService);
   private readonly cartService = inject(CartService);
   private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  // Authentication
+  protected readonly isAuthenticated = this.authService.isAuthenticated;
 
   // State signals
   protected readonly allShoes = signal<Shoe[]>([]);
@@ -345,8 +352,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
           {
             label: 'View Cart',
             handler: () => {
-              // Navigate to cart - implement as needed
-              console.log('Navigate to cart');
+              this.router.navigate(['/cart']);
             }
           }
         );
@@ -422,8 +428,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
           {
             label: 'View Cart',
             handler: () => {
-              // Navigate to cart - implement as needed
-              console.log('Navigate to cart');
+              this.router.navigate(['/cart']);
             }
           }
         );

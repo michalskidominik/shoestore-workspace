@@ -25,7 +25,7 @@ interface ActiveFilter {
   template: `
     <!-- Desktop Sidebar (Always Visible) -->
     <div class="hidden lg:block bg-white border-r border-slate-200 h-full">
-      <div class="p-6">
+      <div class="p-6 h-full flex flex-col">
         <!-- Sidebar Header -->
         <div class="mb-6">
           <h2 class="text-xl font-bold text-slate-900 mb-2">Filter Products</h2>
@@ -68,9 +68,9 @@ interface ActiveFilter {
         </div>
 
         <!-- Brand Filter -->
-        <div class="mb-6">
+        <div class="mb-6 flex-1 flex flex-col min-h-0">
           <div class="text-sm font-semibold text-slate-700 mb-3">Brand</div>
-          <div class="space-y-2 max-h-48 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300">
+          <div class="space-y-2 flex-1 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-300 pr-2">
             @for (brand of brandOptions(); track brand.value) {
               @if (brand.value !== 'all') {
                 <label class="flex items-center justify-between cursor-pointer group">
@@ -93,7 +93,7 @@ interface ActiveFilter {
 
         <!-- Active Filters -->
         @if (hasActiveFilters()) {
-          <div class="border-t border-slate-200 pt-4">
+          <div class="border-t border-slate-200 pt-4 mt-auto flex-shrink-0">
             <div class="flex items-center justify-between mb-3">
               <span class="text-sm font-semibold text-slate-700">Active Filters</span>
               <button

@@ -1,6 +1,7 @@
-import { Component, ChangeDetectionStrategy, input } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-footer',
@@ -49,12 +50,14 @@ import { RouterLink } from '@angular/router';
               <a routerLink="/products" class="block text-sm text-slate-400 hover:text-blue-400 transition-colors">
                 Product Catalog
               </a>
-              <a routerLink="/orders" class="block text-sm text-slate-400 hover:text-blue-400 transition-colors">
-                Order Management
-              </a>
-              <a routerLink="/dashboard" class="block text-sm text-slate-400 hover:text-blue-400 transition-colors">
-                Business Dashboard
-              </a>
+              @if (isAuthenticated()) {
+                <a routerLink="/orders" class="block text-sm text-slate-400 hover:text-blue-400 transition-colors">
+                  Order Management
+                </a>
+                <a routerLink="/dashboard" class="block text-sm text-slate-400 hover:text-blue-400 transition-colors">
+                  Business Dashboard
+                </a>
+              }
             </nav>
           </div>
 
@@ -133,6 +136,10 @@ export class FooterComponent {
   // Inputs
   readonly companyName = input.required<string>();
 
+  // Services
+  private readonly authService = inject(AuthService);
+
   // Computed properties
   readonly currentYear = new Date().getFullYear();
+  readonly isAuthenticated = this.authService.isAuthenticated;
 }

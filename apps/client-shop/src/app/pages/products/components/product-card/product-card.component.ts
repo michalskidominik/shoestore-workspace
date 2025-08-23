@@ -1,13 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, input, output, signal, ChangeDetectionStrategy, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { RatingModule } from 'primeng/rating';
+import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import { Shoe, SizeTemplate } from '@shoestore/shared-models';
 import { QuickOrderComponent, OrderData } from '../quick-order/quick-order.component';
 import { CartService, AddToCartRequest } from '../../../../shared/services/cart.service';
 import { ToastService } from '../../../../shared/services/toast.service';
+import { AuthService } from '../../../../core/services/auth.service';
 
 type ViewMode = 'grid' | 'list' | 'large' | 'compact';
 type ImageSize = 'small' | 'medium' | 'large';
@@ -15,7 +18,7 @@ type ImageSize = 'small' | 'medium' | 'large';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, ButtonModule, TagModule, RatingModule, FormsModule, QuickOrderComponent],
+  imports: [CommonModule, ButtonModule, TagModule, RatingModule, DialogModule, FormsModule, QuickOrderComponent],
   template: `
     <div
       class="group transition-all duration-200 overflow-hidden
@@ -39,23 +42,25 @@ type ImageSize = 'small' | 'medium' | 'large';
 
           <!-- Quick Actions Overlay - Simplified for mobile -->
           <div class="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center gap-2 lg:gap-3">
-            <p-button
-              icon="pi pi-eye"
-              severity="primary"
-              [rounded]="true"
-              size="small"
-              (onClick)="onViewDetails()"
-              [attr.aria-label]="'View details for ' + product().name"
-              styleClass="!w-8 !h-8 lg:!w-10 lg:!h-10">
-            </p-button>
+            @if (isAuthenticated()) {
+              <p-button
+                icon="pi pi-eye"
+                severity="primary"
+                [rounded]="true"
+                size="small"
+                (onClick)="onViewDetails()"
+                [attr.aria-label]="'View details for ' + product().name"
+                styleClass="!w-8 !h-8 lg:!w-10 lg:!h-10">
+              </p-button>
+            }
             <p-button
               icon="pi pi-shopping-cart"
               severity="success"
               [rounded]="true"
               size="small"
-              (onClick)="onAddToCart()"
-              [disabled]="!hasStock()"
-              [attr.aria-label]="'Order ' + product().name"
+              (onClick)="onQuickOrder()"
+              [disabled]="isAuthenticated() && !hasStock()"
+              [attr.aria-label]="isAuthenticated() ? 'Order ' + product().name : 'Sign in to order ' + product().name"
               styleClass="!w-8 !h-8 lg:!w-10 lg:!h-10">
             </p-button>
           </div>
@@ -73,38 +78,52 @@ type ImageSize = 'small' | 'medium' | 'large';
 
           <!-- Price Range -->
           <div class="mb-1 lg:mb-2">
-            <div class="text-sm lg:text-base font-bold text-blue-600">{{ getPriceRange() }}</div>
+            <div class="text-sm lg:text-base font-bold text-blue-600" [ngClass]="{'blurred-price': !isAuthenticated()}">{{ getPriceRange() }}</div>
           </div>
 
           <!-- Size & Stock Info with Actions - Mobile optimized -->
-          <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between text-xs text-slate-600">
-            <div class="flex flex-col mb-2 lg:mb-0">
-              <span class="font-medium">{{ getSizeRange() }}</span>
-              <span class="lg:hidden">{{ getAvailableSizes().length }} sizes</span>
-            </div>
+          @if (isAuthenticated()) {
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between text-xs text-slate-600">
+              <div class="flex flex-col mb-2 lg:mb-0">
+                <span class="font-medium">{{ getSizeRange() }}</span>
+                <span class="lg:hidden">{{ getAvailableSizes().length }} sizes</span>
+              </div>
 
-            <!-- Actions - Mobile: Full width buttons, Desktop: Inline -->
-            <div class="flex flex-col lg:flex-row gap-1 lg:gap-1 lg:ml-2">
+              <!-- Actions - Mobile: Full width buttons, Desktop: Inline -->
+              <div class="flex flex-col lg:flex-row gap-1 lg:gap-1 lg:ml-2">
+                <p-button
+                  label="View"
+                  icon="pi pi-eye"
+                  severity="secondary"
+                  [outlined]="true"
+                  size="small"
+                  styleClass="!text-xs !py-1.5 !px-2 w-full lg:w-auto"
+                  (onClick)="onViewDetails()">
+                </p-button>
+                <p-button
+                  label="Order"
+                  icon="pi pi-shopping-cart"
+                  severity="success"
+                  size="small"
+                  [disabled]="!hasStock()"
+                  styleClass="!text-xs !py-1.5 !px-2 w-full lg:w-auto"
+                  (onClick)="onQuickOrder()">
+                </p-button>
+              </div>
+            </div>
+          } @else {
+            <!-- Unauthenticated user - Only sign in button -->
+            <div class="flex justify-center mt-2">
               <p-button
-                label="View"
-                icon="pi pi-eye"
-                severity="secondary"
-                [outlined]="true"
+                label="Sign In"
+                icon="pi pi-user"
+                severity="primary"
                 size="small"
-                styleClass="!text-xs !py-1.5 !px-2 w-full lg:w-auto"
-                (onClick)="onViewDetails()">
-              </p-button>
-              <p-button
-                label="Order"
-                icon="pi pi-shopping-cart"
-                severity="success"
-                size="small"
-                [disabled]="!hasStock()"
-                styleClass="!text-xs !py-1.5 !px-2 w-full lg:w-auto"
+                styleClass="!text-xs !py-1.5 !px-3 w-full lg:w-auto"
                 (onClick)="onQuickOrder()">
               </p-button>
             </div>
-          </div>
+          }
         </div>
       } @else {
         <!-- List Layout -->
@@ -123,49 +142,86 @@ type ImageSize = 'small' | 'medium' | 'large';
             <div class="flex-1 min-w-0 pr-2">
               <h3 class="font-semibold text-slate-900 text-sm mb-1 truncate">{{ product().name }}</h3>
               <p class="text-xs text-slate-500 font-mono mb-1">{{ product().code }}</p>
-              <div class="flex items-center gap-3 text-xs text-slate-600">
-                <span>{{ getSizeRange() }}</span>
-                <span>{{ getAvailableSizes().length }} sizes</span>
-              </div>
+              @if (isAuthenticated()) {
+                <div class="flex items-center gap-3 text-xs text-slate-600">
+                  <span>{{ getSizeRange() }}</span>
+                  <span>{{ getAvailableSizes().length }} sizes</span>
+                </div>
+              }
             </div>
             <div class="flex flex-col items-end">
-              <div class="text-sm font-bold text-blue-600 mb-1">{{ getPriceRange() }}</div>
+              <div class="text-sm font-bold text-blue-600 mb-1" [ngClass]="{'blurred-price': !isAuthenticated()}">{{ getPriceRange() }}</div>
             </div>
           </div>
 
           <!-- Actions -->
           <div class="flex gap-2 mt-2">
-            <p-button
-              label="View"
-              icon="pi pi-eye"
-              severity="secondary"
-              [outlined]="true"
-              size="small"
-              styleClass="!text-xs !py-1.5 !px-3"
-              (onClick)="onViewDetails()">
-            </p-button>
-            <p-button
-              label="Order"
-              icon="pi pi-shopping-cart"
-              severity="success"
-              size="small"
-              [disabled]="!hasStock()"
-              styleClass="!text-xs !py-1.5 !px-3"
-              (onClick)="onQuickOrder()">
-            </p-button>
-            <p-button
-              label="Order"
-              icon="pi pi-plus"
-              severity="primary"
-              size="small"
-              [disabled]="!hasStock()"
-              styleClass="!text-xs !py-1.5 !px-3"
-              (onClick)="onAddToCart()">
-            </p-button>
+            @if (isAuthenticated()) {
+              <p-button
+                label="View"
+                icon="pi pi-eye"
+                severity="secondary"
+                [outlined]="true"
+                size="small"
+                styleClass="!text-xs !py-1.5 !px-3"
+                (onClick)="onViewDetails()">
+              </p-button>
+              <p-button
+                label="Order"
+                icon="pi pi-shopping-cart"
+                severity="success"
+                size="small"
+                [disabled]="!hasStock()"
+                styleClass="!text-xs !py-1.5 !px-3"
+                (onClick)="onQuickOrder()">
+              </p-button>
+              <p-button
+                label="Order"
+                icon="pi pi-plus"
+                severity="primary"
+                size="small"
+                [disabled]="!hasStock()"
+                styleClass="!text-xs !py-1.5 !px-3"
+                (onClick)="onAddToCart()">
+              </p-button>
+            } @else {
+              <p-button
+                label="Sign In"
+                icon="pi pi-user"
+                severity="primary"
+                size="small"
+                styleClass="!text-xs !py-1.5 !px-3 flex-1"
+                (onClick)="onQuickOrder()">
+              </p-button>
+            }
           </div>
         </div>
       }
     </div>
+
+    <!-- Quick Order Dialog -->
+    <p-dialog
+      [(visible)]="showQuickOrderDialog"
+      [modal]="true"
+      [draggable]="false"
+      [resizable]="false"
+      [dismissableMask]="true"
+      [closeOnEscape]="true"
+      styleClass="quick-order-dialog w-full h-full max-w-none max-h-none m-0 lg:w-auto lg:h-auto lg:max-w-7xl lg:max-h-[90vh] lg:m-4"
+      [showHeader]="false"
+      position="center"
+      [blockScroll]="true">
+
+      @if (showQuickOrderDialog() && isAuthenticated()) {
+        <app-quick-order
+          [product]="product()"
+          [sizeSystem]="sizeSystem()"
+          [isSubmitting]="isOrderSubmitting()"
+          (placeOrder)="onQuickOrderSubmit($event)"
+          (cancelOrder)="onQuickOrderCancel()">
+        </app-quick-order>
+      }
+    </p-dialog>
   `,
   styles: [`
     .line-clamp-2 {
@@ -174,6 +230,74 @@ type ImageSize = 'small' | 'medium' | 'large';
       -webkit-box-orient: vertical;
       overflow: hidden;
     }
+
+    .blurred-price {
+      filter: blur(4px);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Dialog styling for quick order */
+    :host ::ng-deep .quick-order-dialog .p-dialog {
+      border-radius: 0;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      border: none;
+      background: white;
+    }
+
+    :host ::ng-deep .quick-order-dialog .p-dialog-content {
+      padding: 0;
+      overflow: hidden;
+      background: white;
+      border-radius: 0;
+    }
+
+    :host ::ng-deep .quick-order-dialog .p-dialog-mask {
+      background-color: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(4px);
+    }
+
+    /* Desktop dialog styling */
+    @media (min-width: 1024px) {
+      :host ::ng-deep .quick-order-dialog .p-dialog {
+        border-radius: 16px;
+        margin: 1rem;
+      }
+
+      :host ::ng-deep .quick-order-dialog .p-dialog-content {
+        border-radius: 16px;
+      }
+    }
+
+    /* Mobile dialog styling */
+    @media (max-width: 1023px) {
+      :host ::ng-deep .quick-order-dialog .p-dialog {
+        width: 100vw !important;
+        height: 100vh !important;
+        max-width: none !important;
+        max-height: none !important;
+        margin: 0 !important;
+        top: 0 !important;
+        left: 0 !important;
+        transform: none !important;
+      }
+    }
+
+    /* Animation enhancements */
+    :host ::ng-deep .quick-order-dialog .p-dialog {
+      animation: dialogFadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes dialogFadeIn {
+      from {
+        opacity: 0;
+        transform: scale(0.95) translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+      }
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -181,6 +305,8 @@ export class ProductCardComponent {
   // Services
   private readonly cartService = inject(CartService);
   private readonly toastService = inject(ToastService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
 
   // Inputs
   readonly product = input.required<Shoe>();
@@ -193,6 +319,13 @@ export class ProductCardComponent {
   // Outputs
   readonly addToCart = output<Shoe>();
   readonly viewDetails = output<Shoe>();
+
+  // Dialog state
+  protected readonly showQuickOrderDialog = signal(false);
+  protected readonly isOrderSubmitting = signal(false);
+
+  // Authentication
+  protected readonly isAuthenticated = this.authService.isAuthenticated;
 
   // Event handlers
   protected onAddToCart(): void {
@@ -210,29 +343,70 @@ export class ProductCardComponent {
 
   // Quick Order methods
   protected onQuickOrder(): void {
-    // Always emit addToCart event to trigger modal dialog for both desktop and mobile
-    this.onAddToCart();
+    if (!this.isAuthenticated()) {
+      // Redirect to sign-in page for unauthenticated users
+      this.router.navigate(['/sign-in']);
+      return;
+    }
+
+    // Show the quick order dialog for authenticated users
+    if (this.hasStock()) {
+      this.showQuickOrderDialog.set(true);
+    }
+  }
+
+  protected onQuickOrderSubmit(orderData: OrderData): void {
+    this.isOrderSubmitting.set(true);
+
+    // Process the order data - convert to AddToCartRequest format
+    const product = this.product();
+    const request: AddToCartRequest = {
+      productId: orderData.productId,
+      productCode: product.code,
+      productName: product.name,
+      items: orderData.items.map(item => ({
+        size: item.size,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice
+      }))
+    };
+
+    // Add the entire order to cart
+    this.cartService.addToCart(request).subscribe({
+      next: () => {
+        // Calculate total items for the success message
+        const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
+
+        // Show success message with View Cart action
+        this.toastService.showSuccess(
+          `Added ${totalItems} ${totalItems === 1 ? 'item' : 'items'} to cart`,
+          5000,
+          {
+            label: 'View Cart',
+            handler: () => {
+              this.router.navigate(['/cart']);
+            }
+          }
+        );
+        this.isOrderSubmitting.set(false);
+        this.showQuickOrderDialog.set(false);
+      },
+      error: (error) => {
+        this.toastService.showError('Failed to add item to cart', error.message);
+        this.isOrderSubmitting.set(false);
+      }
+    });
+  }
+
+  protected onQuickOrderCancel(): void {
+    this.showQuickOrderDialog.set(false);
+    this.isOrderSubmitting.set(false);
   }
 
   // Helper methods
-  protected getDiscountPercentage(): number {
-    const product = this.product();
-    if (!product.sizes || product.sizes.length === 0) return 0;
-
-    // For now, return 0 as discount logic depends on business requirements
-    // This could be implemented based on original price vs current price
-    return 0;
-  }
-
   protected hasStock(): boolean {
     const shoe = this.product();
     return shoe.sizes && shoe.sizes.some((size: { quantity: number }) => size.quantity > 0);
-  }
-
-  protected getTotalQuantity(): number {
-    const shoe = this.product();
-    if (!shoe.sizes || shoe.sizes.length === 0) return 0;
-    return shoe.sizes.reduce((total: number, size: { quantity: number }) => total + size.quantity, 0);
   }
 
   protected getAvailableSizes(): number[] {
@@ -245,6 +419,10 @@ export class ProductCardComponent {
   }
 
   protected getPriceRange(): string {
+    if (!this.isAuthenticated()) {
+      return '••••••'; // Blurred prices for unauthenticated users
+    }
+
     const shoe = this.product();
     if (!shoe.sizes || shoe.sizes.length === 0) return 'Price not available';
 
@@ -279,19 +457,5 @@ export class ProductCardComponent {
     }
 
     return minSize === maxSize ? `${minSize} EU` : `${minSize}-${maxSize} EU`;
-  }
-
-  protected getStockStatus(): { label: string; severity: string; icon: string } {
-    const totalStock = this.getTotalQuantity();
-
-    if (totalStock === 0) {
-      return { label: 'Out of Stock', severity: 'danger', icon: 'pi pi-times-circle' };
-    } else if (totalStock <= 5) {
-      return { label: 'Low Stock', severity: 'warning', icon: 'pi pi-exclamation-triangle' };
-    } else if (totalStock <= 20) {
-      return { label: 'In Stock', severity: 'success', icon: 'pi pi-check-circle' };
-    } else {
-      return { label: 'Well Stocked', severity: 'info', icon: 'pi pi-check-circle' };
-    }
   }
 }
