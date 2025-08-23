@@ -1,11 +1,12 @@
 import { signalStore, withState, withMethods, withComputed, patchState } from '@ngrx/signals';
 import { withEntities, addEntity, updateEntity, removeEntity, setAllEntities } from '@ngrx/signals/entities';
 import { rxMethod } from '@ngrx/signals/rxjs-interop';
-import { pipe, switchMap, tap, of, delay, throwError } from 'rxjs';
+import { pipe, switchMap, tap, of } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { computed, effect, inject } from '@angular/core';
 import { AuthStore } from '../../core/stores/auth.store';
 import { ToastStore } from '../../shared/stores/toast.store';
+import { CartApiService } from './services/cart-api.service';
 
 export interface CartItem {
   id: string; // productId-size for unique identification
@@ -116,7 +117,7 @@ export const CartStore = signalStore(
       };
     })
   })),
-  withMethods((store, authStore = inject(AuthStore), toastStore = inject(ToastStore)) => {
+  withMethods((store, authStore = inject(AuthStore), toastStore = inject(ToastStore), cartApiService = inject(CartApiService)) => {
     // Automatic persistence effect
     effect(() => {
       const items = store.entities();
@@ -144,9 +145,9 @@ export const CartStore = signalStore(
             try {
               const storedCart = localStorage.getItem(storageKey);
               const items: CartItem[] = storedCart ? JSON.parse(storedCart) : [];
-              return of(items).pipe(delay(100));
+              return of(items);
             } catch {
-              return of([]).pipe(delay(100));
+              return of([]);
             }
           }),
           tapResponse({
@@ -263,24 +264,15 @@ export const CartStore = signalStore(
         pipe(
           switchMap(() => {
             const items = store.entities();
-            const conflicts: any[] = [];
+            const validationRequest = {
+              items: items.map(item => ({
+                productId: item.productId,
+                size: item.size,
+                requestedQuantity: item.quantity
+              }))
+            };
             
-            // Mock stock validation - simulate conflicts
-            items.forEach(item => {
-              if (item.quantity > 10) { // Mock max stock per size
-                conflicts.push({
-                  productId: item.productId,
-                  size: item.size,
-                  requestedQuantity: item.quantity,
-                  availableStock: 10
-                });
-              }
-            });
-            
-            return of({
-              valid: conflicts.length === 0,
-              conflicts
-            }).pipe(delay(300));
+            return cartApiService.validateStock(validationRequest);
           })
         )
       ),
@@ -292,11 +284,29 @@ export const CartStore = signalStore(
           switchMap(() => {
             const user = authStore.user();
             if (!user) {
-              return throwError(() => new Error('Authentication required'));
+              throw new Error('Authentication required');
             }
             
-            // Mock order submission
-            return of({ success: true, orderId: Date.now() }).pipe(delay(1000));
+            const items = store.entities();
+            const summary = store.cartSummary();
+            
+            const orderRequest = {
+              userId: user.id,
+              items: items.map(item => ({
+                productId: item.productId,
+                productCode: item.productCode,
+                productName: item.productName,
+                size: item.size,
+                quantity: item.quantity,
+                unitPrice: item.unitPrice,
+                totalPrice: item.totalPrice
+              })),
+              subtotal: summary.subtotal,
+              tax: summary.tax,
+              total: summary.total
+            };
+            
+            return cartApiService.submitOrder(orderRequest);
           }),
           tapResponse({
             next: (result) => {

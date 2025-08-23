@@ -1,6 +1,6 @@
 import { Component, inject, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterOutlet, RouterLink, Router, NavigationEnd } from '@angular/router';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
 import { filter, map, startWith } from 'rxjs/operators';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HeaderComponent } from './components/header/header.component';
@@ -13,7 +13,6 @@ import { ToastComponent } from '../shared/components/toast/toast.component';
   imports: [
     CommonModule,
     RouterOutlet,
-    RouterLink,
     HeaderComponent,
     FooterComponent,
     ToastComponent

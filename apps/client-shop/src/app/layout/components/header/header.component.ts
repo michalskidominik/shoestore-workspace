@@ -240,7 +240,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
     return user.name
       .split(' ')
-      .map(n => n.charAt(0))
+      .map((n: string) => n.charAt(0))
       .join('')
       .substring(0, 2)
       .toUpperCase();
