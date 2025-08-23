@@ -13,7 +13,7 @@ import { CardModule } from 'primeng/card';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LandingComponent {
-  readonly companyName = 'MANDRAIME';
+  readonly companyName = 'MANDRAIME SUPPLY';
 
   readonly features = [
     {

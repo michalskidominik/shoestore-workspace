@@ -14,7 +14,7 @@ import { DividerModule } from 'primeng/divider';
 })
 export class AboutUsComponent {
   readonly companyInfo = {
-    name: 'MANDRAIME',
+    name: 'MANDRAIME SUPPLY',
     founded: '2020',
     mission:
       'To provide high-quality, comfortable, and stylish footwear for business partners across Europe through our professional B2B wholesale platform.',
@@ -48,29 +48,29 @@ export class AboutUsComponent {
   readonly stats = [
     { label: 'Partner Stores', value: '50+', icon: 'pi pi-building' },
     { label: 'Countries Served', value: '15+', icon: 'pi pi-globe' },
-    { label: 'SKUs Available', value: '1000+', icon: 'pi pi-box' },
+    { label: 'SKUs Available', value: '100+', icon: 'pi pi-box' },
     { label: 'Years of Excellence', value: '5+', icon: 'pi pi-calendar' },
   ];
 
   readonly capabilities = [
     {
-      title: 'Wholesale Distribution',
-      description: 'Comprehensive B2B distribution network serving retailers across Europe with flexible order quantities and fast delivery.',
+      title: 'Bulk Distribution',
+      description: 'Our company specializes in bulk distribution of premium sneakers. With 100% original products and efficient logistics, we help retailers grow their businesses.',
       icon: 'pi pi-truck'
     },
     {
-      title: 'Private Label Solutions',
-      description: 'Custom branding and private label manufacturing services to help retailers develop their own footwear lines.',
+      title: 'Flexible Solutions',
+      description: 'From small resellers to large retailers, we adapt our solutions to fit your business model, boosting your margins and simplifying your supply chain.',
       icon: 'pi pi-tag'
     },
     {
-      title: 'Inventory Management',
-      description: 'Advanced inventory management system with real-time stock levels and automated reorder notifications.',
+      title: 'Low Minimum Orders',
+      description: 'With a minimum order of only 6 pairs, we offer flexibility for both small resellers and large retailers.',
       icon: 'pi pi-chart-bar'
     },
     {
-      title: 'Business Support',
-      description: 'Dedicated account management, marketing support, and business development assistance for our retail partners.',
+      title: 'Easy Ordering',
+      description: 'Our user-friendly ordering system makes bulk purchasing quick, simple, and hassle-free.',
       icon: 'pi pi-users'
     }
   ];
