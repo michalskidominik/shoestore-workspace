@@ -28,6 +28,7 @@ export interface AddToCartRequest {
   quantity: number;
   unitPrice: number;
   imageUrl?: string;
+  suppressToast?: boolean; // Optional flag to suppress individual toast notifications
 }
 
 interface CartState {
@@ -182,7 +183,11 @@ export const CartStore = signalStore(
               };
 
               patchState(store, updateEntity({ id: itemId, changes: updatedItem }));
-              toastStore.showSuccess(`Updated ${request.productName} quantity in cart`);
+
+              // Only show toast if not suppressed
+              if (!request.suppressToast) {
+                toastStore.showSuccess(`Updated ${request.productName} quantity in cart`);
+              }
             } else {
               // Add new item
               const newItem: CartItem = {
@@ -198,7 +203,11 @@ export const CartStore = signalStore(
               };
 
               patchState(store, addEntity(newItem));
-              toastStore.showSuccess(`Added ${request.productName} to cart`);
+
+              // Only show toast if not suppressed
+              if (!request.suppressToast) {
+                toastStore.showSuccess(`Added ${request.productName} to cart`);
+              }
             }
 
             patchState(store, { lastUpdated: new Date().toISOString() });
