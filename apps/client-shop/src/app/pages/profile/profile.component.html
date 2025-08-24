@@ -23,7 +23,7 @@
   @if (!currentUser()) {
     <div class="flex items-center justify-center py-20">
       <div class="text-center">
-        <p-progressSpinner 
+        <p-progressSpinner
           [style]="{ width: '50px', height: '50px' }"
           strokeWidth="4"
           fill="transparent"
@@ -37,10 +37,17 @@
   <!-- Profile content -->
   @if (currentUser()) {
     <div class="profile-content">
-      <p-tabView>
+      <p-tabs value="0">
         <!-- Address Tab -->
-        <p-tabPanel header="Address Information">
-          <p-card>
+        <p-tablist>
+          <p-tab value="0">Address Information</p-tab>
+          <p-tab value="1">Password</p-tab>
+          <p-tab value="2">Email Address</p-tab>
+        </p-tablist>
+
+        <p-tabpanels>
+          <p-tabpanel value="0">
+            <p-card>
             <ng-template pTemplate="header">
               <div class="flex items-center gap-3 px-6 py-4">
                 <i class="pi pi-home text-blue-600 text-xl"></i>
@@ -58,8 +65,8 @@
                 <div class="form-grid">
                   <div class="form-field">
                     <label for="shippingStreet">Street Address *</label>
-                    <input 
-                      pInputText 
+                    <input
+                      pInputText
                       id="shippingStreet"
                       formControlName="shippingStreet"
                       placeholder="Enter street address"
@@ -69,11 +76,11 @@
                       <small class="field-error">{{ getFieldError(addressForm, 'shippingStreet') }}</small>
                     }
                   </div>
-                  
+
                   <div class="form-field">
                     <label for="shippingCity">City *</label>
-                    <input 
-                      pInputText 
+                    <input
+                      pInputText
                       id="shippingCity"
                       formControlName="shippingCity"
                       placeholder="Enter city"
@@ -83,11 +90,11 @@
                       <small class="field-error">{{ getFieldError(addressForm, 'shippingCity') }}</small>
                     }
                   </div>
-                  
+
                   <div class="form-field">
                     <label for="shippingPostalCode">Postal Code *</label>
-                    <input 
-                      pInputText 
+                    <input
+                      pInputText
                       id="shippingPostalCode"
                       formControlName="shippingPostalCode"
                       placeholder="Enter postal code"
@@ -97,10 +104,10 @@
                       <small class="field-error">{{ getFieldError(addressForm, 'shippingPostalCode') }}</small>
                     }
                   </div>
-                  
+
                   <div class="form-field">
                     <label for="shippingCountry">Country *</label>
-                    <p-select 
+                    <p-select
                       formControlName="shippingCountry"
                       [options]="countries"
                       optionLabel="label"
@@ -120,7 +127,7 @@
 
               <!-- Copy to Billing Button -->
               <div class="copy-address-section">
-                <p-button 
+                <p-button
                   label="Copy Shipping to Billing"
                   icon="pi pi-copy"
                   severity="secondary"
@@ -137,8 +144,8 @@
                 <div class="form-grid">
                   <div class="form-field">
                     <label for="billingStreet">Street Address *</label>
-                    <input 
-                      pInputText 
+                    <input
+                      pInputText
                       id="billingStreet"
                       formControlName="billingStreet"
                       placeholder="Enter street address"
@@ -148,11 +155,11 @@
                       <small class="field-error">{{ getFieldError(addressForm, 'billingStreet') }}</small>
                     }
                   </div>
-                  
+
                   <div class="form-field">
                     <label for="billingCity">City *</label>
-                    <input 
-                      pInputText 
+                    <input
+                      pInputText
                       id="billingCity"
                       formControlName="billingCity"
                       placeholder="Enter city"
@@ -162,11 +169,11 @@
                       <small class="field-error">{{ getFieldError(addressForm, 'billingCity') }}</small>
                     }
                   </div>
-                  
+
                   <div class="form-field">
                     <label for="billingPostalCode">Postal Code *</label>
-                    <input 
-                      pInputText 
+                    <input
+                      pInputText
                       id="billingPostalCode"
                       formControlName="billingPostalCode"
                       placeholder="Enter postal code"
@@ -176,10 +183,10 @@
                       <small class="field-error">{{ getFieldError(addressForm, 'billingPostalCode') }}</small>
                     }
                   </div>
-                  
+
                   <div class="form-field">
                     <label for="billingCountry">Country *</label>
-                    <p-select 
+                    <p-select
                       formControlName="billingCountry"
                       [options]="countries"
                       optionLabel="label"
@@ -197,7 +204,7 @@
 
               <!-- Save Button -->
               <div class="form-actions">
-                <p-button 
+                <p-button
                   type="submit"
                   label="Save Address Changes"
                   icon="pi pi-save"
@@ -207,11 +214,10 @@
               </div>
             </form>
           </p-card>
-        </p-tabPanel>
+          </p-tabpanel>
 
-        <!-- Password Tab -->
-        <p-tabPanel header="Password">
-          <p-card>
+          <p-tabpanel value="1">
+            <p-card>
             <ng-template pTemplate="header">
               <div class="flex items-center gap-3 px-6 py-4">
                 <i class="pi pi-key text-blue-600 text-xl"></i>
@@ -225,7 +231,7 @@
             <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="password-form">
               <div class="form-field">
                 <label for="currentPassword">Current Password *</label>
-                <p-password 
+                <p-password
                   formControlName="currentPassword"
                   inputId="currentPassword"
                   placeholder="Enter current password"
@@ -233,6 +239,7 @@
                   [toggleMask]="true"
                   styleClass="w-full"
                   inputStyleClass="w-full"
+                  autocomplete="current-password"
                   [class.ng-dirty]="isFieldInvalid(passwordForm, 'currentPassword')"
                 ></p-password>
                 @if (isFieldInvalid(passwordForm, 'currentPassword')) {
@@ -242,7 +249,7 @@
 
               <div class="form-field">
                 <label for="newPassword">New Password *</label>
-                <p-password 
+                <p-password
                   formControlName="newPassword"
                   inputId="newPassword"
                   placeholder="Enter new password (min 8 characters)"
@@ -250,6 +257,7 @@
                   [toggleMask]="true"
                   styleClass="w-full"
                   inputStyleClass="w-full"
+                  autocomplete="new-password"
                   [class.ng-dirty]="isFieldInvalid(passwordForm, 'newPassword')"
                 ></p-password>
                 @if (isFieldInvalid(passwordForm, 'newPassword')) {
@@ -259,7 +267,7 @@
 
               <div class="form-field">
                 <label for="confirmPassword">Confirm New Password *</label>
-                <p-password 
+                <p-password
                   formControlName="confirmPassword"
                   inputId="confirmPassword"
                   placeholder="Confirm new password"
@@ -267,6 +275,7 @@
                   [toggleMask]="true"
                   styleClass="w-full"
                   inputStyleClass="w-full"
+                  autocomplete="new-password"
                   [class.ng-dirty]="isFieldInvalid(passwordForm, 'confirmPassword')"
                 ></p-password>
                 @if (isFieldInvalid(passwordForm, 'confirmPassword')) {
@@ -275,7 +284,7 @@
               </div>
 
               <div class="form-actions">
-                <p-button 
+                <p-button
                   type="submit"
                   label="Change Password"
                   icon="pi pi-key"
@@ -285,11 +294,10 @@
               </div>
             </form>
           </p-card>
-        </p-tabPanel>
+          </p-tabpanel>
 
-        <!-- Email Tab -->
-        <p-tabPanel header="Email Address">
-          <p-card>
+          <p-tabpanel value="2">
+            <p-card>
             <ng-template pTemplate="header">
               <div class="flex items-center gap-3 px-6 py-4">
                 <i class="pi pi-envelope text-blue-600 text-xl"></i>
@@ -326,8 +334,8 @@
                     <form [formGroup]="emailForm" (ngSubmit)="onInitiateEmailChange()" class="email-form">
                       <div class="form-field">
                         <label for="newEmail">New Email Address *</label>
-                        <input 
-                          pInputText 
+                        <input
+                          pInputText
                           id="newEmail"
                           formControlName="newEmail"
                           placeholder="Enter new email address"
@@ -339,7 +347,7 @@
                         }
                       </div>
                       <div class="form-actions">
-                        <p-button 
+                        <p-button
                           type="submit"
                           label="Send Verification Code"
                           icon="pi pi-send"
@@ -359,15 +367,15 @@
                       Verify Current Email
                     </h4>
                     <p class="step-description">
-                      We've sent a 6-digit verification code to your current email address: 
+                      We've sent a 6-digit verification code to your current email address:
                       <strong>{{ currentUser()?.email }}</strong>
                     </p>
-                    
+
                     <form [formGroup]="oldTokenForm" (ngSubmit)="onVerifyOldToken()" class="token-form">
                       <div class="form-field">
                         <label for="oldToken">Verification Code *</label>
-                        <input 
-                          pInputText 
+                        <input
+                          pInputText
                           id="oldToken"
                           formControlName="token"
                           placeholder="Enter 6-digit code"
@@ -392,8 +400,8 @@
                             Code has expired
                           </p>
                         }
-                        
-                        <p-button 
+
+                        <p-button
                           label="Resend Code"
                           icon="pi pi-refresh"
                           severity="secondary"
@@ -410,7 +418,7 @@
                       </div>
 
                       <div class="form-actions">
-                        <p-button 
+                        <p-button
                           type="button"
                           label="Cancel"
                           severity="secondary"
@@ -418,7 +426,7 @@
                           (onClick)="resetEmailChangeFlow()"
                           [disabled]="emailChangeLoading()">
                         </p-button>
-                        <p-button 
+                        <p-button
                           type="submit"
                           label="Verify Code"
                           icon="pi pi-check"
@@ -438,15 +446,15 @@
                       Verify New Email
                     </h4>
                     <p class="step-description">
-                      We've sent a 6-digit verification code to your new email address: 
+                      We've sent a 6-digit verification code to your new email address:
                       <strong>{{ emailChangeData().newEmail }}</strong>
                     </p>
-                    
+
                     <form [formGroup]="newTokenForm" (ngSubmit)="onVerifyNewToken()" class="token-form">
                       <div class="form-field">
                         <label for="newToken">Verification Code *</label>
-                        <input 
-                          pInputText 
+                        <input
+                          pInputText
                           id="newToken"
                           formControlName="token"
                           placeholder="Enter 6-digit code"
@@ -471,8 +479,8 @@
                             Code has expired
                           </p>
                         }
-                        
-                        <p-button 
+
+                        <p-button
                           label="Resend Code"
                           icon="pi pi-refresh"
                           severity="secondary"
@@ -489,7 +497,7 @@
                       </div>
 
                       <div class="form-actions">
-                        <p-button 
+                        <p-button
                           type="button"
                           label="Cancel"
                           severity="secondary"
@@ -497,7 +505,7 @@
                           (onClick)="resetEmailChangeFlow()"
                           [disabled]="emailChangeLoading()">
                         </p-button>
-                        <p-button 
+                        <p-button
                           type="submit"
                           label="Complete Email Change"
                           icon="pi pi-check"
@@ -527,8 +535,9 @@
               }
             </div>
           </p-card>
-        </p-tabPanel>
-      </p-tabView>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
     </div>
   }
 </div>

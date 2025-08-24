@@ -1,7 +1,6 @@
-import { Component, inject, signal, ChangeDetectionStrategy, computed, effect } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy, OnDestroy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 
 // PrimeNG imports
 import { CardModule } from 'primeng/card';
@@ -12,15 +11,46 @@ import { SelectModule } from 'primeng/select';
 import { MessageModule } from 'primeng/message';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DividerModule } from 'primeng/divider';
-import { TabViewModule } from 'primeng/tabview';
+import { TabsModule } from 'primeng/tabs';
 
 // Store imports
-import { AuthStore, User, Address, PasswordChangeRequest, AddressUpdateRequest } from '../../core/stores/auth.store';
+import { AuthStore, PasswordChangeRequest, AddressUpdateRequest } from '../../core/stores/auth.store';
 import { ToastStore } from '../../shared/stores/toast.store';
 import { AuthApiService } from '../../core/services/auth-api.service';
 
 // Email change step type
 type EmailChangeStep = 'initial' | 'verify-old' | 'verify-new' | 'complete';
+
+// Countries constant to avoid recreation
+const EU_COUNTRIES = [
+  { label: 'Austria', value: 'AT' },
+  { label: 'Belgium', value: 'BE' },
+  { label: 'Bulgaria', value: 'BG' },
+  { label: 'Croatia', value: 'HR' },
+  { label: 'Cyprus', value: 'CY' },
+  { label: 'Czech Republic', value: 'CZ' },
+  { label: 'Denmark', value: 'DK' },
+  { label: 'Estonia', value: 'EE' },
+  { label: 'Finland', value: 'FI' },
+  { label: 'France', value: 'FR' },
+  { label: 'Germany', value: 'DE' },
+  { label: 'Greece', value: 'GR' },
+  { label: 'Hungary', value: 'HU' },
+  { label: 'Ireland', value: 'IE' },
+  { label: 'Italy', value: 'IT' },
+  { label: 'Latvia', value: 'LV' },
+  { label: 'Lithuania', value: 'LT' },
+  { label: 'Luxembourg', value: 'LU' },
+  { label: 'Malta', value: 'MT' },
+  { label: 'Netherlands', value: 'NL' },
+  { label: 'Poland', value: 'PL' },
+  { label: 'Portugal', value: 'PT' },
+  { label: 'Romania', value: 'RO' },
+  { label: 'Slovakia', value: 'SK' },
+  { label: 'Slovenia', value: 'SI' },
+  { label: 'Spain', value: 'ES' },
+  { label: 'Sweden', value: 'SE' }
+];
 
 @Component({
   selector: 'app-profile',
@@ -36,19 +66,18 @@ type EmailChangeStep = 'initial' | 'verify-old' | 'verify-new' | 'complete';
     MessageModule,
     ProgressSpinnerModule,
     DividerModule,
-    TabViewModule
+    TabsModule
   ],
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ProfileComponent {
+export class ProfileComponent implements OnDestroy {
   // Injected services
   private authStore = inject(AuthStore);
   private toastStore = inject(ToastStore);
   private authApiService = inject(AuthApiService);
   private fb = inject(FormBuilder);
-  private router = inject(Router);
 
   // State signals
   readonly currentUser = this.authStore.user;
@@ -78,6 +107,9 @@ export class ProfileComponent {
   readonly resendOldCooldown = signal<number>(0);
   readonly resendNewCooldown = signal<number>(0);
 
+  // Timer interval reference for cleanup
+  private timerInterval?: ReturnType<typeof setInterval>;
+
   // Forms
   addressForm!: FormGroup;
   passwordForm!: FormGroup;
@@ -85,46 +117,26 @@ export class ProfileComponent {
   oldTokenForm!: FormGroup;
   newTokenForm!: FormGroup;
 
-  // Country options (reused from request-access)
-  readonly countries = [
-    { label: 'Austria', value: 'AT' },
-    { label: 'Belgium', value: 'BE' },
-    { label: 'Bulgaria', value: 'BG' },
-    { label: 'Croatia', value: 'HR' },
-    { label: 'Cyprus', value: 'CY' },
-    { label: 'Czech Republic', value: 'CZ' },
-    { label: 'Denmark', value: 'DK' },
-    { label: 'Estonia', value: 'EE' },
-    { label: 'Finland', value: 'FI' },
-    { label: 'France', value: 'FR' },
-    { label: 'Germany', value: 'DE' },
-    { label: 'Greece', value: 'GR' },
-    { label: 'Hungary', value: 'HU' },
-    { label: 'Ireland', value: 'IE' },
-    { label: 'Italy', value: 'IT' },
-    { label: 'Latvia', value: 'LV' },
-    { label: 'Lithuania', value: 'LT' },
-    { label: 'Luxembourg', value: 'LU' },
-    { label: 'Malta', value: 'MT' },
-    { label: 'Netherlands', value: 'NL' },
-    { label: 'Poland', value: 'PL' },
-    { label: 'Portugal', value: 'PT' },
-    { label: 'Romania', value: 'RO' },
-    { label: 'Slovakia', value: 'SK' },
-    { label: 'Slovenia', value: 'SI' },
-    { label: 'Spain', value: 'ES' },
-    { label: 'Sweden', value: 'SE' }
-  ];
-
-  // Computed values
-  readonly isAddressFormDirty = computed(() => this.addressForm?.dirty || false);
-  readonly isPasswordFormValid = computed(() => this.passwordForm?.valid || false);
-  readonly isEmailFormValid = computed(() => this.emailForm?.valid || false);
+  // Country options
+  readonly countries = EU_COUNTRIES;
 
   constructor() {
     this.initializeForms();
     this.setupTimers();
     this.populateAddressForm();
+  }
+
+  // Form validation methods
+  isAddressFormDirty(): boolean {
+    return this.addressForm?.dirty || false;
+  }
+
+  isPasswordFormValid(): boolean {
+    return this.passwordForm?.valid || false;
+  }
+
+  isEmailFormValid(): boolean {
+    return this.emailForm?.valid || false;
   }
 
   private initializeForms(): void {
@@ -161,7 +173,7 @@ export class ProfileComponent {
     });
   }
 
-  private passwordMatchValidator(group: FormGroup) {
+  private passwordMatchValidator(group: FormGroup): { passwordMismatch: boolean } | null {
     const newPassword = group.get('newPassword')?.value;
     const confirmPassword = group.get('confirmPassword')?.value;
     return newPassword === confirmPassword ? null : { passwordMismatch: true };
@@ -188,7 +200,7 @@ export class ProfileComponent {
 
   private setupTimers(): void {
     // Setup token expiry timers
-    setInterval(() => {
+    this.timerInterval = setInterval(() => {
       const data = this.emailChangeData();
       
       if (data.oldTokenExpiry) {
@@ -216,6 +228,12 @@ export class ProfileComponent {
         }
       }
     }, 1000);
+  }
+
+  ngOnDestroy(): void {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+    }
   }
 
   // Address update methods
@@ -267,14 +285,18 @@ export class ProfileComponent {
       newPassword: formValue.newPassword
     };
 
+    // Clear any previous errors
+    this.passwordForm.get('currentPassword')?.setErrors(null);
+    
+    // Use store method which handles loading state automatically
     this.authStore.changePassword(passwordChange);
     
-    // Reset form on success
-    effect(() => {
+    // Reset form on success (we could also listen to store state changes)
+    setTimeout(() => {
       if (!this.passwordChangeLoading()) {
         this.passwordForm.reset();
       }
-    }, { allowSignalWrites: true });
+    }, 100);
   }
 
   // Email change methods
@@ -302,9 +324,10 @@ export class ProfileComponent {
         alert(`Token sent to your current email: ${response.token}`);
         this.toastStore.showInfo(`Verification code sent to your current email`);
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.authStore.setEmailChangeLoading(false);
-        this.toastStore.showError(error.message || 'Failed to initiate email change');
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        this.toastStore.showError(errorMessage || 'Failed to initiate email change');
       }
     });
   }
@@ -334,9 +357,10 @@ export class ProfileComponent {
         alert(`Token sent to your new email (${data.newEmail}): ${response.token}`);
         this.toastStore.showInfo(`Verification code sent to ${data.newEmail}`);
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.authStore.setEmailChangeLoading(false);
-        this.toastStore.showError(error.message || 'Invalid verification code');
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        this.toastStore.showError(errorMessage || 'Invalid verification code');
       }
     });
   }
@@ -353,7 +377,7 @@ export class ProfileComponent {
     this.authStore.setEmailChangeLoading(true);
     
     this.authApiService.verifyNewEmailToken(token, data.newEmail).subscribe({
-      next: (updatedUser) => {
+      next: () => {
         this.authStore.setEmailChangeLoading(false);
         this.authStore.updateUserEmail(data.newEmail);
         this.emailChangeStep.set('complete');
@@ -364,9 +388,10 @@ export class ProfileComponent {
           this.resetEmailChangeFlow();
         }, 3000);
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.authStore.setEmailChangeLoading(false);
-        this.toastStore.showError(error.message || 'Invalid verification code');
+        const errorMessage = error instanceof Error ? error.message : 'Invalid verification code';
+        this.toastStore.showError(errorMessage);
       }
     });
   }
@@ -393,9 +418,10 @@ export class ProfileComponent {
         alert(`New token sent to your current email: ${response.token}`);
         this.toastStore.showInfo('New verification code sent to your current email');
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.authStore.setEmailChangeLoading(false);
-        this.toastStore.showError(error.message || 'Failed to resend verification code');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to resend verification code';
+        this.toastStore.showError(errorMessage);
       }
     });
   }
@@ -424,9 +450,10 @@ export class ProfileComponent {
         alert(`New token sent to ${data.newEmail}: ${response.token}`);
         this.toastStore.showInfo(`New verification code sent to ${data.newEmail}`);
       },
-      error: (error) => {
+      error: (error: unknown) => {
         this.authStore.setEmailChangeLoading(false);
-        this.toastStore.showError(error.message || 'Failed to resend verification code');
+        const errorMessage = error instanceof Error ? error.message : 'Failed to resend verification code';
+        this.toastStore.showError(errorMessage);
       }
     });
   }
@@ -452,7 +479,15 @@ export class ProfileComponent {
   // Utility methods
   isFieldInvalid(form: FormGroup, fieldName: string): boolean {
     const field = form.get(fieldName);
-    return !!(field && field.invalid && (field.dirty || field.touched));
+    const fieldInvalid = !!(field && field.invalid && (field.dirty || field.touched));
+    
+    // Check for form-level errors (like password mismatch) for confirm password field
+    if (fieldName === 'confirmPassword') {
+      const formInvalid = !!(form.errors?.['passwordMismatch'] && field && (field.dirty || field.touched));
+      return fieldInvalid || formInvalid;
+    }
+    
+    return fieldInvalid;
   }
 
   getFieldError(form: FormGroup, fieldName: string): string {
@@ -462,8 +497,14 @@ export class ProfileComponent {
       if (field.errors['email']) return 'Please enter a valid email address';
       if (field.errors['minlength']) return `${this.capitalize(fieldName)} must be at least ${field.errors['minlength'].requiredLength} characters`;
       if (field.errors['pattern']) return 'Please enter a valid 6-digit code';
-      if (field.errors['passwordMismatch']) return 'Passwords do not match';
+      if (field.errors['incorrectPassword']) return 'Current password is incorrect';
     }
+    
+    // Check for form-level errors (like password mismatch)
+    if (fieldName === 'confirmPassword' && form.errors?.['passwordMismatch']) {
+      return 'Passwords do not match';
+    }
+    
     return '';
   }
 
