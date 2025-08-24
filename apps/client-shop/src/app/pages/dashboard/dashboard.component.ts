@@ -266,10 +266,6 @@ interface DashboardStats {
                     <span class="text-slate-600">Subtotal:</span>
                     <span class="font-medium text-slate-900">{{ cartValue() | appCurrency }}</span>
                   </div>
-                  <div class="flex justify-between text-sm">
-                    <span class="text-slate-600">VAT (included):</span>
-                    <span class="font-medium text-slate-900">{{ (cartValue() * 0.23) | appCurrency }}</span>
-                  </div>
                 </div>
                 <p-button
                   label="Review & Order"
