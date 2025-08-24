@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
+import { orderGuard } from './core/guards/order.guard';
 
 export const appRoutes: Route[] = [
   // Landing page (public)
@@ -61,7 +62,7 @@ export const appRoutes: Route[] = [
       },
       {
         path: 'payment-instructions',
-        canActivate: [authGuard],
+        canActivate: [authGuard, orderGuard],
         loadComponent: () => import('./pages/payment-instructions/payment-instructions.component').then(m => m.PaymentInstructionsComponent)
       },
       {
