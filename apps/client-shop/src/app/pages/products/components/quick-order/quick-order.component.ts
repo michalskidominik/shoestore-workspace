@@ -69,7 +69,7 @@ export interface OrderData {
       </div>
 
       <!-- Scrollable Content Area -->
-      <div class="flex-1 overflow-y-auto px-4 lg:px-6 py-3 lg:py-4 pb-20 lg:pb-4">
+      <div class="flex-1 overflow-y-auto px-4 lg:px-6 py-3 lg:py-4 pb-36 lg:pb-4">
         @if (isFormReady()) {
           <!-- Quick Fill All Sizes - Compact on Mobile -->
           <div class="mb-4 lg:mb-6 p-3 lg:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg lg:rounded-xl">
@@ -213,8 +213,8 @@ export interface OrderData {
                 </div>
               </div>
 
-              <!-- Mobile Compact List Layout -->
-              <div class="lg:hidden space-y-2">
+              <!-- Mobile Compact List Layout with Scrolling -->
+              <div class="lg:hidden max-h-80 overflow-y-auto space-y-2 pr-1 mb-4">
                 @for (sizeControl of sizeFormControls(); track $index) {
                   <div class="flex items-center gap-2 py-2 px-3 bg-white border border-slate-200 rounded-lg hover:border-slate-300 transition-colors">
                     <!-- Size -->
@@ -323,44 +323,42 @@ export interface OrderData {
       </div>
 
       <!-- Mobile: Sticky Bottom Actions -->
-      <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 py-3 safe-area-bottom">
+      <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 py-2 safe-area-bottom">
         @if (isFormReady()) {
-          <!-- Mobile Order Summary -->
-          <div class="flex items-center justify-between mb-3 p-3 bg-slate-50 rounded-lg">
-            <div class="flex items-center gap-2">
-              <i class="pi pi-calculator text-blue-600 text-sm"></i>
-              <span class="text-sm font-semibold text-slate-800">Total</span>
+          <!-- Mobile Action Buttons with Integrated Total -->
+          <div class="flex gap-2 items-center justify-between">
+            <!-- Left: Action Buttons -->
+            <div class="flex gap-2 flex-1">
+              <!-- Cancel Button -->
+              <p-button
+                type="button"
+                label="Cancel"
+                severity="secondary"
+                [outlined]="true"
+                styleClass="!text-sm !py-2 !px-3 flex-1 !font-medium !h-10 !min-h-10"
+                (onClick)="onCancel()">
+              </p-button>
+
+              <!-- Add to Cart Button -->
+              <p-button
+                type="submit"
+                label="Add to Cart"
+                icon="pi pi-shopping-cart"
+                severity="primary"
+                [disabled]="!canSubmit() || isSubmitting()"
+                [loading]="isSubmitting()"
+                (onClick)="onSubmit()"
+                styleClass="!text-sm !py-2 !px-3 flex-1 !font-semibold !h-10 !min-h-10">
+              </p-button>
             </div>
-            <div class="text-right">
-              <div class="text-lg font-bold text-blue-700">{{ getTotalPrice() | appCurrency }}</div>
-              <div class="text-xs text-slate-600">
+
+            <!-- Right: Mobile Total Section -->
+            <div class="flex-shrink-0 ml-3 text-right">
+              <div class="text-base font-bold text-blue-700 leading-tight whitespace-nowrap">{{ getTotalPrice() | appCurrency }}</div>
+              <div class="text-xs text-slate-500 leading-tight whitespace-nowrap">
                 {{ getTotalQuantity() }} {{ getTotalQuantity() === 1 ? 'item' : 'items' }}
               </div>
             </div>
-          </div>
-
-          <!-- Mobile Action Buttons -->
-          <div class="flex gap-3">
-            <p-button
-              type="button"
-              label="Cancel"
-              severity="secondary"
-              [outlined]="true"
-              size="large"
-              styleClass="!text-sm !py-3 !px-4 flex-1 !font-medium"
-              (onClick)="onCancel()">
-            </p-button>
-            <p-button
-              type="submit"
-              label="Add to Cart"
-              icon="pi pi-shopping-cart"
-              severity="primary"
-              size="large"
-              [disabled]="!canSubmit() || isSubmitting()"
-              [loading]="isSubmitting()"
-              (onClick)="onSubmit()"
-              styleClass="!text-sm !py-3 !px-4 flex-2 !font-semibold">
-            </p-button>
           </div>
         }
       </div>
