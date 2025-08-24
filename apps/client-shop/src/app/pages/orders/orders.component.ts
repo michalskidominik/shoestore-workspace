@@ -41,14 +41,16 @@ import { CurrencyPipe } from '../../shared/pipes';
     CurrencyPipe
   ],
   template: `
-    <div class="orders-page min-h-screen bg-slate-50 py-8">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Page Header -->
-        <div class="mb-8">
+    <div class="orders-page min-h-screen bg-slate-50 md:py-4">
+      <!-- Header Section (matches dashboard structure) -->
+      <div class="px-4 sm:px-6 lg:px-8 py-4">
+        <div class="max-w-7xl mx-auto">
           <h1 class="text-3xl font-bold text-slate-900 mb-2">My Orders</h1>
           <p class="text-slate-600">Track and manage your orders</p>
         </div>
+      </div>
 
+  <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         <!-- Filters and Search -->
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -59,7 +61,7 @@ import { CurrencyPipe } from '../../shared/pipes';
                 id="search"
                 type="text"
                 pInputText
-                placeholder="Search by order ID, email, or customer name..."
+                placeholder="Search by order ID, email"
                 [(ngModel)]="searchTerm"
                 (ngModelChange)="onSearchChange($event)"
                 class="w-full"
@@ -301,7 +303,7 @@ export class OrdersComponent implements OnInit {
   protected readonly currentSortField = computed(() => {
     const queryParams = this.orderHistoryStore.queryParams();
     const backendField = queryParams.sortBy || 'date';
-    
+
     // Map backend field names back to PrimeNG table field names
     switch (backendField) {
       case 'id':

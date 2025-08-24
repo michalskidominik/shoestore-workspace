@@ -38,9 +38,9 @@ interface DashboardStats {
     CurrencyPipe
   ],
   template: `
-    <div class="dashboard min-h-screen bg-slate-50">
+  <div class="dashboard min-h-screen bg-slate-50 md:py-4">
       <!-- Header Section -->
-      <div class="px-4 sm:px-6 lg:px-8 py-6">
+      <div class="px-4 sm:px-6 lg:px-8 py-4">
         <div class="max-w-7xl mx-auto">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -74,7 +74,7 @@ interface DashboardStats {
       </div>
 
       <!-- Main Content -->
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
 
         <!-- Quick Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">

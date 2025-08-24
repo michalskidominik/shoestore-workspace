@@ -1,5 +1,7 @@
 <!-- eslint-disable @angular-eslint/template/elements-content -->
-<div class="mx-auto p-6" *ngIf="order() as o">
+<div class="order-detail-page min-h-screen bg-slate-50 md:py-4">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="p-6" *ngIf="order() as o">
   <button
     pButton
     label="Powrót do listy"
@@ -134,5 +136,6 @@
         </ng-template>
       </p-table>
     </div>
-  </p-card>
+    </p-card>
+  </div>
 </div>

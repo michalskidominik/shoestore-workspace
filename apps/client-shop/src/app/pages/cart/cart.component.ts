@@ -37,8 +37,8 @@ interface StockConflict {
     CurrencyPipe
   ],
   template: `
-    <div class="cart-page min-h-screen bg-slate-50 py-8">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="cart-page min-h-screen bg-slate-50 md:py-4">
+  <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         <!-- Page Header -->
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-slate-900 mb-2">Shopping Cart</h1>
