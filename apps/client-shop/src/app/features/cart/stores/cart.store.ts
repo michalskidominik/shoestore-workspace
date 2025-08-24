@@ -108,12 +108,10 @@ export const CartStore = signalStore(
     // Cart summary for checkout
     cartSummary: computed(() => {
       const subtotal = entities().reduce((sum, item) => sum + item.totalPrice, 0);
-      const tax = subtotal * 0.08; // 8% tax rate for B2B
       return {
         subtotal,
-        tax,
         shipping: 0, // Free shipping for B2B orders
-        total: subtotal + tax,
+        total: subtotal, // Netto price (VAT will be calculated at checkout)
         itemCount: entities().reduce((sum, item) => sum + item.quantity, 0)
       };
     })
@@ -303,7 +301,6 @@ export const CartStore = signalStore(
                 totalPrice: item.totalPrice
               })),
               subtotal: summary.subtotal,
-              tax: summary.tax,
               total: summary.total
             };
 

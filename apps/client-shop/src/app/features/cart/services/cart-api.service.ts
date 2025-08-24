@@ -33,7 +33,6 @@ export interface OrderSubmissionRequest {
     totalPrice: number;
   }>;
   subtotal: number;
-  tax: number;
   total: number;
 }
 
@@ -57,7 +56,7 @@ export class CartApiService {
     // Example: return this.http.post<StockValidationResponse>('/api/cart/validate-stock', request);
 
     const conflicts: StockConflict[] = [];
-    
+
     // Mock stock validation - simulate conflicts for quantities > 10
     request.items.forEach(item => {
       if (item.requestedQuantity > 10) { // Mock max stock per size
@@ -69,7 +68,7 @@ export class CartApiService {
         });
       }
     });
-    
+
     return of({
       valid: conflicts.length === 0,
       conflicts

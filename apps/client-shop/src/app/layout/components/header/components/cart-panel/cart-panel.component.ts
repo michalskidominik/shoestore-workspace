@@ -7,7 +7,6 @@ import { CartItem } from '../../../../../features/cart/stores/cart.store';
 
 interface CartSummary {
   subtotal: number;
-  tax: number;
   shipping: number;
   total: number;
   itemCount: number;

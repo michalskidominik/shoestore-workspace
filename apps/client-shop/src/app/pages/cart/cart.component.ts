@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -18,20 +18,6 @@ interface StockConflict {
   size: number;
   requestedQuantity: number;
   availableStock: number;
-}
-
-interface GroupedCartItem {
-  productId: number;
-  productCode: string;
-  productName: string;
-  unitPrice: number;
-  sizes: Array<{
-    size: number;
-    quantity: number;
-    totalPrice: number;
-  }>;
-  totalQuantity: number;
-  totalPrice: number;
 }
 
 @Component({
@@ -185,7 +171,7 @@ interface GroupedCartItem {
                     <div class="space-y-4 mb-6">
                     <div class="flex justify-between">
                       <span class="text-slate-600">Subtotal ({{ cartStore.totalItems() }} items)</span>
-                      <span class="text-slate-900 font-medium">\${{ cartStore.cartSummary().subtotal.toFixed(2) }}</span>
+                      <span class="text-slate-900 font-medium">€{{ cartStore.cartSummary().subtotal.toFixed(2) }}</span>
                     </div>
 
                     <div class="flex justify-between">
@@ -193,16 +179,22 @@ interface GroupedCartItem {
                       <span class="text-green-600 font-medium">Free</span>
                     </div>
 
-                    <div class="flex justify-between">
-                      <span class="text-slate-600">Tax</span>
-                      <span class="text-slate-900 font-medium">\${{ cartStore.cartSummary().tax.toFixed(2) }}</span>
-                    </div>
-
                     <p-divider></p-divider>
 
                     <div class="flex justify-between text-lg">
-                      <span class="font-semibold text-slate-900">Total</span>
-                      <span class="font-bold text-slate-900">\${{ cartStore.cartSummary().total.toFixed(2) }}</span>
+                      <span class="font-semibold text-slate-900">Total (excl. VAT)</span>
+                      <span class="font-bold text-slate-900">€{{ cartStore.cartSummary().subtotal.toFixed(2) }}</span>
+                    </div>
+
+                    <!-- VAT Information -->
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+                      <div class="flex items-start gap-2">
+                        <i class="pi pi-info-circle text-blue-600 text-sm mt-0.5"></i>
+                        <div class="text-xs text-blue-800">
+                          <p class="font-medium">Prices do NOT include VAT</p>
+                          <p>VAT will be calculated based on your location during checkout</p>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
@@ -407,7 +399,7 @@ export class CartComponent {
   protected submitOrder(): void {
     this.errorMessage.set(null);
 
-    // Validate stock first using CartApiService  
+    // Validate stock first using CartApiService
     const items = this.cartStore.entities();
     const validationRequest = {
       items: items.map(item => ({
@@ -438,9 +430,9 @@ export class CartComponent {
 
         const summary = this.cartStore.cartSummary();
 
-        this.orderStore.submitOrder({ 
+        this.orderStore.submitOrder({
           items: orderItems,
-          summary 
+          summary
         });
       },
       error: () => {

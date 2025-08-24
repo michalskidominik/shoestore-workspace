@@ -108,9 +108,8 @@ export class OrderApiService {
         ],
         summary: {
           subtotal: 99.99,
-          tax: 8.00,
           shipping: 0,
-          total: 107.99,
+          total: 99.99,
           itemCount: 1
         },
         customerInfo: {
@@ -216,7 +215,7 @@ export class OrderApiService {
       const existingOrders = this.getAllOrdersFromLocalStorage();
       const updatedOrders = existingOrders.filter(o => o.id !== order.id);
       updatedOrders.unshift(order);
-      
+
       localStorage.setItem('shoestore_current_orders', JSON.stringify(updatedOrders));
     } catch (error) {
       console.warn('Failed to store order in localStorage:', error);

@@ -20,7 +20,6 @@ export interface OrderItem {
 
 export interface OrderSummary {
   subtotal: number;
-  tax: number;
   shipping: number;
   total: number;
   itemCount: number;
