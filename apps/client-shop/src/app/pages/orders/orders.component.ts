@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, effect, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -17,8 +17,8 @@ import { DividerModule } from 'primeng/divider';
 import { SkeletonModule } from 'primeng/skeleton';
 
 // Models and Services
-import { Order, OrderQueryParams, OrderStatus, PagedResult } from '@shoestore/shared-models';
-import { OrderService } from '../../shared/services/order.service';
+import { Order, OrderStatus } from '@shoestore/shared-models';
+import { OrderHistoryStore } from '../../features/orders/stores/order-history.store';
 
 @Component({
   selector: 'app-orders',
@@ -69,7 +69,7 @@ import { OrderService } from '../../shared/services/order.service';
               <label for="status-filter" class="block text-sm font-medium text-slate-700 mb-2">Filter by Status</label>
               <p-select
                 id="status-filter"
-                [options]="statusOptions()"
+                [options]="orderHistoryStore.getStatusOptions()"
                 [(ngModel)]="selectedStatus"
                 (onChange)="onStatusFilterChange($event.value)"
                 placeholder="All statuses"
@@ -82,7 +82,7 @@ import { OrderService } from '../../shared/services/order.service';
 
         <!-- Orders Table -->
         <div class="bg-white rounded-lg shadow-sm">
-          @if (loading()) {
+          @if (orderHistoryStore.isLoading()) {
             <!-- Loading State -->
             <div class="p-6">
               <div class="space-y-4">
@@ -97,19 +97,19 @@ import { OrderService } from '../../shared/services/order.service';
                 }
               </div>
             </div>
-          } @else if (errorMessage()) {
+          } @else if (orderHistoryStore.error()) {
             <!-- Error State -->
             <div class="p-6">
               <p-message
                 severity="error"
-                [text]="errorMessage()!"
+                [text]="orderHistoryStore.error()!"
                 styleClass="w-full"
               />
               <div class="mt-4">
                 <p-button
                   label="Retry"
                   icon="pi pi-refresh"
-                  (onClick)="loadOrders()"
+                  (onClick)="orderHistoryStore.loadOrders()"
                   severity="secondary"
                 />
               </div>
@@ -117,12 +117,12 @@ import { OrderService } from '../../shared/services/order.service';
           } @else {
             <!-- Orders Table -->
             <p-table
-              [value]="orders()"
+              [value]="orderHistoryStore.orders()"
               [paginator]="true"
-              [rows]="queryParams().pageSize || 10"
-              [totalRecords]="totalRecords()"
+              [rows]="orderHistoryStore.queryParams().pageSize || 10"
+              [totalRecords]="orderHistoryStore.pagination().total"
               [lazy]="true"
-              [loading]="loading()"
+              [loading]="orderHistoryStore.isLoading()"
               [sortField]="'date'"
               [sortOrder]="-1"
               (onSort)="onSort($event)"
@@ -193,8 +193,8 @@ import { OrderService } from '../../shared/services/order.service';
                   <!-- Status -->
                   <td class="text-center">
                     <p-tag
-                      [value]="orderService.getStatusLabel(order.status)"
-                      [severity]="orderService.getStatusSeverity(order.status)"
+                      [value]="orderHistoryStore.getStatusLabel(order.status)"
+                      [severity]="orderHistoryStore.getStatusSeverity(order.status)"
                     />
                   </td>
 
@@ -261,10 +261,10 @@ import { OrderService } from '../../shared/services/order.service';
         </div>
 
         <!-- Order Summary Stats -->
-        @if (!loading() && orders().length > 0) {
+        @if (!orderHistoryStore.isLoading() && orderHistoryStore.hasOrders()) {
           <div class="mt-8 grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="bg-white rounded-lg shadow-sm p-6 text-center">
-              <div class="text-2xl font-bold text-blue-600">{{ totalRecords() }}</div>
+              <div class="text-2xl font-bold text-blue-600">{{ orderHistoryStore.pagination().total }}</div>
               <div class="text-sm text-slate-500">Total Orders</div>
             </div>
             <div class="bg-white rounded-lg shadow-sm p-6 text-center">
@@ -288,88 +288,30 @@ import { OrderService } from '../../shared/services/order.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrdersComponent implements OnInit {
-  protected readonly orderService = inject(OrderService);
+  protected readonly orderHistoryStore = inject(OrderHistoryStore);
   private readonly router = inject(Router);
 
-  // Component state
-  protected readonly loading = signal(false);
-  protected readonly errorMessage = signal<string | null>(null);
-  protected readonly orders = signal<Order[]>([]);
-  protected readonly totalRecords = signal(0);
-
-  // Query parameters
-  protected readonly queryParams = signal<OrderQueryParams>({
-    page: 1,
-    pageSize: 10,
-    sortBy: 'date',
-    sortDirection: 'desc'
-  });
-
-  // Filters
+  // Local state for form controls
   protected searchTerm = '';
   protected selectedStatus: OrderStatus | null = null;
 
-  // Computed properties
-  protected readonly statusOptions = computed(() => this.orderService.getStatusOptions());
-
-  // Trigger for reloading data
-  private readonly reloadTrigger = signal(0);
-
-  constructor() {
-    // Auto-reload when query params change
-    effect(() => {
-      this.reloadTrigger(); // Subscribe to trigger
-      this.loadOrders();
-    });
-  }
-
   ngOnInit(): void {
-    this.loadOrders();
-  }
-
-  /**
-   * Load orders from service
-   */
-  protected loadOrders(): void {
-    this.loading.set(true);
-    this.errorMessage.set(null);
-
-    this.orderService.getOrders(this.queryParams()).subscribe({
-      next: (result: PagedResult<Order>) => {
-        this.orders.set(result.items);
-        this.totalRecords.set(result.total);
-        this.loading.set(false);
-      },
-      error: (error) => {
-        this.errorMessage.set('Failed to load orders. Please try again.');
-        this.loading.set(false);
-        console.error('Error loading orders:', error);
-      }
-    });
+    // Load initial orders
+    this.orderHistoryStore.loadOrders();
   }
 
   /**
    * Handle search input change
    */
   protected onSearchChange(searchTerm: string): void {
-    this.queryParams.update(params => ({
-      ...params,
-      search: searchTerm || undefined,
-      page: 1
-    }));
-    this.triggerReload();
+    this.orderHistoryStore.searchOrders(searchTerm);
   }
 
   /**
    * Handle status filter change
    */
   protected onStatusFilterChange(status: OrderStatus | null): void {
-    this.queryParams.update(params => ({
-      ...params,
-      status: status || undefined,
-      page: 1
-    }));
-    this.triggerReload();
+    this.orderHistoryStore.filterByStatus(status || undefined);
   }
 
   /**
@@ -377,13 +319,7 @@ export class OrdersComponent implements OnInit {
    */
   protected onSort(event: { field: string; order: number }): void {
     const sortDirection = event.order === 1 ? 'asc' : 'desc';
-    this.queryParams.update(params => ({
-      ...params,
-      sortBy: event.field as 'date' | 'status' | 'totalAmount',
-      sortDirection,
-      page: 1
-    }));
-    this.triggerReload();
+    this.orderHistoryStore.sortOrders(event.field as 'date' | 'status' | 'totalAmount', sortDirection);
   }
 
   /**
@@ -391,12 +327,11 @@ export class OrdersComponent implements OnInit {
    */
   protected onPageChange(event: TablePageEvent): void {
     const page = Math.floor((event.first || 0) / (event.rows || 10)) + 1;
-    this.queryParams.update(params => ({
-      ...params,
-      page,
-      pageSize: event.rows || 10
-    }));
-    this.triggerReload();
+    if (event.rows && event.rows !== this.orderHistoryStore.queryParams().pageSize) {
+      this.orderHistoryStore.changePageSize(event.rows);
+    } else {
+      this.orderHistoryStore.goToPage(page);
+    }
   }
 
   /**
@@ -419,20 +354,18 @@ export class OrdersComponent implements OnInit {
   protected clearFilters(): void {
     this.searchTerm = '';
     this.selectedStatus = null;
-    this.queryParams.update(params => ({
-      ...params,
+    this.orderHistoryStore.updateQueryParams({
       search: undefined,
       status: undefined,
       page: 1
-    }));
-    this.triggerReload();
+    });
   }
 
   /**
    * Check if any filters are active
    */
   protected hasActiveFilters(): boolean {
-    const params = this.queryParams();
+    const params = this.orderHistoryStore.queryParams();
     return !!(params.search || params.status);
   }
 
@@ -467,27 +400,20 @@ export class OrdersComponent implements OnInit {
    * Get count of completed orders
    */
   protected getCompletedOrdersCount(): number {
-    return this.orders().filter(order => order.status === 'completed').length;
+    return this.orderHistoryStore.orders().filter(order => order.status === 'completed').length;
   }
 
   /**
    * Get count of processing orders
    */
   protected getProcessingOrdersCount(): number {
-    return this.orders().filter(order => order.status === 'processing').length;
+    return this.orderHistoryStore.orders().filter(order => order.status === 'processing').length;
   }
 
   /**
    * Get total value of all orders
    */
   protected getTotalOrderValue(): number {
-    return this.orders().reduce((total, order) => total + order.totalAmount, 0);
-  }
-
-  /**
-   * Trigger data reload
-   */
-  private triggerReload(): void {
-    this.reloadTrigger.update(count => count + 1);
+    return this.orderHistoryStore.orders().reduce((total, order) => total + order.totalAmount, 0);
   }
 }

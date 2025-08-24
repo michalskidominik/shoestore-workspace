@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, computed, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { CardModule } from 'primeng/card';
@@ -9,8 +9,8 @@ import { ChartModule } from 'primeng/chart';
 import { SkeletonModule } from 'primeng/skeleton';
 import { AuthStore } from '../../core/stores/auth.store';
 import { CartStore } from '../../features/cart/stores/cart.store';
-import { OrderService } from '../../shared/services/order.service';
-import { Order } from '@shoestore/shared-models';
+import { OrderHistoryStore } from '../../features/orders/stores/order-history.store';
+import { OrderStatus } from '@shoestore/shared-models';
 
 interface DashboardStats {
   totalOrders: number;
@@ -151,7 +151,7 @@ interface DashboardStats {
                 </div>
               </div>
               <div class="p-6">
-                @if (isLoadingOrders()) {
+                @if (orderHistoryStore.isLoading()) {
                   <div class="space-y-4">
                     @for (item of [1,2,3]; track item) {
                       <div class="flex items-center gap-4 p-4 border border-slate-200 rounded-lg">
@@ -321,20 +321,16 @@ interface DashboardStats {
 export class DashboardComponent implements OnInit {
   private readonly authStore = inject(AuthStore);
   private readonly cartStore = inject(CartStore);
-  private readonly orderService = inject(OrderService);
+  protected readonly orderHistoryStore = inject(OrderHistoryStore);
 
-  // Signals for component state
-  protected readonly isLoadingOrders = signal(true);
-  protected readonly orders = signal<Order[]>([]);
-
-  // Computed values from services
+  // Computed values from stores
   readonly currentUser = this.authStore.user;
   readonly cartItemCount = this.cartStore.totalItems;
   readonly cartValue = this.cartStore.totalPrice;
 
   // Computed dashboard statistics
   readonly stats = computed((): DashboardStats => {
-    const allOrders = this.orders();
+    const allOrders = this.orderHistoryStore.orders();
     const completedOrders = allOrders.filter(o => o.status === 'completed');
     const pendingOrders = allOrders.filter(o => o.status === 'processing' || o.status === 'placed');
 
@@ -353,30 +349,13 @@ export class DashboardComponent implements OnInit {
 
   // Recent orders (last 5)
   readonly recentOrders = computed(() => {
-    return this.orders()
+    return this.orderHistoryStore.orders()
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice(0, 5);
   });
 
   ngOnInit(): void {
-    this.loadOrders();
-  }
-
-  private loadOrders(): void {
-    this.isLoadingOrders.set(true);
-
-    // Get orders for the current user
-    this.orderService.getOrders({}).subscribe({
-      next: (result) => {
-        this.orders.set(result.items);
-        this.isLoadingOrders.set(false);
-      },
-      error: (error) => {
-        console.error('Failed to load orders:', error);
-        this.orders.set([]);
-        this.isLoadingOrders.set(false);
-      }
-    });
+    this.orderHistoryStore.loadOrders();
   }
 
   protected formatDate(dateString: string): string {
@@ -389,22 +368,10 @@ export class DashboardComponent implements OnInit {
   }
 
   protected getStatusLabel(status: string): string {
-    const statusMap: Record<string, string> = {
-      'placed': 'Placed',
-      'processing': 'Processing',
-      'completed': 'Completed',
-      'cancelled': 'Cancelled'
-    };
-    return statusMap[status] || status;
+    return this.orderHistoryStore.getStatusLabel(status as OrderStatus);
   }
 
   protected getStatusSeverity(status: string): 'success' | 'info' | 'warning' | 'danger' | 'secondary' {
-    const severityMap: Record<string, 'success' | 'info' | 'warning' | 'danger' | 'secondary'> = {
-      'placed': 'warning',
-      'processing': 'info',
-      'completed': 'success',
-      'cancelled': 'danger'
-    };
-    return severityMap[status] || 'secondary';
+    return this.orderHistoryStore.getStatusSeverity(status as OrderStatus);
   }
 }

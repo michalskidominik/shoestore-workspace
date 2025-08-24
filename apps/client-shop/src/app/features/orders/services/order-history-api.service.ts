@@ -5,11 +5,8 @@ import { catchError, delay } from 'rxjs/operators';
 import {
   Order,
   OrderQueryParams,
-  PagedResult,
-  OrderStatus,
-  User as OrderUser
+  PagedResult
 } from '@shoestore/shared-models';
-import { AuthStore, User as AuthUser } from '../../core/stores/auth.store';
 
 // Mock data for demo purposes
 const MOCK_ORDERS: Order[] = [
@@ -190,9 +187,8 @@ const MOCK_ORDERS: Order[] = [
 @Injectable({
   providedIn: 'root'
 })
-export class OrderService {
+export class OrderHistoryApiService {
   private readonly http = inject(HttpClient);
-  private readonly authStore = inject(AuthStore);
   private readonly apiUrl = '/api/orders';
   private readonly localStorageKey = 'shoestore_orders';
 
@@ -205,75 +201,30 @@ export class OrderService {
   }
 
   /**
-   * Create a new order from cart items
+   * Get orders with optional filtering, sorting, and pagination
    */
-  createOrder(cartItems: Array<{
-    shoeId: number;
-    shoeCode: string;
-    shoeName: string;
-    size: number;
-    quantity: number;
-    unitPrice: number;
-  }>): Observable<Order> {
-    const currentUser = this.authStore.user();
-
-    if (!currentUser) {
-      return throwError(() => new Error('User must be authenticated to create an order'));
-    }
-
-    const orderUser = this.convertAuthUserToOrderUser(currentUser);
-
-    const newOrder: Order = {
-      id: this.generateOrderId(),
-      userId: currentUser.id,
-      user: orderUser,
-      date: new Date().toISOString(),
-      status: 'placed',
-      items: cartItems.map(item => ({
-        shoeId: item.shoeId,
-        shoeCode: item.shoeCode,
-        shoeName: item.shoeName,
-        size: item.size,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice
-      })),
-      totalAmount: cartItems.reduce((total, item) => total + (item.unitPrice * item.quantity), 0)
-    };
-
+  getOrders(params: OrderQueryParams = {}): Observable<PagedResult<Order>> {
     // For production, use real API:
-    // return this.http.post<Order>(this.apiUrl, newOrder)
+    // return this.getOrdersFromApi(params);
+
+    // For development, use mock data:
+    return this.getOrdersFromMock(params);
+  }
+
+  /**
+   * Get single order by ID
+   */
+  getOrderById(id: number): Observable<Order> {
+    // For production, use real API:
+    // return this.http.get<Order>(`${this.apiUrl}/${id}`)
     //   .pipe(catchError(this.handleError));
 
-    // For development, store in localStorage:
-    this.mockData.unshift(newOrder);
-    this.saveOrdersToLocalStorage();
-
-    return of({ ...newOrder }).pipe(delay(300));
-  }
-
-  /**
-   * Generate a unique order ID
-   */
-  private generateOrderId(): number {
-    const existingIds = this.mockData.map(order => order.id);
-    return existingIds.length > 0 ? Math.max(...existingIds) + 1 : 1;
-  }
-
-  /**
-   * Convert AuthStore user to Order user format
-   * All users are B2B customers and get invoices
-   */
-  private convertAuthUserToOrderUser(authUser: AuthUser): OrderUser {
-    // The shared User model already has all the required properties
-    return {
-      id: authUser.id,
-      email: authUser.email,
-      contactName: authUser.contactName,
-      phone: authUser.phone,
-      shippingAddress: authUser.shippingAddress,
-      billingAddress: authUser.billingAddress,
-      invoiceInfo: authUser.invoiceInfo
-    };
+    // For development, use mock data:
+    const order = this.mockData.find(o => o.id === id);
+    if (!order) {
+      return throwError(() => new Error(`Order with ID ${id} not found`));
+    }
+    return of({ ...order }).pipe(delay(300));
   }
 
   /**
@@ -305,57 +256,6 @@ export class OrderService {
       // Fall back to original mock data
       this.mockData = [...MOCK_ORDERS];
     }
-  }
-
-  /**
-   * Clear all orders from localStorage (for testing purposes)
-   */
-  clearLocalStorageOrders(): void {
-    localStorage.removeItem(this.localStorageKey);
-    this.mockData = [...MOCK_ORDERS];
-  }
-
-  /**
-   * Get the count of orders stored in localStorage
-   */
-  getLocalStorageOrderCount(): number {
-    try {
-      const stored = localStorage.getItem(this.localStorageKey);
-      if (stored) {
-        const parsedOrders = JSON.parse(stored);
-        return parsedOrders.length;
-      }
-    } catch (error) {
-      console.warn('Failed to get localStorage order count:', error);
-    }
-    return 0;
-  }
-
-  /**
-   * Get orders with optional filtering, sorting, and pagination
-   */
-  getOrders(params: OrderQueryParams = {}): Observable<PagedResult<Order>> {
-    // For production, use real API:
-    // return this.getOrdersFromApi(params);
-
-    // For development, use mock data:
-    return this.getOrdersFromMock(params);
-  }
-
-  /**
-   * Get single order by ID
-   */
-  getOrderById(id: number): Observable<Order> {
-    // For production, use real API:
-    // return this.http.get<Order>(`${this.apiUrl}/${id}`)
-    //   .pipe(catchError(this.handleError));
-
-    // For development, use mock data:
-    const order = this.mockData.find(o => o.id === id);
-    if (!order) {
-      return throwError(() => new Error(`Order with ID ${id} not found`));
-    }
-    return of({ ...order }).pipe(delay(300));
   }
 
   /**
@@ -455,44 +355,6 @@ export class OrderService {
   }
 
   /**
-   * Get status display label
-   */
-  getStatusLabel(status: OrderStatus): string {
-    switch (status) {
-      case 'placed': return 'Placed';
-      case 'processing': return 'Processing';
-      case 'completed': return 'Completed';
-      case 'cancelled': return 'Cancelled';
-      default: return status;
-    }
-  }
-
-  /**
-   * Get status severity for PrimeNG tags
-   */
-  getStatusSeverity(status: OrderStatus): 'success' | 'info' | 'warning' | 'danger' | 'secondary' {
-    switch (status) {
-      case 'placed': return 'info';
-      case 'processing': return 'warning';
-      case 'completed': return 'success';
-      case 'cancelled': return 'danger';
-      default: return 'secondary';
-    }
-  }
-
-  /**
-   * Get available status options for filtering
-   */
-  getStatusOptions(): Array<{ label: string; value: OrderStatus }> {
-    return [
-      { label: 'Placed', value: 'placed' },
-      { label: 'Processing', value: 'processing' },
-      { label: 'Completed', value: 'completed' },
-      { label: 'Cancelled', value: 'cancelled' }
-    ];
-  }
-
-  /**
    * Handle HTTP errors
    */
   private handleError(error: HttpErrorResponse): Observable<never> {
@@ -506,7 +368,31 @@ export class OrderService {
       errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
     }
 
-    console.error('OrderService Error:', errorMessage);
+    console.error('OrderHistoryApiService Error:', errorMessage);
     return throwError(() => new Error(errorMessage));
+  }
+
+  /**
+   * Clear all orders from localStorage (for testing purposes)
+   */
+  clearLocalStorageOrders(): void {
+    localStorage.removeItem(this.localStorageKey);
+    this.mockData = [...MOCK_ORDERS];
+  }
+
+  /**
+   * Get the count of orders stored in localStorage
+   */
+  getLocalStorageOrderCount(): number {
+    try {
+      const stored = localStorage.getItem(this.localStorageKey);
+      if (stored) {
+        const parsedOrders = JSON.parse(stored);
+        return parsedOrders.length;
+      }
+    } catch (error) {
+      console.warn('Failed to get localStorage order count:', error);
+    }
+    return 0;
   }
 }

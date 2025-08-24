@@ -14,7 +14,7 @@ import { TooltipModule } from 'primeng/tooltip';
 
 // Models and Services
 import { Order } from '@shoestore/shared-models';
-import { OrderService } from '../../shared/services/order.service';
+import { OrderHistoryStore } from '../../features/orders/stores/order-history.store';
 
 @Component({
   selector: 'app-order-detail',
@@ -33,7 +33,7 @@ import { OrderService } from '../../shared/services/order.service';
   template: `
     <div class="order-detail-page min-h-screen bg-slate-50 py-8">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        @if (loading()) {
+        @if (orderHistoryStore.isLoadingDetail()) {
           <!-- Loading State -->
           <div class="space-y-6">
             <!-- Header Skeleton -->
@@ -47,12 +47,12 @@ import { OrderService } from '../../shared/services/order.service';
               <p-skeleton width="100%" height="200px"></p-skeleton>
             </div>
           </div>
-        } @else if (errorMessage()) {
+        } @else if (orderHistoryStore.error()) {
           <!-- Error State -->
           <div class="bg-white rounded-lg shadow-sm p-6">
             <p-message
               severity="error"
-              [text]="errorMessage()!"
+              [text]="orderHistoryStore.error()!"
               styleClass="w-full mb-4"
             />
             <div class="flex gap-3">
@@ -65,22 +65,22 @@ import { OrderService } from '../../shared/services/order.service';
               <p-button
                 label="Retry"
                 icon="pi pi-refresh"
-                (onClick)="loadOrder()"
+                (onClick)="orderHistoryStore.loadOrderById(+route.snapshot.params['id'])"
               />
             </div>
           </div>
-        } @else if (order()) {
+        } @else if (orderHistoryStore.currentOrder()) {
           <!-- Order Details -->
           <!-- Page Header -->
           <div class="flex items-center justify-between mb-6">
             <div>
-              <h1 class="text-3xl font-bold text-slate-900">Order #{{ order()!.id }}</h1>
-              <p class="text-slate-600 mt-1">{{ order()!.date | date:'fullDate' }} at {{ order()!.date | date:'shortTime' }}</p>
+              <h1 class="text-3xl font-bold text-slate-900">Order #{{ orderHistoryStore.currentOrder()!.id }}</h1>
+              <p class="text-slate-600 mt-1">{{ orderHistoryStore.currentOrder()!.date | date:'fullDate' }} at {{ orderHistoryStore.currentOrder()!.date | date:'shortTime' }}</p>
             </div>
             <div class="flex items-center gap-3">
               <p-tag
-                [value]="orderService.getStatusLabel(order()!.status)"
-                [severity]="orderService.getStatusSeverity(order()!.status)"
+                [value]="orderHistoryStore.currentOrderStatusLabel()"
+                [severity]="orderHistoryStore.currentOrderStatusSeverity()"
                 styleClass="text-sm px-3 py-1"
               />
               <p-button
@@ -100,7 +100,7 @@ import { OrderService } from '../../shared/services/order.service';
               <div class="bg-white rounded-lg shadow-sm">
                 <div class="p-6 border-b border-slate-200">
                   <h2 class="text-xl font-semibold text-slate-900">Order Items</h2>
-                  <p class="text-slate-600 mt-1">{{ order()!.items.length }} item{{ order()!.items.length !== 1 ? 's' : '' }} ordered</p>
+                  <p class="text-slate-600 mt-1">{{ orderHistoryStore.currentOrder()!.items.length }} item{{ orderHistoryStore.currentOrder()!.items.length !== 1 ? 's' : '' }} ordered</p>
                 </div>
 
                 <div class="divide-y divide-slate-200">
@@ -169,13 +169,13 @@ import { OrderService } from '../../shared/services/order.service';
 
                   <div class="flex justify-between text-lg font-semibold">
                     <span class="text-slate-900">Total</span>
-                    <span class="text-slate-900">€{{ order()!.totalAmount.toFixed(2) }}</span>
+                    <span class="text-slate-900">€{{ orderHistoryStore.currentOrder()!.totalAmount.toFixed(2) }}</span>
                   </div>
                 </div>
               </div>
 
               <!-- Customer Information -->
-              @if (order()!.user) {
+              @if (orderHistoryStore.currentOrder()!.user) {
                 <div class="bg-white rounded-lg shadow-sm p-6">
                   <h3 class="text-lg font-semibold text-slate-900 mb-4">Customer Information</h3>
 
@@ -184,45 +184,45 @@ import { OrderService } from '../../shared/services/order.service';
                     <div>
                       <h4 class="font-medium text-slate-900 mb-2">Contact</h4>
                       <div class="text-sm space-y-1">
-                        <div class="text-slate-900">{{ order()!.user!.contactName }}</div>
-                        <div class="text-slate-600">{{ order()!.user!.email }}</div>
-                        @if (order()!.user!.phone) {
-                          <div class="text-slate-600">{{ order()!.user!.phone }}</div>
+                        <div class="text-slate-900">{{ orderHistoryStore.currentOrder()!.user!.contactName }}</div>
+                        <div class="text-slate-600">{{ orderHistoryStore.currentOrder()!.user!.email }}</div>
+                        @if (orderHistoryStore.currentOrder()!.user!.phone) {
+                          <div class="text-slate-600">{{ orderHistoryStore.currentOrder()!.user!.phone }}</div>
                         }
                       </div>
                     </div>
 
                     <!-- Company Information -->
-                    @if (order()!.user!.invoiceInfo) {
+                    @if (orderHistoryStore.currentOrder()!.user!.invoiceInfo) {
                       <div>
                         <h4 class="font-medium text-slate-900 mb-2">Company</h4>
                         <div class="text-sm space-y-1">
-                          <div class="text-slate-900">{{ order()!.user!.invoiceInfo.companyName }}</div>
-                          <div class="text-slate-600">VAT: {{ order()!.user!.invoiceInfo.vatNumber }}</div>
+                          <div class="text-slate-900">{{ orderHistoryStore.currentOrder()!.user!.invoiceInfo.companyName }}</div>
+                          <div class="text-slate-600">VAT: {{ orderHistoryStore.currentOrder()!.user!.invoiceInfo.vatNumber }}</div>
                         </div>
                       </div>
                     }
 
                     <!-- Shipping Address -->
-                    @if (order()!.user!.shippingAddress) {
+                    @if (orderHistoryStore.currentOrder()!.user!.shippingAddress) {
                       <div>
                         <h4 class="font-medium text-slate-900 mb-2">Shipping Address</h4>
                         <div class="text-sm text-slate-600">
-                          <div>{{ order()!.user!.shippingAddress.street }}</div>
-                          <div>{{ order()!.user!.shippingAddress.postalCode }} {{ order()!.user!.shippingAddress.city }}</div>
-                          <div>{{ order()!.user!.shippingAddress.country }}</div>
+                          <div>{{ orderHistoryStore.currentOrder()!.user!.shippingAddress.street }}</div>
+                          <div>{{ orderHistoryStore.currentOrder()!.user!.shippingAddress.postalCode }} {{ orderHistoryStore.currentOrder()!.user!.shippingAddress.city }}</div>
+                          <div>{{ orderHistoryStore.currentOrder()!.user!.shippingAddress.country }}</div>
                         </div>
                       </div>
                     }
 
                     <!-- Billing Address -->
-                    @if (order()!.user!.billingAddress && order()!.user!.billingAddress.street !== order()!.user!.shippingAddress.street) {
+                    @if (orderHistoryStore.currentOrder()!.user!.billingAddress && orderHistoryStore.currentOrder()!.user!.billingAddress.street !== orderHistoryStore.currentOrder()!.user!.shippingAddress.street) {
                       <div>
                         <h4 class="font-medium text-slate-900 mb-2">Billing Address</h4>
                         <div class="text-sm text-slate-600">
-                          <div>{{ order()!.user!.billingAddress.street }}</div>
-                          <div>{{ order()!.user!.billingAddress.postalCode }} {{ order()!.user!.billingAddress.city }}</div>
-                          <div>{{ order()!.user!.billingAddress.country }}</div>
+                          <div>{{ orderHistoryStore.currentOrder()!.user!.billingAddress.street }}</div>
+                          <div>{{ orderHistoryStore.currentOrder()!.user!.billingAddress.postalCode }} {{ orderHistoryStore.currentOrder()!.user!.billingAddress.city }}</div>
+                          <div>{{ orderHistoryStore.currentOrder()!.user!.billingAddress.country }}</div>
                         </div>
                       </div>
                     }
@@ -239,11 +239,11 @@ import { OrderService } from '../../shared/services/order.service';
                     <div class="w-2 h-2 bg-blue-600 rounded-full mt-2"></div>
                     <div>
                       <div class="font-medium text-slate-900">Order Placed</div>
-                      <div class="text-sm text-slate-600">{{ order()!.date | date:'MMM d, y, h:mm a' }}</div>
+                      <div class="text-sm text-slate-600">{{ orderHistoryStore.currentOrder()!.date | date:'MMM d, y, h:mm a' }}</div>
                     </div>
                   </div>
 
-                  @if (order()!.status === 'processing' || order()!.status === 'completed') {
+                  @if (orderHistoryStore.currentOrder()!.status === 'processing' || orderHistoryStore.currentOrder()!.status === 'completed') {
                     <div class="flex items-start gap-3">
                       <div class="w-2 h-2 bg-yellow-500 rounded-full mt-2"></div>
                       <div>
@@ -253,7 +253,7 @@ import { OrderService } from '../../shared/services/order.service';
                     </div>
                   }
 
-                  @if (order()!.status === 'completed') {
+                  @if (orderHistoryStore.currentOrder()!.status === 'completed') {
                     <div class="flex items-start gap-3">
                       <div class="w-2 h-2 bg-green-600 rounded-full mt-2"></div>
                       <div>
@@ -263,7 +263,7 @@ import { OrderService } from '../../shared/services/order.service';
                     </div>
                   }
 
-                  @if (order()!.status === 'cancelled') {
+                  @if (orderHistoryStore.currentOrder()!.status === 'cancelled') {
                     <div class="flex items-start gap-3">
                       <div class="w-2 h-2 bg-red-600 rounded-full mt-2"></div>
                       <div>
@@ -284,45 +284,15 @@ import { OrderService } from '../../shared/services/order.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class OrderDetailComponent implements OnInit {
-  protected readonly orderService = inject(OrderService);
+  protected readonly orderHistoryStore = inject(OrderHistoryStore);
   private readonly router = inject(Router);
-  private readonly route = inject(ActivatedRoute);
-
-  // Component state
-  protected readonly loading = signal(false);
-  protected readonly errorMessage = signal<string | null>(null);
-  protected readonly order = signal<Order | null>(null);
+  protected readonly route = inject(ActivatedRoute);
 
   ngOnInit(): void {
     const orderId = this.route.snapshot.params['id'];
     if (orderId) {
-      this.loadOrder(parseInt(orderId, 10));
-    } else {
-      this.errorMessage.set('Invalid order ID');
+      this.orderHistoryStore.loadOrderById(parseInt(orderId, 10));
     }
-  }
-
-  /**
-   * Load order details
-   */
-  protected loadOrder(orderId?: number): void {
-    const id = orderId || this.route.snapshot.params['id'];
-    if (!id) return;
-
-    this.loading.set(true);
-    this.errorMessage.set(null);
-
-    this.orderService.getOrderById(parseInt(id, 10)).subscribe({
-      next: (order: Order) => {
-        this.order.set(order);
-        this.loading.set(false);
-      },
-      error: (error) => {
-        this.errorMessage.set('Failed to load order details. Please try again.');
-        this.loading.set(false);
-        console.error('Error loading order:', error);
-      }
-    });
   }
 
   /**
@@ -336,7 +306,7 @@ export class OrderDetailComponent implements OnInit {
    * Get total quantity of items
    */
   protected getTotalQuantity(): number {
-    const order = this.order();
+    const order = this.orderHistoryStore.currentOrder();
     if (!order) return 0;
     return order.items.reduce((total, item) => total + item.quantity, 0);
   }
@@ -345,7 +315,7 @@ export class OrderDetailComponent implements OnInit {
    * Get subtotal (before tax)
    */
   protected getSubtotal(): number {
-    const order = this.order();
+    const order = this.orderHistoryStore.currentOrder();
     if (!order) return 0;
     return order.items.reduce((total, item) => total + (item.unitPrice * item.quantity), 0);
   }
@@ -362,7 +332,7 @@ export class OrderDetailComponent implements OnInit {
     totalQuantity: number;
     totalAmount: number;
   }> {
-    const order = this.order();
+    const order = this.orderHistoryStore.currentOrder();
     if (!order) return [];
 
     const grouped = new Map<number, {
