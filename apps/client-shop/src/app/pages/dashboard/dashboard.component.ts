@@ -40,7 +40,7 @@ interface DashboardStats {
   template: `
     <div class="dashboard min-h-screen bg-slate-50">
       <!-- Header Section -->
-      <div class="bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 py-6">
+      <div class="px-4 sm:px-6 lg:px-8 py-6">
         <div class="max-w-7xl mx-auto">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -214,43 +214,43 @@ interface DashboardStats {
           <div class="space-y-6">
 
             <!-- Quick Actions -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6">
-              <h2 class="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
-              <div class="space-y-3">
-                <p-button
-                  label="Browse Products"
-                  icon="pi pi-search"
-                  severity="primary"
-                  routerLink="/products"
-                  styleClass="w-full !justify-start !text-sm !px-4 !py-3">
-                </p-button>
-                @if (cartItemCount() > 0) {
+              <div class="bg-white rounded-xl border border-slate-200 p-6 quick-actions">
+                <h2 class="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
+                <div class="space-y-3 flex flex-col">
                   <p-button
-                    label="Complete Order"
-                    icon="pi pi-check"
-                    severity="success"
-                    routerLink="/cart"
-                    styleClass="w-full !justify-start !text-sm !px-4 !py-3">
+                    label="Browse Products"
+                    icon="pi pi-search"
+                    severity="primary"
+                    routerLink="/products"
+                    styleClass="w-full !text-sm !px-4 !py-3">
                   </p-button>
-                }
-                <p-button
-                  label="Order History"
-                  icon="pi pi-history"
-                  severity="secondary"
-                  [outlined]="true"
-                  routerLink="/orders"
-                  styleClass="w-full !justify-start !text-sm !px-4 !py-3">
-                </p-button>
-                <p-button
-                  label="Account Settings"
-                  icon="pi pi-cog"
-                  severity="secondary"
-                  [outlined]="true"
-                  routerLink="/profile"
-                  styleClass="w-full !justify-start !text-sm !px-4 !py-3">
-                </p-button>
+                  @if (cartItemCount() > 0) {
+                    <p-button
+                      label="Complete Order"
+                      icon="pi pi-check"
+                      severity="warn"
+                      routerLink="/cart"
+                      styleClass="w-full !text-sm !px-4 !py-3">
+                    </p-button>
+                  }
+                  <p-button
+                    label="Order History"
+                    icon="pi pi-history"
+                    severity="info"
+                    [outlined]="true"
+                    routerLink="/orders"
+                    styleClass="w-full !text-sm !px-4 !py-3">
+                  </p-button>
+                  <p-button
+                    label="Account Settings"
+                    icon="pi pi-cog"
+                    severity="info"
+                    [outlined]="true"
+                    routerLink="/profile"
+                    styleClass="w-full !text-sm !px-4 !py-3">
+                  </p-button>
+                </div>
               </div>
-            </div>
 
             <!-- Cart Summary -->
             @if (cartItemCount() > 0) {
