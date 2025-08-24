@@ -5,16 +5,8 @@ import { pipe, switchMap, tap, debounceTime, distinctUntilChanged, forkJoin } fr
 import { tapResponse } from '@ngrx/operators';
 import { computed, inject } from '@angular/core';
 import { Shoe, SizeTemplate } from '@shoestore/shared-models';
-import { ProductService, ProductCategory } from '../../../shared/services/product.service';
-
-export interface ProductFilters {
-  searchTerm: string;
-  selectedBrands: string[];
-  selectedCategories: string[];
-  selectedAvailability: string[];
-  sortBy: string;
-  sizeSystem: 'eu' | 'us';
-}
+import { ProductService, ProductCategory, ProductFilters } from '../../../shared/services/product.service';
+import { ProductApiService } from '../../../shared/services/product-api.service';
 
 interface ProductState {
   isLoading: boolean;
@@ -24,6 +16,7 @@ interface ProductState {
   categories: ProductCategory[];
   brands: string[];
   brandStats: Record<string, number>;
+  filteredProducts: Shoe[]; // Store filtered products from service
 }
 
 const initialFilters: ProductFilters = {
@@ -42,88 +35,15 @@ const initialState: ProductState = {
   sizeTemplates: [],
   categories: [],
   brands: [],
-  brandStats: {}
+  brandStats: {},
+  filteredProducts: []
 };
 
 export const ProductStore = signalStore(
   { providedIn: 'root' },
   withState(initialState),
   withEntities<Shoe>(),
-  withComputed(({ entities, filters, brands, brandStats }) => ({
-    // Advanced computed filtered products
-    filteredProducts: computed(() => {
-      const allProducts = entities();
-      const currentFilters = filters();
-      
-      let filtered = allProducts.filter(product => {
-        // Search filter
-        if (currentFilters.searchTerm) {
-          const searchTerm = currentFilters.searchTerm.toLowerCase();
-          if (!product.name.toLowerCase().includes(searchTerm) && 
-              !product.code.toLowerCase().includes(searchTerm)) {
-            return false;
-          }
-        }
-
-        // Brand filter
-        if (currentFilters.selectedBrands.length > 0) {
-          const productBrand = product.name.split(' ')[0].toLowerCase();
-          if (!currentFilters.selectedBrands.some(brand => 
-            brand.toLowerCase() === productBrand)) {
-            return false;
-          }
-        }
-
-        // Category filter
-        if (currentFilters.selectedCategories.length > 0) {
-          if (!currentFilters.selectedCategories.includes(product.category || 'sneakers')) {
-            return false;
-          }
-        }
-
-        // Availability filter
-        if (currentFilters.selectedAvailability.length > 0) {
-          const totalStock = product.sizes.reduce((sum, size) => sum + size.quantity, 0);
-          const hasAvailability = currentFilters.selectedAvailability.some(availability => {
-            switch (availability) {
-              case 'in-stock': return totalStock > 50;
-              case 'low-stock': return totalStock > 0 && totalStock <= 50;
-              case 'pre-order': return totalStock === 0;
-              case 'made-to-order': return product.name.toLowerCase().includes('custom');
-              default: return false;
-            }
-          });
-          if (!hasAvailability) return false;
-        }
-
-        return true;
-      });
-
-      // Apply sorting
-      const [sortField, sortDirection] = currentFilters.sortBy.split('-');
-      filtered.sort((a, b) => {
-        let comparison = 0;
-        switch (sortField) {
-          case 'name':
-            comparison = a.name.localeCompare(b.name);
-            break;
-          case 'price':
-            const priceA = Math.min(...a.sizes.map(size => size.price));
-            const priceB = Math.min(...b.sizes.map(size => size.price));
-            comparison = priceA - priceB;
-            break;
-          case 'stock':
-            const stockA = a.sizes.reduce((sum, size) => sum + size.quantity, 0);
-            const stockB = b.sizes.reduce((sum, size) => sum + size.quantity, 0);
-            comparison = stockA - stockB;
-            break;
-        }
-        return sortDirection === 'desc' ? -comparison : comparison;
-      });
-
-      return filtered;
-    }),
-
+  withComputed(({ filteredProducts, filters, brands, brandStats }) => ({
     // Brand options with counts for filter UI
     brandOptions: computed(() => {
       const brandList = brands();
@@ -181,16 +101,16 @@ export const ProductStore = signalStore(
              currentFilters.selectedAvailability.length > 0;
     })
   })),
-  withMethods((store, productService = inject(ProductService)) => ({
+  withMethods((store, productService = inject(ProductService), productApiService = inject(ProductApiService)) => ({
     // Load products with error handling
     loadProducts: rxMethod<void>(
       pipe(
         tap(() => patchState(store, { isLoading: true, error: null })),
         switchMap(() => 
-          productService.getShoes().pipe(
+          productApiService.getAllProducts().pipe(
             tapResponse({
               next: (products) => {
-                setAllEntities(products, store);
+                patchState(store, setAllEntities(products));
                 patchState(store, { isLoading: false });
               },
               error: (error: Error) => patchState(store, { 
@@ -200,6 +120,23 @@ export const ProductStore = signalStore(
             })
           )
         )
+      )
+    ),
+
+    // Load filtered products from service based on current filters
+    refreshFilteredProducts: rxMethod<void>(
+      pipe(
+        switchMap(() => {
+          const currentFilters = store.filters();
+          return productApiService.getFilteredAndSortedProducts(currentFilters).pipe(
+            tapResponse({
+              next: (filteredProducts) => patchState(store, { filteredProducts }),
+              error: (error: Error) => patchState(store, { 
+                error: error.message || 'Failed to load filtered products' 
+              })
+            })
+          );
+        })
       )
     ),
 

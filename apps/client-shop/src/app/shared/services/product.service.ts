@@ -2,8 +2,18 @@ import { Injectable } from '@angular/core';
 import { Shoe, SizeTemplate } from '@shoestore/shared-models';
 import { Observable, of } from 'rxjs';
 
-// Interface for filtering options
+// Interface for filtering options (new - for ProductStore)
 export interface ProductFilters {
+  searchTerm: string;
+  selectedBrands: string[];
+  selectedCategories: string[];
+  selectedAvailability: string[];
+  sortBy: string;
+  sizeSystem: 'eu' | 'us';
+}
+
+// Legacy interface for filtering options (kept for backward compatibility)
+export interface LegacyProductFilters {
   searchTerm?: string;
   brands?: string[];
   categories?: string[];
@@ -261,7 +271,7 @@ export class ProductService {
   // MAIN API METHODS - SIMULATING BACKEND CALLS
   // ============================================
 
-  getShoes(filters?: ProductFilters, sort?: ProductSort): Observable<Shoe[]> {
+  getShoes(filters?: LegacyProductFilters, sort?: ProductSort): Observable<Shoe[]> {
     // TODO: Replace with real HTTP call to backend API
     // Example: return this.http.get<Shoe[]>('/api/products', { params: { ...filters, ...sort } });
 
@@ -269,13 +279,96 @@ export class ProductService {
 
     // Apply filters (DEVELOPMENT ONLY - should be done on backend)
     if (filters) {
-      filtered = this.applyFilters(filtered, filters);
+      filtered = this.applyLegacyFilters(filtered, filters);
     }
 
     // Apply sorting (DEVELOPMENT ONLY - should be done on backend)
     if (sort) {
-      filtered = this.applySorting(filtered, sort);
+      filtered = this.applyLegacySorting(filtered, sort);
     }
+
+    return of(filtered);
+  }
+
+  // New method for modern ProductStore usage
+  getAllShoes(): Observable<Shoe[]> {
+    // TODO: Replace with real HTTP call to backend API
+    // Example: return this.http.get<Shoe[]>('/api/products');
+    return of([...this.mockShoes]);
+  }
+
+  // New method to handle filtering and sorting - simulates backend behavior
+  getFilteredProducts(filters: ProductFilters, sortBy: string): Observable<Shoe[]> {
+    // TODO: Replace with real HTTP call to backend API with filters and sorting
+    // Example: return this.http.get<Shoe[]>('/api/products/filtered', { 
+    //   params: { ...filters, sortBy } 
+    // });
+
+    let filtered = [...this.mockShoes];
+
+    // Apply search filter
+    if (filters.searchTerm?.trim()) {
+      const searchTerm = filters.searchTerm.toLowerCase();
+      filtered = filtered.filter(product => 
+        product.name.toLowerCase().includes(searchTerm) || 
+        product.code.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    // Apply brand filter
+    if (filters.selectedBrands && filters.selectedBrands.length > 0) {
+      filtered = filtered.filter(product => {
+        const productBrand = product.name.split(' ')[0].toLowerCase();
+        return filters.selectedBrands!.some(brand => 
+          brand.toLowerCase() === productBrand
+        );
+      });
+    }
+
+    // Apply category filter
+    if (filters.selectedCategories && filters.selectedCategories.length > 0) {
+      filtered = filtered.filter(product => 
+        filters.selectedCategories!.includes(product.category || 'sneakers')
+      );
+    }
+
+    // Apply availability filter
+    if (filters.selectedAvailability && filters.selectedAvailability.length > 0) {
+      filtered = filtered.filter(product => {
+        const totalStock = product.sizes.reduce((sum, size) => sum + size.quantity, 0);
+        return filters.selectedAvailability!.some(availability => {
+          switch (availability) {
+            case 'in-stock': return totalStock > 50;
+            case 'low-stock': return totalStock > 0 && totalStock <= 50;
+            case 'pre-order': return totalStock === 0;
+            case 'made-to-order': return product.name.toLowerCase().includes('custom');
+            default: return false;
+          }
+        });
+      });
+    }
+
+    // Apply sorting
+    const [sortField, sortDirection] = sortBy.split('-');
+    filtered.sort((a, b) => {
+      let comparison = 0;
+      switch (sortField) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'price':
+          const priceA = Math.min(...a.sizes.map(size => size.price));
+          const priceB = Math.min(...b.sizes.map(size => size.price));
+          comparison = priceA - priceB;
+          break;
+        case 'stock':
+          const stockA = a.sizes.reduce((sum, size) => sum + size.quantity, 0);
+          const stockB = b.sizes.reduce((sum, size) => sum + size.quantity, 0);
+          comparison = stockA - stockB;
+          break;
+      }
+      return sortDirection === 'desc' ? -comparison : comparison;
+    });
 
     return of(filtered);
   }
@@ -324,11 +417,10 @@ export class ProductService {
 
   // ============================================
   // PRIVATE METHODS - DEVELOPMENT ONLY
-  // These methods simulate backend filtering/sorting logic
-  // In production, all filtering and sorting should be done on the backend
+  // Legacy filtering and sorting methods for backward compatibility
   // ============================================
 
-  private applyFilters(shoes: Shoe[], filters: ProductFilters): Shoe[] {
+  private applyLegacyFilters(shoes: Shoe[], filters: LegacyProductFilters): Shoe[] {
     let filtered = [...shoes];
 
     // Search filter
@@ -402,7 +494,7 @@ export class ProductService {
     return filtered;
   }
 
-  private applySorting(shoes: Shoe[], sort: ProductSort): Shoe[] {
+  private applyLegacySorting(shoes: Shoe[], sort: ProductSort): Shoe[] {
     return [...shoes].sort((a, b) => {
       let comparison = 0;
 
@@ -432,4 +524,5 @@ export class ProductService {
       return sort.direction === 'desc' ? -comparison : comparison;
     });
   }
+
 }

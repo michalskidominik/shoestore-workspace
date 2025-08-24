@@ -21,7 +21,7 @@ import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // Models and services
 import { Shoe, SizeTemplate, SizeAvailability } from '@shoestore/shared-models';
-import { ProductService, ProductFilters, ProductSort } from '../../shared/services/product.service';
+import { ProductService, LegacyProductFilters, ProductSort } from '../../shared/services/product.service';
 import { CartService, AddToCartRequest } from '../../shared/services/cart.service';
 import { ToastService } from '../../shared/services/toast.service';
 import { AuthService } from '../../core/services/auth.service';
@@ -296,7 +296,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
       });
   }
 
-  private buildFilters(): ProductFilters {
+  private buildFilters(): LegacyProductFilters {
     return {
       searchTerm: this.searchTerm() || undefined,
       brands: this.selectedBrands().length > 0 ? this.selectedBrands() : undefined,
