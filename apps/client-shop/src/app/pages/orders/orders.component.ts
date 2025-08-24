@@ -572,7 +572,7 @@ export class OrdersComponent implements OnInit {
     const currentPage = this.orderHistoryStore.queryParams().page || 1;
     const pageSize = this.orderHistoryStore.queryParams().pageSize || 10;
     const totalRecords = this.orderHistoryStore.pagination().total;
-    
+
     if ((currentPage * pageSize) < totalRecords) {
       this.orderHistoryStore.goToPage(currentPage + 1);
     }

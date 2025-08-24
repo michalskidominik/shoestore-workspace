@@ -77,60 +77,60 @@ interface DashboardStats {
   <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
 
         <!-- Quick Stats Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-6 lg:mb-8">
           <!-- Total Orders -->
-          <div class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-              <div class="bg-blue-50 p-3 rounded-lg">
-                <i class="pi pi-shopping-bag text-blue-600 text-xl"></i>
+          <div class="bg-white rounded-xl border border-slate-200 p-3 lg:p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-2 lg:mb-4">
+              <div class="bg-blue-50 p-2 lg:p-3 rounded-lg">
+                <i class="pi pi-shopping-bag text-blue-600 text-base lg:text-xl"></i>
               </div>
-              <p-tag value="All Time" severity="info" styleClass="!text-xs"></p-tag>
+              <p-tag value="All Time" severity="info" styleClass="!text-xs hidden sm:block"></p-tag>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ stats().totalOrders }}</h3>
-            <p class="text-sm text-slate-600">Total Orders</p>
+            <h3 class="text-lg lg:text-2xl font-bold text-slate-900 mb-1">{{ stats().totalOrders }}</h3>
+            <p class="text-xs lg:text-sm text-slate-600">Total Orders</p>
           </div>
 
           <!-- Pending Orders -->
-          <div class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-              <div class="bg-orange-50 p-3 rounded-lg">
-                <i class="pi pi-clock text-orange-600 text-xl"></i>
+          <div class="bg-white rounded-xl border border-slate-200 p-3 lg:p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-2 lg:mb-4">
+              <div class="bg-orange-50 p-2 lg:p-3 rounded-lg">
+                <i class="pi pi-clock text-orange-600 text-base lg:text-xl"></i>
               </div>
               @if (stats().pendingOrders > 0) {
-                <p-tag value="Active" severity="warning" styleClass="!text-xs"></p-tag>
+                <p-tag value="Active" severity="warning" styleClass="!text-xs hidden sm:block"></p-tag>
               }
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ stats().pendingOrders }}</h3>
-            <p class="text-sm text-slate-600">Pending Orders</p>
+            <h3 class="text-lg lg:text-2xl font-bold text-slate-900 mb-1">{{ stats().pendingOrders }}</h3>
+            <p class="text-xs lg:text-sm text-slate-600">Pending Orders</p>
           </div>
 
           <!-- Cart Status -->
-          <div class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-              <div class="bg-green-50 p-3 rounded-lg">
-                <i class="pi pi-shopping-cart text-green-600 text-xl"></i>
+          <div class="bg-white rounded-xl border border-slate-200 p-3 lg:p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-2 lg:mb-4">
+              <div class="bg-green-50 p-2 lg:p-3 rounded-lg">
+                <i class="pi pi-shopping-cart text-green-600 text-base lg:text-xl"></i>
               </div>
               @if (cartItemCount() > 0) {
-                <p-tag value="Ready" severity="success" styleClass="!text-xs"></p-tag>
+                <p-tag value="Ready" severity="success" styleClass="!text-xs hidden sm:block"></p-tag>
               }
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ cartItemCount() }}</h3>
-            <p class="text-sm text-slate-600">Items in Cart</p>
+            <h3 class="text-lg lg:text-2xl font-bold text-slate-900 mb-1">{{ cartItemCount() }}</h3>
+            <p class="text-xs lg:text-sm text-slate-600">Items in Cart</p>
             @if (cartValue() > 0) {
               <p class="text-xs text-green-600 font-medium mt-1">{{ cartValue() | appCurrency }}</p>
             }
           </div>
 
           <!-- Total Spent -->
-          <div class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-              <div class="bg-purple-50 p-3 rounded-lg">
-                <i class="pi pi-wallet text-purple-600 text-xl"></i>
+          <div class="bg-white rounded-xl border border-slate-200 p-3 lg:p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-2 lg:mb-4">
+              <div class="bg-purple-50 p-2 lg:p-3 rounded-lg">
+                <i class="pi pi-wallet text-purple-600 text-base lg:text-xl"></i>
               </div>
-              <p-tag value="B2B" severity="secondary" styleClass="!text-xs"></p-tag>
+              <p-tag value="B2B" severity="secondary" styleClass="!text-xs hidden sm:block"></p-tag>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ stats().totalSpent | appCurrency }}</h3>
-            <p class="text-sm text-slate-600">Total Spent</p>
+            <h3 class="text-lg lg:text-2xl font-bold text-slate-900 mb-1">{{ stats().totalSpent | appCurrency }}</h3>
+            <p class="text-xs lg:text-sm text-slate-600">Total Spent</p>
           </div>
         </div>
 
