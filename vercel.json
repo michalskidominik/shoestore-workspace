@@ -12,6 +12,23 @@
     }
   },
   "outputDirectory": "dist-vercel",
+  "headers": [
+    {
+      "source": "/(.*\\.(js|css|html))",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ],
+      "missing": [
+        {
+          "type": "header",
+          "key": "x-vercel-cache"
+        }
+      ]
+    }
+  ],
   "rewrites": [
     {
       "source": "/client-shop",
