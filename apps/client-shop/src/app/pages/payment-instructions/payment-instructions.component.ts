@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { OrderStore } from '../../features/orders/stores/order.store';
+import { CurrencyPipe } from '../../shared/pipes';
 
 @Component({
   selector: 'app-payment-instructions',
@@ -13,7 +14,8 @@ import { OrderStore } from '../../features/orders/stores/order.store';
     CommonModule,
     ButtonModule,
     MessageModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    CurrencyPipe
   ],
   template: `
     <div class="payment-instructions-page min-h-screen bg-slate-50 py-8">
@@ -131,7 +133,7 @@ import { OrderStore } from '../../features/orders/stores/order.store';
 
                   <div class="pt-4 border-t border-slate-200">
                     <div class="text-xs font-medium text-slate-600 uppercase tracking-wide mb-2">Amount to Transfer:</div>
-                    <p class="text-2xl font-bold text-slate-900">€{{ orderStore.paymentAmount().toFixed(2) }}</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ orderStore.paymentAmount() | appCurrency }}</p>
                   </div>
                 </div>
               </div>
@@ -146,15 +148,15 @@ import { OrderStore } from '../../features/orders/stores/order.store';
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-slate-600">Subtotal ({{ orderStore.currentOrder()?.summary?.itemCount || 0 }} items)</span>
-                    <span class="text-slate-900 font-medium">€{{ orderStore.currentOrder()?.summary?.subtotal?.toFixed(2) || '0.00' }}</span>
+                    <span class="text-slate-900 font-medium">{{ (orderStore.currentOrder()?.summary?.subtotal || 0) | appCurrency }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-slate-600">Shipping</span>
                     <span class="text-green-600 font-medium">Free</span>
                   </div>
                   <div class="border-t border-slate-300 pt-3 flex justify-between text-lg">
-                    <span class="font-semibold text-slate-900">Total (excl. VAT)</span>
-                    <span class="font-bold text-slate-900">€{{ orderStore.currentOrder()?.summary?.total?.toFixed(2) || '0.00' }}</span>
+                    <span class="font-semibold text-slate-900">Total</span>
+                    <span class="font-bold text-slate-900">{{ (orderStore.currentOrder()?.summary?.total || 0) | appCurrency }}</span>
                   </div>
 
                   <!-- VAT Information -->

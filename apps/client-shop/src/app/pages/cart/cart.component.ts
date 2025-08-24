@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { CartStore } from '../../features/cart/stores/cart.store';
 import { OrderStore } from '../../features/orders/stores/order.store';
 import { CartApiService } from '../../features/cart/services/cart-api.service';
+import { CurrencyPipe } from '../../shared/pipes';
 
 interface StockConflict {
   productId: number;
@@ -32,7 +33,8 @@ interface StockConflict {
     MessageModule,
     DialogModule,
     ProgressSpinnerModule,
-    DividerModule
+    DividerModule,
+    CurrencyPipe
   ],
   template: `
     <div class="cart-page min-h-screen bg-slate-50 py-8">
@@ -82,7 +84,7 @@ interface StockConflict {
                         <div class="flex-1 min-w-0">
                           <h3 class="text-lg font-semibold text-slate-900">{{ group.productName }}</h3>
                           <p class="text-slate-600 text-sm mt-1">{{ group.productCode }}</p>
-                          <p class="text-slate-900 font-medium mt-2">€{{ group.unitPrice.toFixed(2) }} each</p>
+                          <p class="text-slate-900 font-medium mt-2">{{ group.unitPrice | appCurrency }} each</p>
 
                           <!-- Size variants -->
                           <div class="mt-4 space-y-3">
@@ -124,7 +126,7 @@ interface StockConflict {
 
                                 <div class="flex items-center gap-3">
                                   <!-- Size Total -->
-                                  <span class="text-sm font-bold text-slate-900">€{{ sizeVariant.totalPrice.toFixed(2) }}</span>
+                                  <span class="text-sm font-bold text-slate-900">{{ sizeVariant.totalPrice | appCurrency }}</span>
 
                                   <!-- Remove Size Button -->
                                   <p-button
@@ -146,7 +148,7 @@ interface StockConflict {
                           <!-- Product Total -->
                           <div class="mt-4 pt-3 border-t border-slate-200 flex justify-between items-center">
                             <span class="text-sm font-medium text-slate-700">Product Total ({{ group.totalQuantity }} items):</span>
-                            <span class="text-lg font-bold text-slate-900">€{{ group.totalPrice.toFixed(2) }}</span>
+                            <span class="text-lg font-bold text-slate-900">{{ group.totalPrice | appCurrency }}</span>
                           </div>
                         </div>
                       </div>
@@ -176,7 +178,7 @@ interface StockConflict {
                     <div class="space-y-4 mb-6">
                     <div class="flex justify-between">
                       <span class="text-slate-600">Subtotal ({{ cartStore.totalItems() }} items)</span>
-                      <span class="text-slate-900 font-medium">€{{ cartStore.cartSummary().subtotal.toFixed(2) }}</span>
+                      <span class="text-slate-900 font-medium">{{ cartStore.cartSummary().subtotal | appCurrency }}</span>
                     </div>
 
                     <div class="flex justify-between">
@@ -188,7 +190,7 @@ interface StockConflict {
 
                     <div class="flex justify-between text-lg">
                       <span class="font-semibold text-slate-900">Total (excl. VAT)</span>
-                      <span class="font-bold text-slate-900">€{{ cartStore.cartSummary().subtotal.toFixed(2) }}</span>
+                      <span class="font-bold text-slate-900">€{{ cartStore.cartSummary().total | appCurrency }}</span>
                     </div>
 
                     <!-- VAT Information -->

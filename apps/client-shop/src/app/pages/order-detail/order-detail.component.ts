@@ -15,6 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 // Models and Services
 import { Order } from '@shoestore/shared-models';
 import { OrderHistoryStore } from '../../features/orders/stores/order-history.store';
+import { CurrencyPipe } from '../../shared/pipes';
 
 @Component({
   selector: 'app-order-detail',
@@ -28,7 +29,8 @@ import { OrderHistoryStore } from '../../features/orders/stores/order-history.st
     DividerModule,
     SkeletonModule,
     MessageModule,
-    TooltipModule
+    TooltipModule,
+    CurrencyPipe
   ],
   template: `
     <div class="order-detail-page min-h-screen bg-slate-50 py-8">
@@ -122,8 +124,8 @@ import { OrderHistoryStore } from '../../features/orders/stores/order-history.st
                             @for (sizeInfo of groupedItem.sizes; track sizeInfo.size) {
                               <div class="flex items-center gap-4 text-sm">
                                 <span class="text-slate-500">Size {{ sizeInfo.size }}:</span>
-                                <span class="text-slate-500">{{ sizeInfo.quantity }} × €{{ groupedItem.unitPrice.toFixed(2) }}</span>
-                                <span class="font-medium text-slate-700">=  €{{ sizeInfo.total.toFixed(2) }}</span>
+                                <span class="text-slate-500">{{ sizeInfo.quantity }} × {{ groupedItem.unitPrice | appCurrency }}</span>
+                                <span class="font-medium text-slate-700">=  {{ sizeInfo.total | appCurrency }}</span>
                               </div>
                             }
                           </div>
@@ -138,7 +140,7 @@ import { OrderHistoryStore } from '../../features/orders/stores/order-history.st
 
                         <!-- Item Total -->
                         <div class="text-right">
-                          <div class="font-bold text-slate-900">€{{ groupedItem.totalAmount.toFixed(2) }}</div>
+                          <div class="font-bold text-slate-900">{{ groupedItem.totalAmount | appCurrency }}</div>
                           <div class="text-xs text-slate-500 mt-1">{{ groupedItem.totalQuantity }} pieces</div>
                         </div>
                       </div>
@@ -157,7 +159,7 @@ import { OrderHistoryStore } from '../../features/orders/stores/order-history.st
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-slate-600">Subtotal ({{ getTotalQuantity() }} items)</span>
-                    <span class="text-slate-900">€{{ getSubtotal().toFixed(2) }}</span>
+                    <span class="text-slate-900">{{ getSubtotal() | appCurrency }}</span>
                   </div>
 
                   <div class="flex justify-between">
@@ -169,7 +171,7 @@ import { OrderHistoryStore } from '../../features/orders/stores/order-history.st
 
                   <div class="flex justify-between text-lg font-semibold">
                     <span class="text-slate-900">Total</span>
-                    <span class="text-slate-900">€{{ orderHistoryStore.currentOrder()!.totalAmount.toFixed(2) }}</span>
+                    <span class="text-slate-900">{{ orderHistoryStore.currentOrder()!.totalAmount | appCurrency }}</span>
                   </div>
                 </div>
               </div>
