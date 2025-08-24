@@ -11,6 +11,7 @@ import { QuickOrderComponent, OrderData } from '../quick-order/quick-order.compo
 import { CartStore, AddToCartRequest } from '../../../../features/cart/stores/cart.store';
 import { ToastStore } from '../../../../shared/stores/toast.store';
 import { AuthStore } from '../../../../core/stores/auth.store';
+import { CurrencyStore } from '../../../../shared/stores/currency.store';
 
 type ViewMode = 'grid' | 'list' | 'large' | 'compact';
 type ImageSize = 'small' | 'medium' | 'large';
@@ -297,6 +298,7 @@ export class ProductCardComponent {
   private readonly cartStore = inject(CartStore);
   private readonly toastStore = inject(ToastStore);
   private readonly authStore = inject(AuthStore);
+  private readonly currencyStore = inject(CurrencyStore);
   private readonly router = inject(Router);
 
   // Inputs
@@ -414,11 +416,7 @@ export class ProductCardComponent {
     const minPrice = Math.min(...prices);
     const maxPrice = Math.max(...prices);
 
-    if (minPrice === maxPrice) {
-      return `€${minPrice.toFixed(2)}`;
-    } else {
-      return `€${minPrice.toFixed(2)} - €${maxPrice.toFixed(2)}`;
-    }
+    return this.currencyStore.formatPriceRange(minPrice, maxPrice);
   }
 
   protected getSizeRange(): string {

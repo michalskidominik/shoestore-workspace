@@ -12,6 +12,7 @@ import { FormsModule } from '@angular/forms';
 import { CartStore } from '../../features/cart/stores/cart.store';
 import { OrderStore } from '../../features/orders/stores/order.store';
 import { CartApiService } from '../../features/cart/services/cart-api.service';
+import { CurrencyStore } from '../../shared/stores/currency.store';
 
 interface StockConflict {
   productId: number;
@@ -96,7 +97,7 @@ interface GroupedCartItem {
                         <div class="flex-1 min-w-0">
                           <h3 class="text-lg font-semibold text-slate-900">{{ group.productName }}</h3>
                           <p class="text-slate-600 text-sm mt-1">{{ group.productCode }}</p>
-                          <p class="text-slate-900 font-medium mt-2">€{{ group.unitPrice.toFixed(2) }} each</p>
+                          <p class="text-slate-900 font-medium mt-2">{{ currencyStore.formatWithSymbol(group.unitPrice) }} each</p>
 
                           <!-- Size variants -->
                           <div class="mt-4 space-y-3">
@@ -133,7 +134,7 @@ interface GroupedCartItem {
 
                                 <div class="flex items-center gap-3">
                                   <!-- Size Total -->
-                                  <span class="text-sm font-bold text-slate-900">€{{ sizeVariant.totalPrice.toFixed(2) }}</span>
+                                  <span class="text-sm font-bold text-slate-900">{{ currencyStore.formatWithSymbol(sizeVariant.totalPrice) }}</span>
 
                                   <!-- Remove Size Button -->
                                   <p-button
@@ -155,7 +156,7 @@ interface GroupedCartItem {
                           <!-- Product Total -->
                           <div class="mt-4 pt-3 border-t border-slate-200 flex justify-between items-center">
                             <span class="text-sm font-medium text-slate-700">Product Total ({{ group.totalQuantity }} items):</span>
-                            <span class="text-lg font-bold text-slate-900">€{{ group.totalPrice.toFixed(2) }}</span>
+                            <span class="text-lg font-bold text-slate-900">{{ currencyStore.formatWithSymbol(group.totalPrice) }}</span>
                           </div>
                         </div>
                       </div>
@@ -185,7 +186,7 @@ interface GroupedCartItem {
                     <div class="space-y-4 mb-6">
                     <div class="flex justify-between">
                       <span class="text-slate-600">Subtotal ({{ cartStore.totalItems() }} items)</span>
-                      <span class="text-slate-900 font-medium">\${{ cartStore.cartSummary().subtotal.toFixed(2) }}</span>
+                      <span class="text-slate-900 font-medium">{{ currencyStore.formatWithSymbol(cartStore.cartSummary().subtotal) }}</span>
                     </div>
 
                     <div class="flex justify-between">
@@ -195,14 +196,14 @@ interface GroupedCartItem {
 
                     <div class="flex justify-between">
                       <span class="text-slate-600">Tax</span>
-                      <span class="text-slate-900 font-medium">\${{ cartStore.cartSummary().tax.toFixed(2) }}</span>
+                      <span class="text-slate-900 font-medium">{{ currencyStore.formatWithSymbol(cartStore.cartSummary().tax) }}</span>
                     </div>
 
                     <p-divider></p-divider>
 
                     <div class="flex justify-between text-lg">
                       <span class="font-semibold text-slate-900">Total</span>
-                      <span class="font-bold text-slate-900">\${{ cartStore.cartSummary().total.toFixed(2) }}</span>
+                      <span class="font-bold text-slate-900">{{ currencyStore.formatWithSymbol(cartStore.cartSummary().total) }}</span>
                     </div>
                   </div>
 
@@ -314,6 +315,7 @@ interface GroupedCartItem {
 export class CartComponent {
   protected readonly cartStore = inject(CartStore);
   protected readonly orderStore = inject(OrderStore);
+  protected readonly currencyStore = inject(CurrencyStore);
   private readonly cartApiService = inject(CartApiService);
   private readonly router = inject(Router);
 

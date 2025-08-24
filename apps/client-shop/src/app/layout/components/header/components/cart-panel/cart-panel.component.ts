@@ -1,9 +1,10 @@
-import { Component, ChangeDetectionStrategy, input, output, computed } from '@angular/core';
+import { Component, ChangeDetectionStrategy, input, output, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { PopoverModule } from 'primeng/popover';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
 import { CartItem } from '../../../../../features/cart/stores/cart.store';
+import { CurrencyStore } from '../../../../../shared/stores/currency.store';
 
 interface CartSummary {
   subtotal: number;
@@ -110,7 +111,7 @@ interface GroupedCartItem {
                               [attr.aria-label]="'Increase quantity for size ' + sizeVariant.size">
                               <i class="pi pi-plus text-xs"></i>
                             </button>
-                            <span class="text-xs text-slate-600 ml-1 min-w-12">€{{ sizeVariant.totalPrice.toFixed(2) }}</span>
+                            <span class="text-xs text-slate-600 ml-1 min-w-12">{{ currencyStore.formatWithSymbol(sizeVariant.totalPrice) }}</span>
                             <button
                               (click)="onRemoveItem(group.productId, sizeVariant.size)"
                               class="w-4 h-4 flex items-center justify-center rounded hover:bg-red-50 text-slate-400 hover:text-red-600 transition-colors"
@@ -124,7 +125,7 @@ interface GroupedCartItem {
 
                     <div class="flex items-center justify-between mt-2 pt-2 border-t border-slate-100">
                       <span class="text-xs font-medium text-slate-700">Total ({{ group.totalQuantity }} items):</span>
-                      <span class="text-sm font-bold text-slate-900">€{{ group.totalPrice.toFixed(2) }}</span>
+                      <span class="text-sm font-bold text-slate-900">{{ currencyStore.formatWithSymbol(group.totalPrice) }}</span>
                     </div>
                   </div>
                 </div>
@@ -135,7 +136,7 @@ interface GroupedCartItem {
           <div class="px-4 py-3 border-t border-slate-100 bg-slate-50/50">
             <div class="flex items-center justify-between mb-3">
               <span class="text-sm font-medium text-slate-700">Total:</span>
-              <span class="text-lg font-bold text-slate-900">€{{ cartSummary().total.toFixed(2) }}</span>
+              <span class="text-lg font-bold text-slate-900">{{ currencyStore.formatWithSymbol(cartSummary().total) }}</span>
             </div>
             <p-button
               label="View Cart & Checkout"
@@ -152,6 +153,9 @@ interface GroupedCartItem {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CartPanelComponent {
+  // Services
+  protected readonly currencyStore = inject(CurrencyStore);
+  
   // Inputs
   readonly cartItems = input.required<CartItem[]>();
   readonly cartSummary = input.required<CartSummary>();

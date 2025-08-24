@@ -19,6 +19,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 // Models and Services
 import { Order, OrderStatus } from '@shoestore/shared-models';
 import { OrderHistoryStore } from '../../features/orders/stores/order-history.store';
+import { CurrencyStore } from '../../shared/stores/currency.store';
 
 @Component({
   selector: 'app-orders',
@@ -186,7 +187,7 @@ import { OrderHistoryStore } from '../../features/orders/stores/order-history.st
                   <!-- Total Amount -->
                   <td class="text-right">
                     <div class="font-bold text-slate-900">
-                      €{{ order.totalAmount.toFixed(2) }}
+                      {{ currencyStore.formatWithSymbol(order.totalAmount) }}
                     </div>
                   </td>
 
@@ -276,7 +277,7 @@ import { OrderHistoryStore } from '../../features/orders/stores/order-history.st
               <div class="text-sm text-slate-500">Processing</div>
             </div>
             <div class="bg-white rounded-lg shadow-sm p-6 text-center">
-              <div class="text-2xl font-bold text-slate-900">€{{ getTotalOrderValue().toFixed(2) }}</div>
+              <div class="text-2xl font-bold text-slate-900">{{ currencyStore.formatWithSymbol(getTotalOrderValue()) }}</div>
               <div class="text-sm text-slate-500">Total Value</div>
             </div>
           </div>
@@ -289,6 +290,7 @@ import { OrderHistoryStore } from '../../features/orders/stores/order-history.st
 })
 export class OrdersComponent implements OnInit {
   protected readonly orderHistoryStore = inject(OrderHistoryStore);
+  protected readonly currencyStore = inject(CurrencyStore);
   private readonly router = inject(Router);
 
   // Local state for form controls

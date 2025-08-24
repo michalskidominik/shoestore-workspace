@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { OrderStore } from '../../features/orders/stores/order.store';
+import { CurrencyStore } from '../../shared/stores/currency.store';
 
 @Component({
   selector: 'app-payment-instructions',
@@ -131,7 +132,7 @@ import { OrderStore } from '../../features/orders/stores/order.store';
 
                   <div class="pt-4 border-t border-slate-200">
                     <div class="text-xs font-medium text-slate-600 uppercase tracking-wide mb-2">Amount to Transfer:</div>
-                    <p class="text-2xl font-bold text-slate-900">€{{ orderStore.paymentAmount().toFixed(2) }}</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ currencyStore.formatWithSymbol(orderStore.paymentAmount()) }}</p>
                   </div>
                 </div>
               </div>
@@ -146,11 +147,11 @@ import { OrderStore } from '../../features/orders/stores/order.store';
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-slate-600">Subtotal ({{ orderStore.currentOrder()?.summary?.itemCount || 0 }} items)</span>
-                    <span class="text-slate-900 font-medium">€{{ orderStore.currentOrder()?.summary?.subtotal?.toFixed(2) || '0.00' }}</span>
+                    <span class="text-slate-900 font-medium">{{ currencyStore.formatWithSymbol(orderStore.currentOrder()?.summary?.subtotal || 0) }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-slate-600">Tax</span>
-                    <span class="text-slate-900 font-medium">€{{ orderStore.currentOrder()?.summary?.tax?.toFixed(2) || '0.00' }}</span>
+                    <span class="text-slate-900 font-medium">{{ currencyStore.formatWithSymbol(orderStore.currentOrder()?.summary?.tax || 0) }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-slate-600">Shipping</span>
@@ -158,7 +159,7 @@ import { OrderStore } from '../../features/orders/stores/order.store';
                   </div>
                   <div class="border-t border-slate-300 pt-3 flex justify-between text-lg">
                     <span class="font-semibold text-slate-900">Total</span>
-                    <span class="font-bold text-slate-900">€{{ orderStore.currentOrder()?.summary?.total?.toFixed(2) || '0.00' }}</span>
+                    <span class="font-bold text-slate-900">{{ currencyStore.formatWithSymbol(orderStore.currentOrder()?.summary?.total || 0) }}</span>
                   </div>
                 </div>
               </div>
@@ -230,6 +231,7 @@ import { OrderStore } from '../../features/orders/stores/order.store';
 })
 export class PaymentInstructionsComponent implements OnInit {
   protected readonly orderStore = inject(OrderStore);
+  protected readonly currencyStore = inject(CurrencyStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 
