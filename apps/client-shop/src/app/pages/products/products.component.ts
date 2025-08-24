@@ -466,7 +466,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     } else {
       newBrands = current.filter(b => b !== brandValue);
     }
-    
+
     this.selectedBrands.set(newBrands);
     this.productStore.updateFilter('selectedBrands', newBrands);
     this.productStore.refreshFilteredProducts();

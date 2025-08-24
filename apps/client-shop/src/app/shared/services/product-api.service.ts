@@ -259,8 +259,8 @@ export class ProductApiService {
     // Apply search filter
     if (filters.searchTerm?.trim()) {
       const searchTerm = filters.searchTerm.toLowerCase();
-      filtered = filtered.filter(product => 
-        product.name.toLowerCase().includes(searchTerm) || 
+      filtered = filtered.filter(product =>
+        product.name.toLowerCase().includes(searchTerm) ||
         product.code.toLowerCase().includes(searchTerm)
       );
     }
@@ -269,7 +269,7 @@ export class ProductApiService {
     if (filters.selectedBrands && filters.selectedBrands.length > 0) {
       filtered = filtered.filter(product => {
         const productBrand = product.name.split(' ')[0].toLowerCase();
-        return filters.selectedBrands?.some(brand => 
+        return filters.selectedBrands?.some(brand =>
           brand.toLowerCase() === productBrand
         ) || false;
       });
@@ -277,7 +277,7 @@ export class ProductApiService {
 
     // Apply category filter
     if (filters.selectedCategories && filters.selectedCategories.length > 0) {
-      filtered = filtered.filter(product => 
+      filtered = filtered.filter(product =>
         filters.selectedCategories?.includes(product.category || 'sneakers') || false
       );
     }

@@ -12,7 +12,6 @@ import { MenuItem } from 'primeng/api';
 import { filter, map, takeUntil } from 'rxjs';
 import { Subject } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
-import { UiStateService } from '../../../core/services/ui-state.service';
 import { AuthStore } from '../../../core/stores/auth.store';
 import { CartStore } from '../../../features/cart/stores/cart.store';
 import { CartPanelComponent } from './components/cart-panel/cart-panel.component';
@@ -52,7 +51,6 @@ interface NavigationItem {
 })
 export class HeaderComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
-  private readonly uiStateService = inject(UiStateService);
   private readonly authStore = inject(AuthStore);
   private readonly cartStore = inject(CartStore);
   private readonly router = inject(Router);

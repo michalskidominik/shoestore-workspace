@@ -105,16 +105,16 @@ export const ProductStore = signalStore(
     loadProducts: rxMethod<void>(
       pipe(
         tap(() => patchState(store, { isLoading: true, error: null })),
-        switchMap(() => 
+        switchMap(() =>
           productApiService.getAllProducts().pipe(
             tapResponse({
               next: (products) => {
                 patchState(store, setAllEntities(products));
                 patchState(store, { isLoading: false });
               },
-              error: (error: Error) => patchState(store, { 
+              error: (error: Error) => patchState(store, {
                 isLoading: false,
-                error: error.message || 'Failed to load products' 
+                error: error.message || 'Failed to load products'
               })
             })
           )
@@ -130,8 +130,8 @@ export const ProductStore = signalStore(
           return productApiService.getFilteredAndSortedProducts(currentFilters).pipe(
             tapResponse({
               next: (filteredProducts) => patchState(store, { filteredProducts }),
-              error: (error: Error) => patchState(store, { 
-                error: error.message || 'Failed to load filtered products' 
+              error: (error: Error) => patchState(store, {
+                error: error.message || 'Failed to load filtered products'
               })
             })
           );
@@ -142,7 +142,7 @@ export const ProductStore = signalStore(
     // Load supporting data (categories, brands, etc.)
     loadSupportingData: rxMethod<void>(
       pipe(
-        switchMap(() => 
+        switchMap(() =>
           forkJoin({
             categories: productApiService.getCategories(),
             brands: productApiService.getBrands(),
@@ -156,8 +156,8 @@ export const ProductStore = signalStore(
                 brandStats: data.brandStats,
                 sizeTemplates: data.sizeTemplates
               }),
-              error: (error: Error) => patchState(store, { 
-                error: error.message || 'Failed to load supporting data' 
+              error: (error: Error) => patchState(store, {
+                error: error.message || 'Failed to load supporting data'
               })
             })
           )
@@ -171,8 +171,8 @@ export const ProductStore = signalStore(
         debounceTime(300),
         distinctUntilChanged(),
         tap((searchTerm) => {
-          patchState(store, { 
-            filters: { ...store.filters(), searchTerm } 
+          patchState(store, {
+            filters: { ...store.filters(), searchTerm }
           });
         })
       )
@@ -180,7 +180,7 @@ export const ProductStore = signalStore(
 
     // Filter management methods
     updateFilter<K extends keyof ProductFilters>(
-      filterKey: K, 
+      filterKey: K,
       value: ProductFilters[K]
     ): void {
       patchState(store, {
