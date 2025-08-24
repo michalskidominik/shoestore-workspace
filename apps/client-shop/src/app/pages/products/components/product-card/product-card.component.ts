@@ -9,7 +9,7 @@ import { FormsModule } from '@angular/forms';
 import { Shoe, SizeTemplate } from '@shoestore/shared-models';
 import { QuickOrderComponent, OrderData } from '../quick-order/quick-order.component';
 import { CartStore, AddToCartRequest } from '../../../../features/cart/stores/cart.store';
-import { ToastService } from '../../../../shared/services/toast.service';
+import { ToastStore } from '../../../../shared/stores/toast.store';
 import { AuthStore } from '../../../../core/stores/auth.store';
 
 type ViewMode = 'grid' | 'list' | 'large' | 'compact';
@@ -295,7 +295,7 @@ type ImageSize = 'small' | 'medium' | 'large';
 export class ProductCardComponent {
   // Services
   private readonly cartStore = inject(CartStore);
-  private readonly toastService = inject(ToastService);
+  private readonly toastStore = inject(ToastStore);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
 
@@ -368,7 +368,7 @@ export class ProductCardComponent {
     const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
 
     // Show success message with View Cart action
-    this.toastService.showSuccess(
+    this.toastStore.showSuccess(
       `Added ${totalItems} ${totalItems === 1 ? 'item' : 'items'} to cart`,
       5000,
       {

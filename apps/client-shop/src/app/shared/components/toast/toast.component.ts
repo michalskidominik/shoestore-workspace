@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, inject, ChangeDetectionStrategy } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
-import { ToastService, ToastMessage } from '../../services/toast.service';
+import { ToastStore, ToastMessage } from '../../stores/toast.store';
 
 @Component({
   selector: 'app-toast',
@@ -120,20 +120,20 @@ import { ToastService, ToastMessage } from '../../services/toast.service';
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ToastComponent {
-  protected readonly toastService = inject(ToastService);
+  protected readonly toastStore = inject(ToastStore);
 
   protected get toasts(): ToastMessage[] {
-    return this.toastService.currentToasts();
+    return this.toastStore.currentToasts();
   }
 
   protected onDismiss(id: string): void {
-    this.toastService.dismissToast(id);
+    this.toastStore.dismissToast(id);
   }
 
   protected onActionClick(toast: ToastMessage): void {
     if (toast.action) {
       toast.action.handler();
-      this.toastService.dismissToast(toast.id);
+      this.toastStore.dismissToast(toast.id);
     }
   }
 }

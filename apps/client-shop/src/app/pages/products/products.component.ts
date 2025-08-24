@@ -23,7 +23,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 import { Shoe, SizeAvailability } from '@shoestore/shared-models';
 import { ProductStore } from '../../features/products/stores/product.store';
 import { CartStore, AddToCartRequest } from '../../features/cart/stores/cart.store';
-import { ToastService } from '../../shared/services/toast.service';
+import { ToastStore } from '../../shared/stores/toast.store';
 import { AuthStore } from '../../core/stores/auth.store';
 // Import order component
 import { QuickOrderComponent, OrderData } from './components/quick-order/quick-order.component';
@@ -92,7 +92,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // Dependency injection using inject() function
   private readonly productStore = inject(ProductStore);
   private readonly cartStore = inject(CartStore);
-  private readonly toastService = inject(ToastService);
+  private readonly toastStore = inject(ToastStore);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
 
@@ -263,7 +263,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
     // Show success toast
     const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
-    this.toastService.showSuccess(
+    this.toastStore.showSuccess(
       `Added ${totalItems} items to cart`,
       5000,
       {
@@ -307,14 +307,14 @@ export class ProductsComponent implements OnInit, OnDestroy {
     const hasStock = shoe.sizes && shoe.sizes.some((size: SizeAvailability) => size.quantity > 0);
 
     if (!hasStock) {
-      this.toastService.showError('This product is out of stock');
+      this.toastStore.showError('This product is out of stock');
       return;
     }
 
     // For simple add to cart, add the first available size with quantity 1
     const availableSize = shoe.sizes.find((size: SizeAvailability) => size.quantity > 0);
     if (!availableSize) {
-      this.toastService.showError('No sizes available');
+      this.toastStore.showError('No sizes available');
       return;
     }
 
@@ -328,7 +328,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
     };
 
     this.cartStore.addToCart(addToCartRequest);
-    this.toastService.showSuccess(
+    this.toastStore.showSuccess(
       `Added ${shoe.name} to cart`,
       5000,
       {
