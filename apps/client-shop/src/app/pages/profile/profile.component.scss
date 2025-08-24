@@ -1,264 +1,301 @@
+/* Profile component styles - using plain CSS to avoid TailwindCSS v4 configuration issues */
 .profile-container {
-  @apply max-w-5xl mx-auto p-6 space-y-6;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .profile-header {
-  @apply bg-white border border-slate-200 rounded-lg p-6 shadow-sm;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.profile-header .flex {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-header h1 {
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+}
+
+.profile-header p {
+  color: #475569;
+  margin: 0.25rem 0 0 0;
 }
 
 .profile-user-info {
-  @apply hidden md:block;
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .profile-user-info {
+    display: block;
+  }
+}
+
+.profile-user-info .text-right {
+  text-align: right;
+}
+
+.profile-user-info .text-lg {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #0f172a;
+  margin: 0;
+}
+
+.profile-user-info .text-sm {
+  font-size: 0.875rem;
+  color: #475569;
+  margin: 0;
 }
 
 .profile-content {
-  @apply bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden;
+  background-color: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  overflow: hidden;
 }
 
-// Tab styling overrides
-:host ::ng-deep {
-  .p-tabview {
-    .p-tabview-nav {
-      @apply bg-slate-50 border-b border-slate-200;
-      
-      .p-tabview-nav-link {
-        @apply text-slate-700 font-medium py-4 px-6 border-b-2 border-transparent;
-        
-        &:hover {
-          @apply text-slate-900 bg-slate-100;
-        }
-      }
-      
-      .p-highlight .p-tabview-nav-link {
-        @apply text-blue-600 border-blue-600 bg-white;
-      }
-    }
-    
-    .p-tabview-panels {
-      @apply p-0;
-      
-      .p-tabview-panel {
-        @apply p-6;
-      }
-    }
-  }
-
-  // Card styling
-  .p-card {
-    @apply border-0 shadow-none;
-    
-    .p-card-header {
-      @apply bg-slate-50 border-b border-slate-200 rounded-t-lg;
-    }
-    
-    .p-card-body {
-      @apply p-6;
-    }
-  }
+/* Loading spinner styles */
+.flex.items-center.justify-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 0;
 }
 
-// Address form styling
-.address-form {
-  @apply space-y-6;
+.text-center {
+  text-align: center;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+/* Form styles */
+.address-form,
+.password-form,
+.email-form,
+.token-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .address-section {
-  @apply space-y-4;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .section-title {
-  @apply text-lg font-semibold text-slate-900 pb-2 border-b border-slate-200;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .form-grid {
-  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 
 .form-field {
-  @apply space-y-2;
-  
-  label {
-    @apply block text-sm font-medium text-slate-700;
-  }
-  
-  input, :host ::ng-deep .p-select {
-    @apply w-full;
-  }
-  
-  .field-error {
-    @apply text-red-600 text-sm;
-  }
-  
-  // Error state styling
-  &.ng-dirty.ng-invalid {
-    input, :host ::ng-deep .p-select .p-select-label {
-      @apply border-red-300 focus:border-red-500 focus:ring-red-500;
-    }
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-field label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.form-field input {
+  width: 100%;
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.875rem;
 }
 
 .copy-address-section {
-  @apply flex justify-center py-4;
+  display: flex;
+  justify-content: center;
+  padding: 1rem 0;
 }
 
 .form-actions {
-  @apply flex justify-end gap-3 pt-4 border-t border-slate-200;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
 }
 
-// Password form styling
+/* Password form specific styles */
 .password-form {
-  @apply space-y-4 max-w-md;
+  max-width: 28rem;
 }
 
-// Email change styling
+/* Email change styles */
 .current-email-section {
-  @apply space-y-2 mb-6;
-  
-  label {
-    @apply block text-sm font-medium text-slate-700;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.current-email-section label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
 }
 
 .current-email-display {
-  @apply flex items-center;
+  display: flex;
+  align-items: center;
+}
+
+.current-email-display span:first-child {
+  font-size: 1.125rem;
+  font-weight: 500;
+  color: #0f172a;
+}
+
+.current-email-display span:last-child {
+  font-size: 0.875rem;
+  color: #059669;
+  margin-left: 0.5rem;
 }
 
 .email-change-section {
-  @apply space-y-6;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 }
 
 .email-step {
-  @apply space-y-4;
-  
-  &.success {
-    @apply text-center py-8;
-  }
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.email-step.success {
+  text-align: center;
+  padding: 2rem 0;
 }
 
 .step-title {
-  @apply text-lg font-semibold text-slate-900 flex items-center gap-3;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
 .step-number {
-  @apply inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: #2563eb;
+  color: white;
+  font-size: 0.875rem;
+  font-weight: 700;
 }
 
 .step-description {
-  @apply text-slate-600 text-sm leading-relaxed;
+  color: #475569;
+  font-size: 0.875rem;
+  line-height: 1.5;
 }
 
-.email-form, .token-form {
-  @apply space-y-4 max-w-md;
+.email-form,
+.token-form {
+  max-width: 28rem;
 }
 
 .token-info {
-  @apply flex items-center justify-between p-4 bg-slate-50 rounded-lg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: #f8fafc;
+  border-radius: 0.5rem;
+}
+
+.token-timer,
+.token-expired {
+  font-size: 0.875rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .token-timer {
-  @apply text-sm text-slate-600 flex items-center gap-2;
+  color: #475569;
 }
 
 .token-expired {
-  @apply text-sm text-orange-600 flex items-center gap-2;
+  color: #ea580c;
 }
 
-// Success state styling
+/* Success state styles */
 .success-icon {
-  @apply text-6xl text-green-600 mb-4;
+  font-size: 3.75rem;
+  color: #059669;
+  margin-bottom: 1rem;
 }
 
 .success-title {
-  @apply text-xl font-semibold text-slate-900 mb-2;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
 }
 
 .success-description {
-  @apply text-slate-600 mb-2;
+  color: #475569;
+  margin-bottom: 0.5rem;
 }
 
 .success-note {
-  @apply text-sm text-slate-500 italic;
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-style: italic;
 }
 
-// Loading and disabled states
-:host ::ng-deep {
-  .p-button {
-    &.p-button-loading {
-      @apply opacity-75;
-    }
-    
-    &:disabled {
-      @apply opacity-50 cursor-not-allowed;
-    }
-  }
-  
-  .p-password, .p-inputtext {
-    &:disabled {
-      @apply bg-slate-100 cursor-not-allowed;
-    }
-  }
-  
-  // Invalid field styling
-  .ng-dirty.ng-invalid {
-    .p-inputtext, .p-password input {
-      @apply border-red-300 focus:border-red-500 focus:ring-red-500;
-    }
-    
-    .p-select .p-select-label {
-      @apply border-red-300;
-    }
-  }
-}
-
-// Responsive design
-@media (max-width: 768px) {
-  .profile-container {
-    @apply p-4 space-y-4;
-  }
-  
-  .profile-header {
-    @apply p-4;
-    
-    .flex {
-      @apply flex-col space-y-3;
-    }
-  }
-  
-  .profile-user-info {
-    @apply block text-left;
-  }
-  
-  .form-grid {
-    @apply grid-cols-1;
-  }
-  
-  .form-actions {
-    @apply flex-col-reverse;
-    
-    .p-button {
-      @apply w-full justify-center;
-    }
-  }
-  
-  .token-info {
-    @apply flex-col space-y-2 items-start;
-  }
-  
-  :host ::ng-deep .p-tabview .p-tabview-nav .p-tabview-nav-link {
-    @apply px-3 py-3 text-sm;
-  }
-}
-
-// Focus states for accessibility
-:host ::ng-deep {
-  .p-button:focus-visible,
-  .p-inputtext:focus-visible,
-  .p-password input:focus-visible,
-  .p-select:focus-visible {
-    @apply ring-2 ring-blue-500 ring-offset-2 outline-none;
-  }
-}
-
-// Animation for email change steps
+/* Animation */
 .email-step {
   animation: fadeIn 0.3s ease-in-out;
 }
@@ -274,13 +311,211 @@
   }
 }
 
-// Print styles
-@media print {
+/* Responsive design */
+@media (max-width: 768px) {
   .profile-container {
-    @apply shadow-none border-0;
+    padding: 1rem;
+    gap: 1rem;
   }
   
-  .form-actions, .token-info {
-    @apply hidden;
+  .profile-header {
+    padding: 1rem;
   }
+  
+  .profile-header .flex {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .profile-user-info {
+    display: block;
+    text-align: left;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .token-info {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+}
+
+/* PrimeNG component overrides */
+:host ::ng-deep {
+  .p-tabview .p-tabview-nav {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .p-tabview .p-tabview-nav .p-tabview-nav-link {
+    color: #374151;
+    font-weight: 500;
+    padding: 1rem 1.5rem;
+    border-bottom: 2px solid transparent;
+  }
+  
+  .p-tabview .p-tabview-nav .p-tabview-nav-link:hover {
+    color: #0f172a;
+    background-color: #f1f5f9;
+  }
+  
+  .p-tabview .p-tabview-nav .p-highlight .p-tabview-nav-link {
+    color: #2563eb;
+    border-bottom-color: #2563eb;
+    background-color: white;
+  }
+  
+  .p-tabview .p-tabview-panels {
+    padding: 0;
+  }
+  
+  .p-tabview .p-tabview-panels .p-tabview-panel {
+    padding: 1.5rem;
+  }
+  
+  .p-card {
+    border: 0;
+    box-shadow: none;
+  }
+  
+  .p-card .p-card-header {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    border-radius: 0.5rem 0.5rem 0 0;
+  }
+  
+  .p-card .p-card-body {
+    padding: 1.5rem;
+  }
+  
+  .p-select {
+    width: 100%;
+  }
+  
+  /* Button focus styles */
+  .p-button:focus-visible,
+  .p-inputtext:focus-visible,
+  .p-password input:focus-visible,
+  .p-select:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+  }
+  
+  /* Loading and disabled states */
+  .p-button.p-button-loading {
+    opacity: 0.75;
+  }
+  
+  .p-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  
+  .p-password:disabled,
+  .p-inputtext:disabled {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+  }
+  
+  /* Error field styling */
+  .ng-dirty.ng-invalid .p-inputtext,
+  .ng-dirty.ng-invalid .p-password input {
+    border-color: #fca5a5;
+  }
+  
+  .ng-dirty.ng-invalid .p-inputtext:focus,
+  .ng-dirty.ng-invalid .p-password input:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 1px #ef4444;
+  }
+  
+  .ng-dirty.ng-invalid .p-select .p-select-label {
+    border-color: #fca5a5;
+  }
+}
+
+/* Utility classes that might be used in template */
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-3 {
+  gap: 0.75rem;
+}
+
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.text-blue-600 {
+  color: #2563eb;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.text-slate-900 {
+  color: #0f172a;
+}
+
+.text-slate-600 {
+  color: #475569;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.text-green-600 {
+  color: #059669;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.justify-center {
+  justify-content: center;
 }
