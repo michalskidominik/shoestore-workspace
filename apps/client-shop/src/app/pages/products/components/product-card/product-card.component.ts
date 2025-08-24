@@ -175,15 +175,6 @@ type ImageSize = 'small' | 'medium' | 'large';
                 styleClass="!text-xs !py-1.5 !px-3"
                 (onClick)="onQuickOrder()">
               </p-button>
-              <p-button
-                label="Order"
-                icon="pi pi-plus"
-                severity="primary"
-                size="small"
-                [disabled]="!hasStock()"
-                styleClass="!text-xs !py-1.5 !px-3"
-                (onClick)="onAddToCart()">
-              </p-button>
             } @else {
               <p-button
                 label="Sign In"
