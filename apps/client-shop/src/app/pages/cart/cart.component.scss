@@ -54,20 +54,20 @@
 /* Responsive design */
 @media (max-width: 768px) {
   .cart-page {
-    padding: 1rem;
+    padding: 0;
   }
-  
+
   .cart-items-grid {
     grid-template-columns: 1fr;
     gap: 1rem;
   }
-  
+
   .cart-item-controls {
     flex-direction: column;
     align-items: stretch;
     gap: 0.5rem;
   }
-  
+
   .cart-item-quantity {
     width: 100%;
   }
