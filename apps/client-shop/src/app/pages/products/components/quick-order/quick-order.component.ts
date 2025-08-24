@@ -84,15 +84,38 @@ export interface OrderData {
               <div class="flex-1">
                 <div class="flex items-center gap-2">
                   <span class="text-xs font-medium text-slate-600 w-8 lg:w-12 flex-shrink-0">Qty:</span>
-                  <p-inputNumber
-                    [(ngModel)]="applyToAllQuantity"
-                    [showButtons]="true"
-                    [min]="0"
-                    [max]="100"
-                    [step]="1"
-                    styleClass="mobile-compact-input flex-1"
-                    placeholder="0">
-                  </p-inputNumber>
+                  <div class="quantity-control flex-1">
+                    <p-button
+                      type="button"
+                      icon="pi pi-minus"
+                      severity="secondary"
+                      size="small"
+                      (onClick)="decrementApplyToAll()"
+                      [disabled]="applyToAllQuantity() <= 0"
+                      styleClass="qty-btn">
+                    </p-button>
+
+                    <input
+                      type="number"
+                      [value]="applyToAllQuantity()"
+                      (input)="applyToAllQuantity.set($any($event.target).valueAsNumber || 0)"
+                      min="0"
+                      max="100"
+                      step="1"
+                      class="quantity-input"
+                      aria-label="Quantity for all sizes"
+                    />
+
+                    <p-button
+                      type="button"
+                      icon="pi pi-plus"
+                      severity="primary"
+                      size="small"
+                      (onClick)="incrementApplyToAll()"
+                      [disabled]="applyToAllQuantity() >= 100"
+                      styleClass="qty-btn">
+                    </p-button>
+                  </div>
                 </div>
               </div>
               <p-button
@@ -153,16 +176,37 @@ export interface OrderData {
                       <!-- Quantity Input -->
                       <div class="space-y-2">
                         <span class="text-xs font-medium text-slate-600 block">Quantity:</span>
-                        <p-inputNumber
-                          [formControlName]="$index"
-                          [showButtons]="true"
-                          [min]="0"
-                          [max]="getAvailableSizes()[$index].quantity"
-                          [step]="1"
-                          styleClass="grid-compact-input w-full"
-                          placeholder="0"
-                          [disabled]="getAvailableSizes()[$index].quantity === 0">
-                        </p-inputNumber>
+                        <div class="quantity-control">
+                          <p-button
+                            type="button"
+                            icon="pi pi-minus"
+                            severity="secondary"
+                            size="small"
+                            [disabled]="getAvailableSizes()[$index].quantity === 0"
+                            (onClick)="decrement($index)"
+                            styleClass="qty-btn">
+                          </p-button>
+
+                          <input
+                            type="number"
+                            [formControlName]="$index"
+                            [min]="0"
+                            [max]="getAvailableSizes()[$index].quantity"
+                            step="1"
+                            class="quantity-input"
+                            [disabled]="getAvailableSizes()[$index].quantity === 0"
+                          />
+
+                          <p-button
+                            type="button"
+                            icon="pi pi-plus"
+                            severity="primary"
+                            size="small"
+                            [disabled]="getAvailableSizes()[$index].quantity === 0"
+                            (onClick)="increment($index)"
+                            styleClass="qty-btn">
+                          </p-button>
+                        </div>
                       </div>
                     </div>
                   }
@@ -212,17 +256,38 @@ export interface OrderData {
                     </div>
 
                     <!-- Quantity Input -->
-                    <div class="w-16 flex-shrink-0">
-                      <p-inputNumber
-                        [formControlName]="$index"
-                        [showButtons]="true"
-                        [min]="0"
-                        [max]="getAvailableSizes()[$index].quantity"
-                        [step]="1"
-                        styleClass="mobile-compact-input"
-                        placeholder="0"
-                        [disabled]="getAvailableSizes()[$index].quantity === 0">
-                      </p-inputNumber>
+                    <div class="w-32 flex-shrink-0">
+                      <div class="mobile-qty-control">
+                        <p-button
+                          type="button"
+                          icon="pi pi-minus"
+                          severity="secondary"
+                          size="small"
+                          [disabled]="getAvailableSizes()[$index].quantity === 0"
+                          (onClick)="decrement($index)"
+                          styleClass="qty-btn-mobile">
+                        </p-button>
+
+                        <input
+                          type="number"
+                          [formControlName]="$index"
+                          [min]="0"
+                          [max]="getAvailableSizes()[$index].quantity"
+                          step="1"
+                          class="mobile-quantity-input"
+                          [disabled]="getAvailableSizes()[$index].quantity === 0"
+                        />
+
+                        <p-button
+                          type="button"
+                          icon="pi pi-plus"
+                          severity="primary"
+                          size="small"
+                          [disabled]="getAvailableSizes()[$index].quantity === 0"
+                          (onClick)="increment($index)"
+                          styleClass="qty-btn-mobile">
+                        </p-button>
+                      </div>
                     </div>
                   </div>
                 }
@@ -317,14 +382,19 @@ export interface OrderData {
                 </div>
               </div>
             </div>
-            @if (getTotalQuantity() > 0) {
-              <div class="mt-3 pt-3 border-t border-slate-200">
-                <div class="flex items-center gap-1 text-sm text-blue-600">
-                  <i class="pi pi-info-circle"></i>
-                  <span>Items will be added to your cart</span>
-                </div>
+            <div class="mt-3 pt-3 border-t border-slate-200">
+              <div class="h-6 flex items-center">
+                @if (getTotalQuantity() > 0) {
+                  <div class="flex items-center gap-1 text-sm text-blue-600">
+                    <i class="pi pi-info-circle"></i>
+                    <span>Items will be added to your cart</span>
+                  </div>
+                } @else {
+                  <!-- reserved slot to prevent layout shift -->
+                  <div class="w-full" aria-hidden="true"></div>
+                }
               </div>
-            }
+            </div>
           </div>
 
           <!-- Action Buttons -->
@@ -603,6 +673,59 @@ export interface OrderData {
       color: #64748b !important;
     }
 
+    /* New quantity control styling */
+    .quantity-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .quantity-input {
+      width: 56px;
+      text-align: center;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      font-weight: 600;
+    }
+
+    .qty-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    /* Mobile compact layout */
+    .mobile-qty-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .mobile-quantity-input {
+      width: 44px;
+      text-align: center;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      font-weight: 600;
+    }
+
+    .qty-btn-mobile {
+      width: 36px;
+      height: 36px;
+      border-radius: 9999px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     /* Button hover enhancements */
     :host ::ng-deep .p-button:hover:not(:disabled) {
       transform: translateY(-1px);
@@ -822,5 +945,39 @@ export class QuickOrderComponent {
 
   protected onCancel(): void {
     this.cancelOrder.emit();
+  }
+
+  // Increment/decrement helpers for quantity controls
+  protected increment(index: number): void {
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
+    if (!sizesArray || !sizesArray.at(index)) return;
+    const control = sizesArray.at(index);
+    const sizes = this.availableSizes();
+    const max = sizes[index]?.quantity ?? Number.MAX_SAFE_INTEGER;
+    const current = Number(control.value) || 0;
+    const next = Math.min(current + 1, max);
+    control.setValue(next);
+    control.markAsDirty();
+  }
+
+  protected decrement(index: number): void {
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
+    if (!sizesArray || !sizesArray.at(index)) return;
+    const control = sizesArray.at(index);
+    const current = Number(control.value) || 0;
+    const next = Math.max(current - 1, 0);
+    control.setValue(next);
+    control.markAsDirty();
+  }
+
+  // Apply-to-all helpers
+  protected incrementApplyToAll(): void {
+    const current = Number(this.applyToAllQuantity()) || 0;
+    this.applyToAllQuantity.set(Math.min(current + 1, 100));
+  }
+
+  protected decrementApplyToAll(): void {
+    const current = Number(this.applyToAllQuantity()) || 0;
+    this.applyToAllQuantity.set(Math.max(current - 1, 0));
   }
 }
