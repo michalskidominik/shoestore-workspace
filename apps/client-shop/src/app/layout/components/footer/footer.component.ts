@@ -74,6 +74,24 @@ import { AuthService } from '../../../core/services/auth.service';
                 Contact & Support
               </a>
             </nav>
+            
+            <!-- Company Registration Details -->
+            <div class="pt-2 border-t border-slate-700">
+              <div class="space-y-1 text-xs text-slate-500">
+                <div class="flex items-center justify-center sm:justify-start gap-2">
+                  <span class="font-medium">VAT-ID:</span>
+                  <span>PL5130293109</span>
+                </div>
+                <div class="flex items-center justify-center sm:justify-start gap-2">
+                  <span class="font-medium">KRS:</span>
+                  <span>0001097529</span>
+                </div>
+                <div class="flex items-center justify-center sm:justify-start gap-2">
+                  <span class="font-medium">REGON:</span>
+                  <span>528216748</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Contact Information -->
