@@ -5,7 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { MessageModule } from 'primeng/message';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { OrderStore } from '../../features/orders/stores/order.store';
-import { CurrencyStore } from '../../shared/stores/currency.store';
+import { CurrencyPipe } from '../../shared/pipes';
 
 @Component({
   selector: 'app-payment-instructions',
@@ -14,7 +14,8 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
     CommonModule,
     ButtonModule,
     MessageModule,
-    ProgressSpinnerModule
+    ProgressSpinnerModule,
+    CurrencyPipe
   ],
   template: `
     <div class="payment-instructions-page min-h-screen bg-slate-50 py-8">
@@ -132,7 +133,7 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
 
                   <div class="pt-4 border-t border-slate-200">
                     <div class="text-xs font-medium text-slate-600 uppercase tracking-wide mb-2">Amount to Transfer:</div>
-                    <p class="text-2xl font-bold text-slate-900">{{ currencyStore.formatWithSymbol(orderStore.paymentAmount()) }}</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ orderStore.paymentAmount() | currency }}</p>
                   </div>
                 </div>
               </div>
@@ -147,11 +148,11 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-slate-600">Subtotal ({{ orderStore.currentOrder()?.summary?.itemCount || 0 }} items)</span>
-                    <span class="text-slate-900 font-medium">{{ currencyStore.formatWithSymbol(orderStore.currentOrder()?.summary?.subtotal || 0) }}</span>
+                    <span class="text-slate-900 font-medium">{{ (orderStore.currentOrder()?.summary?.subtotal || 0) | currency }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-slate-600">Tax</span>
-                    <span class="text-slate-900 font-medium">{{ currencyStore.formatWithSymbol(orderStore.currentOrder()?.summary?.tax || 0) }}</span>
+                    <span class="text-slate-900 font-medium">{{ (orderStore.currentOrder()?.summary?.tax || 0) | currency }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-slate-600">Shipping</span>
@@ -159,7 +160,7 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
                   </div>
                   <div class="border-t border-slate-300 pt-3 flex justify-between text-lg">
                     <span class="font-semibold text-slate-900">Total</span>
-                    <span class="font-bold text-slate-900">{{ currencyStore.formatWithSymbol(orderStore.currentOrder()?.summary?.total || 0) }}</span>
+                    <span class="font-bold text-slate-900">{{ (orderStore.currentOrder()?.summary?.total || 0) | currency }}</span>
                   </div>
                 </div>
               </div>
@@ -231,7 +232,6 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
 })
 export class PaymentInstructionsComponent implements OnInit {
   protected readonly orderStore = inject(OrderStore);
-  protected readonly currencyStore = inject(CurrencyStore);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 

@@ -25,7 +25,7 @@ import { ProductStore } from '../../features/products/stores/product.store';
 import { CartStore, AddToCartRequest } from '../../features/cart/stores/cart.store';
 import { ToastStore } from '../../shared/stores/toast.store';
 import { AuthStore } from '../../core/stores/auth.store';
-import { CurrencyStore } from '../../shared/stores/currency.store';
+import { PriceRangePipe } from '../../shared/pipes';
 // Import order component
 import { QuickOrderComponent, OrderData } from './components/quick-order/quick-order.component';
 // Import new components
@@ -95,7 +95,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private readonly cartStore = inject(CartStore);
   private readonly toastStore = inject(ToastStore);
   private readonly authStore = inject(AuthStore);
-  private readonly currencyStore = inject(CurrencyStore);
+  private readonly priceRangePipe = inject(PriceRangePipe);
   private readonly router = inject(Router);
 
   // Authentication
@@ -375,7 +375,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
     if (min === 0 && max === 0) return 'Price not available';
 
-    return this.currencyStore.formatPriceRange(min, max);
+    return this.priceRangePipe.transform(min, max);
   }
 
   protected getSizeRange(shoe: Shoe): string {

@@ -15,7 +15,7 @@ import { TooltipModule } from 'primeng/tooltip';
 // Models and Services
 import { Order } from '@shoestore/shared-models';
 import { OrderHistoryStore } from '../../features/orders/stores/order-history.store';
-import { CurrencyStore } from '../../shared/stores/currency.store';
+import { CurrencyPipe } from '../../shared/pipes';
 
 @Component({
   selector: 'app-order-detail',
@@ -29,7 +29,8 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
     DividerModule,
     SkeletonModule,
     MessageModule,
-    TooltipModule
+    TooltipModule,
+    CurrencyPipe
   ],
   template: `
     <div class="order-detail-page min-h-screen bg-slate-50 py-8">
@@ -123,8 +124,8 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
                             @for (sizeInfo of groupedItem.sizes; track sizeInfo.size) {
                               <div class="flex items-center gap-4 text-sm">
                                 <span class="text-slate-500">Size {{ sizeInfo.size }}:</span>
-                                <span class="text-slate-500">{{ sizeInfo.quantity }} × {{ currencyStore.formatWithSymbol(groupedItem.unitPrice) }}</span>
-                                <span class="font-medium text-slate-700">=  {{ currencyStore.formatWithSymbol(sizeInfo.total) }}</span>
+                                <span class="text-slate-500">{{ sizeInfo.quantity }} × {{ groupedItem.unitPrice | currency }}</span>
+                                <span class="font-medium text-slate-700">=  {{ sizeInfo.total | currency }}</span>
                               </div>
                             }
                           </div>
@@ -139,7 +140,7 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
 
                         <!-- Item Total -->
                         <div class="text-right">
-                          <div class="font-bold text-slate-900">{{ currencyStore.formatWithSymbol(groupedItem.totalAmount) }}</div>
+                          <div class="font-bold text-slate-900">{{ groupedItem.totalAmount | currency }}</div>
                           <div class="text-xs text-slate-500 mt-1">{{ groupedItem.totalQuantity }} pieces</div>
                         </div>
                       </div>
@@ -158,7 +159,7 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-slate-600">Subtotal ({{ getTotalQuantity() }} items)</span>
-                    <span class="text-slate-900">{{ currencyStore.formatWithSymbol(getSubtotal()) }}</span>
+                    <span class="text-slate-900">{{ getSubtotal() | currency }}</span>
                   </div>
 
                   <div class="flex justify-between">
@@ -170,7 +171,7 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
 
                   <div class="flex justify-between text-lg font-semibold">
                     <span class="text-slate-900">Total</span>
-                    <span class="text-slate-900">{{ currencyStore.formatWithSymbol(orderHistoryStore.currentOrder()!.totalAmount) }}</span>
+                    <span class="text-slate-900">{{ orderHistoryStore.currentOrder()!.totalAmount | currency }}</span>
                   </div>
                 </div>
               </div>
@@ -286,7 +287,6 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
 })
 export class OrderDetailComponent implements OnInit {
   protected readonly orderHistoryStore = inject(OrderHistoryStore);
-  protected readonly currencyStore = inject(CurrencyStore);
   private readonly router = inject(Router);
   protected readonly route = inject(ActivatedRoute);
 

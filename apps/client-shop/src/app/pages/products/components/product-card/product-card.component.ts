@@ -11,7 +11,7 @@ import { QuickOrderComponent, OrderData } from '../quick-order/quick-order.compo
 import { CartStore, AddToCartRequest } from '../../../../features/cart/stores/cart.store';
 import { ToastStore } from '../../../../shared/stores/toast.store';
 import { AuthStore } from '../../../../core/stores/auth.store';
-import { CurrencyStore } from '../../../../shared/stores/currency.store';
+import { ProductPriceRangePipe } from '../../../../shared/pipes';
 
 type ViewMode = 'grid' | 'list' | 'large' | 'compact';
 type ImageSize = 'small' | 'medium' | 'large';
@@ -19,7 +19,7 @@ type ImageSize = 'small' | 'medium' | 'large';
 @Component({
   selector: 'app-product-card',
   standalone: true,
-  imports: [CommonModule, ButtonModule, TagModule, RatingModule, DialogModule, FormsModule, QuickOrderComponent],
+  imports: [CommonModule, ButtonModule, TagModule, RatingModule, DialogModule, FormsModule, QuickOrderComponent, ProductPriceRangePipe],
   template: `
     <div
       class="group transition-all duration-200 overflow-hidden
@@ -79,7 +79,7 @@ type ImageSize = 'small' | 'medium' | 'large';
 
           <!-- Price Range -->
           <div class="mb-1 lg:mb-2">
-            <div class="text-sm lg:text-base font-bold text-blue-600" [ngClass]="{'blurred-price': !isAuthenticated()}">{{ getPriceRange() }}</div>
+            <div class="text-sm lg:text-base font-bold text-blue-600" [ngClass]="{'blurred-price': !isAuthenticated()}">{{ product() | productPriceRange }}</div>
           </div>
 
           <!-- Size & Stock Info with Actions - Mobile optimized -->
@@ -151,7 +151,7 @@ type ImageSize = 'small' | 'medium' | 'large';
               }
             </div>
             <div class="flex flex-col items-end">
-              <div class="text-sm font-bold text-blue-600 mb-1" [ngClass]="{'blurred-price': !isAuthenticated()}">{{ getPriceRange() }}</div>
+              <div class="text-sm font-bold text-blue-600 mb-1" [ngClass]="{'blurred-price': !isAuthenticated()}">{{ product() | productPriceRange }}</div>
             </div>
           </div>
 
@@ -298,7 +298,6 @@ export class ProductCardComponent {
   private readonly cartStore = inject(CartStore);
   private readonly toastStore = inject(ToastStore);
   private readonly authStore = inject(AuthStore);
-  private readonly currencyStore = inject(CurrencyStore);
   private readonly router = inject(Router);
 
   // Inputs
@@ -402,21 +401,6 @@ export class ProductCardComponent {
       .filter((size: { quantity: number }) => size.quantity > 0)
       .map((size: { size: number }) => size.size)
       .sort((a: number, b: number) => a - b);
-  }
-
-  protected getPriceRange(): string {
-    if (!this.isAuthenticated()) {
-      return '••••••'; // Blurred prices for unauthenticated users
-    }
-
-    const shoe = this.product();
-    if (!shoe.sizes || shoe.sizes.length === 0) return 'Price not available';
-
-    const prices = shoe.sizes.map((s: { price: number }) => s.price);
-    const minPrice = Math.min(...prices);
-    const maxPrice = Math.max(...prices);
-
-    return this.currencyStore.formatPriceRange(minPrice, maxPrice);
   }
 
   protected getSizeRange(): string {

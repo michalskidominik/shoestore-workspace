@@ -10,7 +10,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { AuthStore } from '../../core/stores/auth.store';
 import { CartStore } from '../../features/cart/stores/cart.store';
 import { OrderHistoryStore } from '../../features/orders/stores/order-history.store';
-import { CurrencyStore } from '../../shared/stores/currency.store';
+import { CurrencyPipe } from '../../shared/pipes';
 import { OrderStatus } from '@shoestore/shared-models';
 
 interface DashboardStats {
@@ -34,7 +34,8 @@ interface DashboardStats {
     TagModule,
     ProgressBarModule,
     ChartModule,
-    SkeletonModule
+    SkeletonModule,
+    CurrencyPipe
   ],
   template: `
     <div class="dashboard min-h-screen bg-slate-50">
@@ -116,7 +117,7 @@ interface DashboardStats {
             <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ cartItemCount() }}</h3>
             <p class="text-sm text-slate-600">Items in Cart</p>
             @if (cartValue() > 0) {
-              <p class="text-xs text-green-600 font-medium mt-1">{{ currencyStore.formatWithSymbol(cartValue()) }}</p>
+              <p class="text-xs text-green-600 font-medium mt-1">{{ cartValue() | currency }}</p>
             }
           </div>
 
@@ -128,7 +129,7 @@ interface DashboardStats {
               </div>
               <p-tag value="B2B" severity="secondary" styleClass="!text-xs"></p-tag>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ currencyStore.formatWithSymbol(stats().totalSpent) }}</h3>
+            <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ stats().totalSpent | currency }}</h3>
             <p class="text-sm text-slate-600">Total Spent</p>
           </div>
         </div>
@@ -192,7 +193,7 @@ interface DashboardStats {
                         <div class="flex-1 min-w-0">
                           <h4 class="font-medium text-slate-900 truncate">Order #{{ order.id }}</h4>
                           <p class="text-sm text-slate-600">{{ formatDate(order.date) }} • {{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}</p>
-                          <p class="text-sm font-medium text-slate-900">{{ currencyStore.formatWithSymbol(order.totalAmount) }}</p>
+                          <p class="text-sm font-medium text-slate-900">{{ order.totalAmount | currency }}</p>
                         </div>
                         <div class="flex-shrink-0">
                           <p-tag
@@ -263,11 +264,11 @@ interface DashboardStats {
                 <div class="space-y-3 mb-4">
                   <div class="flex justify-between text-sm">
                     <span class="text-slate-600">Subtotal:</span>
-                    <span class="font-medium text-slate-900">{{ currencyStore.formatWithSymbol(cartValue()) }}</span>
+                    <span class="font-medium text-slate-900">{{ cartValue() | currency }}</span>
                   </div>
                   <div class="flex justify-between text-sm">
                     <span class="text-slate-600">VAT (included):</span>
-                    <span class="font-medium text-slate-900">{{ currencyStore.formatWithSymbol(cartValue() * 0.23) }}</span>
+                    <span class="font-medium text-slate-900">{{ (cartValue() * 0.23) | currency }}</span>
                   </div>
                 </div>
                 <p-button
@@ -323,7 +324,6 @@ export class DashboardComponent implements OnInit {
   private readonly authStore = inject(AuthStore);
   private readonly cartStore = inject(CartStore);
   protected readonly orderHistoryStore = inject(OrderHistoryStore);
-  protected readonly currencyStore = inject(CurrencyStore);
 
   // Computed values from stores
   readonly currentUser = this.authStore.user;

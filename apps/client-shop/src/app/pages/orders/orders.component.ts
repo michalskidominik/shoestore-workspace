@@ -19,7 +19,7 @@ import { SkeletonModule } from 'primeng/skeleton';
 // Models and Services
 import { Order, OrderStatus } from '@shoestore/shared-models';
 import { OrderHistoryStore } from '../../features/orders/stores/order-history.store';
-import { CurrencyStore } from '../../shared/stores/currency.store';
+import { CurrencyPipe } from '../../shared/pipes';
 
 @Component({
   selector: 'app-orders',
@@ -37,7 +37,8 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
     ProgressSpinnerModule,
     MessageModule,
     DividerModule,
-    SkeletonModule
+    SkeletonModule,
+    CurrencyPipe
   ],
   template: `
     <div class="orders-page min-h-screen bg-slate-50 py-8">
@@ -187,7 +188,7 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
                   <!-- Total Amount -->
                   <td class="text-right">
                     <div class="font-bold text-slate-900">
-                      {{ currencyStore.formatWithSymbol(order.totalAmount) }}
+                      {{ order.totalAmount | currency }}
                     </div>
                   </td>
 
@@ -277,7 +278,7 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
               <div class="text-sm text-slate-500">Processing</div>
             </div>
             <div class="bg-white rounded-lg shadow-sm p-6 text-center">
-              <div class="text-2xl font-bold text-slate-900">{{ currencyStore.formatWithSymbol(getTotalOrderValue()) }}</div>
+              <div class="text-2xl font-bold text-slate-900">{{ getTotalOrderValue() | currency }}</div>
               <div class="text-sm text-slate-500">Total Value</div>
             </div>
           </div>
@@ -290,7 +291,6 @@ import { CurrencyStore } from '../../shared/stores/currency.store';
 })
 export class OrdersComponent implements OnInit {
   protected readonly orderHistoryStore = inject(OrderHistoryStore);
-  protected readonly currencyStore = inject(CurrencyStore);
   private readonly router = inject(Router);
 
   // Local state for form controls
