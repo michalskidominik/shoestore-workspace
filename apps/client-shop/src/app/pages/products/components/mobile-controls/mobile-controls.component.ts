@@ -45,6 +45,7 @@ interface ItemsPerPageOption {
             optionValue="value"
             [ngModel]="currentView()"
             (ngModelChange)="viewChange.emit($event)"
+            [allowEmpty]="false"
             styleClass="!text-sm">
           </p-selectButton>
         </div>
@@ -58,6 +59,7 @@ interface ItemsPerPageOption {
             optionValue="value"
             [ngModel]="sizeSystem()"
             (ngModelChange)="sizeSystemChange.emit($event)"
+            [allowEmpty]="false"
             styleClass="!text-sm">
           </p-selectButton>
         </div>

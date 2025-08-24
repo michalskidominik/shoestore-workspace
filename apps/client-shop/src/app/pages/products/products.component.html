@@ -21,8 +21,8 @@
       [selectedSort]="selectedSort()"
       [itemsPerPageOptions]="itemsPerPageOptions"
       [itemsPerPage]="itemsPerPage()"
-      (viewChange)="currentView.set($event)"
-      (sizeSystemChange)="sizeSystem.set($event)"
+      (viewChange)="onViewChange($event)"
+      (sizeSystemChange)="onSizeSystemChange($event)"
       (sortChange)="selectedSort.set($event)"
       (itemsPerPageChange)="itemsPerPage.set($event)">
     </app-mobile-controls>
@@ -102,7 +102,8 @@
                   optionLabel="label"
                   optionValue="value"
                   [ngModel]="currentView()"
-                  (ngModelChange)="currentView.set($event)"
+                  (ngModelChange)="onViewChange($event)"
+                  [allowEmpty]="false"
                   styleClass="!text-sm">
                 </p-selectButton>
               </div>
@@ -116,7 +117,8 @@
                     optionLabel="label"
                     optionValue="value"
                     [ngModel]="sizeSystem()"
-                    (ngModelChange)="sizeSystem.set($event)"
+                    (ngModelChange)="onSizeSystemChange($event)"
+                    [allowEmpty]="false"
                     styleClass="!text-sm">
                   </p-selectButton>
                 </div>

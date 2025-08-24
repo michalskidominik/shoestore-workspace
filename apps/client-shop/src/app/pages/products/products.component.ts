@@ -522,6 +522,36 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   // ============================================
+  // VIEW AND SIZE SYSTEM VALIDATION METHODS
+  // ============================================
+
+  protected onViewChange(newView: 'grid' | 'list'): void {
+    // Ensure view is always valid - prevent deselection
+    if (newView && (newView === 'grid' || newView === 'list')) {
+      this.currentView.set(newView);
+    } else {
+      // Fallback to current value or default if invalid
+      const current = this.currentView();
+      if (!current || (current !== 'grid' && current !== 'list')) {
+        this.currentView.set('grid'); // Default fallback
+      }
+    }
+  }
+
+  protected onSizeSystemChange(newSizeSystem: 'eu' | 'us'): void {
+    // Ensure size system is always valid - prevent deselection
+    if (newSizeSystem && (newSizeSystem === 'eu' || newSizeSystem === 'us')) {
+      this.sizeSystem.set(newSizeSystem);
+    } else {
+      // Fallback to current value or default if invalid
+      const current = this.sizeSystem();
+      if (!current || (current !== 'eu' && current !== 'us')) {
+        this.sizeSystem.set('eu'); // Default fallback
+      }
+    }
+  }
+
+  // ============================================
   // MULTI-SELECT FILTER METHODS
   // ============================================
 
