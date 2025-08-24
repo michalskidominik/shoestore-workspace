@@ -44,7 +44,7 @@ import { OrderHistoryStore } from '../../features/orders/stores/order-history.st
         <!-- Page Header -->
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-slate-900 mb-2">My Orders</h1>
-          <p class="text-slate-600">Track and manage your B2B orders</p>
+          <p class="text-slate-600">Track and manage your orders</p>
         </div>
 
         <!-- Filters and Search -->

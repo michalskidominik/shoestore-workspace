@@ -40,7 +40,7 @@ interface StockConflict {
         <!-- Page Header -->
         <div class="mb-8">
           <h1 class="text-3xl font-bold text-slate-900 mb-2">Shopping Cart</h1>
-          <p class="text-slate-600">Review and manage your B2B order</p>
+          <p class="text-slate-600">Review and manage your order</p>
         </div>
 
         @if (cartStore.isEmpty()) {
@@ -49,7 +49,7 @@ interface StockConflict {
             <div class="bg-white rounded-lg shadow-sm p-12">
               <i class="pi pi-shopping-cart text-slate-300 text-6xl mb-6 block"></i>
               <h2 class="text-2xl font-bold text-slate-900 mb-4">Your cart is empty</h2>
-              <p class="text-slate-600 mb-8">Add products to your cart to get started with your B2B order.</p>
+              <p class="text-slate-600 mb-8">Add products to your cart to get started with your order.</p>
               <p-button
                 label="Browse Products"
                 icon="pi pi-arrow-left"
