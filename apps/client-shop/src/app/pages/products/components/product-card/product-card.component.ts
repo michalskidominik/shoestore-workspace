@@ -8,7 +8,7 @@ import { DialogModule } from 'primeng/dialog';
 import { FormsModule } from '@angular/forms';
 import { Shoe, SizeTemplate } from '@shoestore/shared-models';
 import { QuickOrderComponent, OrderData } from '../quick-order/quick-order.component';
-import { CartService, AddToCartRequest } from '../../../../shared/services/cart.service';
+import { CartStore, AddToCartRequest } from '../../../../features/cart/stores/cart.store';
 import { ToastService } from '../../../../shared/services/toast.service';
 import { AuthStore } from '../../../../core/stores/auth.store';
 
@@ -294,7 +294,7 @@ type ImageSize = 'small' | 'medium' | 'large';
 })
 export class ProductCardComponent {
   // Services
-  private readonly cartService = inject(CartService);
+  private readonly cartStore = inject(CartStore);
   private readonly toastService = inject(ToastService);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
@@ -349,44 +349,37 @@ export class ProductCardComponent {
   protected onQuickOrderSubmit(orderData: OrderData): void {
     this.isOrderSubmitting.set(true);
 
-    // Process the order data - convert to AddToCartRequest format
+    // Process the order data - add each item to cart
     const product = this.product();
-    const request: AddToCartRequest = {
-      productId: orderData.productId,
-      productCode: product.code,
-      productName: product.name,
-      items: orderData.items.map(item => ({
+
+    orderData.items.forEach(item => {
+      const itemRequest: AddToCartRequest = {
+        productId: orderData.productId,
+        productCode: product.code,
+        productName: product.name,
         size: item.size,
         quantity: item.quantity,
         unitPrice: item.unitPrice
-      }))
-    };
-
-    // Add the entire order to cart
-    this.cartService.addToCart(request).subscribe({
-      next: () => {
-        // Calculate total items for the success message
-        const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
-
-        // Show success message with View Cart action
-        this.toastService.showSuccess(
-          `Added ${totalItems} ${totalItems === 1 ? 'item' : 'items'} to cart`,
-          5000,
-          {
-            label: 'View Cart',
-            handler: () => {
-              this.router.navigate(['/cart']);
-            }
-          }
-        );
-        this.isOrderSubmitting.set(false);
-        this.showQuickOrderDialog.set(false);
-      },
-      error: (error) => {
-        this.toastService.showError('Failed to add item to cart', error.message);
-        this.isOrderSubmitting.set(false);
-      }
+      };
+      this.cartStore.addToCart(itemRequest);
     });
+
+    // Calculate total items for the success message
+    const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
+
+    // Show success message with View Cart action
+    this.toastService.showSuccess(
+      `Added ${totalItems} ${totalItems === 1 ? 'item' : 'items'} to cart`,
+      5000,
+      {
+        label: 'View Cart',
+        handler: () => {
+          this.router.navigate(['/cart']);
+        }
+      }
+    );
+    this.isOrderSubmitting.set(false);
+    this.showQuickOrderDialog.set(false);
   }
 
   protected onQuickOrderCancel(): void {

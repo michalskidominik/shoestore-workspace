@@ -8,7 +8,7 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { ChartModule } from 'primeng/chart';
 import { SkeletonModule } from 'primeng/skeleton';
 import { AuthStore } from '../../core/stores/auth.store';
-import { CartService } from '../../shared/services/cart.service';
+import { CartStore } from '../../features/cart/stores/cart.store';
 import { OrderService } from '../../shared/services/order.service';
 import { Order } from '@shoestore/shared-models';
 
@@ -320,7 +320,7 @@ interface DashboardStats {
 })
 export class DashboardComponent implements OnInit {
   private readonly authStore = inject(AuthStore);
-  private readonly cartService = inject(CartService);
+  private readonly cartStore = inject(CartStore);
   private readonly orderService = inject(OrderService);
 
   // Signals for component state
@@ -329,8 +329,8 @@ export class DashboardComponent implements OnInit {
 
   // Computed values from services
   readonly currentUser = this.authStore.user;
-  readonly cartItemCount = this.cartService.totalItems;
-  readonly cartValue = this.cartService.totalPrice;
+  readonly cartItemCount = this.cartStore.totalItems;
+  readonly cartValue = this.cartStore.totalPrice;
 
   // Computed dashboard statistics
   readonly stats = computed((): DashboardStats => {

@@ -14,7 +14,7 @@ import { Subject } from 'rxjs';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { UiStateService } from '../../../core/services/ui-state.service';
 import { AuthStore } from '../../../core/stores/auth.store';
-import { CartService } from '../../../shared/services/cart.service';
+import { CartStore } from '../../../features/cart/stores/cart.store';
 import { CartPanelComponent } from './components/cart-panel/cart-panel.component';
 
 interface NavigationItem {
@@ -54,7 +54,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
   private readonly uiStateService = inject(UiStateService);
   private readonly authStore = inject(AuthStore);
-  private readonly cartService = inject(CartService);
+  private readonly cartStore = inject(CartStore);
   private readonly router = inject(Router);
 
   // Input/Output properties
@@ -70,9 +70,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // All users are B2B - no need for isB2BUser property
 
   // Cart state
-  readonly cartItemCount = this.cartService.totalItems;
-  readonly cartItems = this.cartService.items;
-  readonly cartSummary = this.cartService.summary;
+  readonly cartItemCount = this.cartStore.totalItems;
+  readonly cartItems = this.cartStore.entities;
+  readonly cartSummary = this.cartStore.cartSummary;
 
   // Current route tracking for active navigation
   private readonly currentUrl = toSignal(
@@ -260,14 +260,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   protected onRemoveCartItem(productId: number, size: number): void {
-    this.cartService.removeItem(productId, size);
+    this.cartStore.removeItem(productId, size);
   }
 
   protected onUpdateCartQuantity(productId: number, size: number, quantity: number): void {
     if (quantity <= 0) {
-      this.cartService.removeItem(productId, size);
+      this.cartStore.removeItem(productId, size);
     } else {
-      this.cartService.updateQuantity(productId, size, quantity);
+      this.cartStore.updateQuantity(productId, size, quantity);
     }
   }
 }

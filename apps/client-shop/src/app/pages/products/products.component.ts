@@ -22,7 +22,7 @@ import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // Models and services
 import { Shoe, SizeTemplate, SizeAvailability } from '@shoestore/shared-models';
 import { ProductService, LegacyProductFilters, ProductSort } from '../../shared/services/product.service';
-import { CartService, AddToCartRequest } from '../../shared/services/cart.service';
+import { CartStore, AddToCartRequest } from '../../features/cart/stores/cart.store';
 import { ToastService } from '../../shared/services/toast.service';
 import { AuthStore } from '../../core/stores/auth.store';
 // Import order component
@@ -97,7 +97,7 @@ interface ViewOption {
 export class ProductsComponent implements OnInit, OnDestroy {
   // Dependency injection using inject() function
   private readonly productService = inject(ProductService);
-  private readonly cartService = inject(CartService);
+  private readonly cartStore = inject(CartStore);
   private readonly toastService = inject(ToastService);
   private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
@@ -331,41 +331,35 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
     this.orderDialogSubmitting.set(true);
 
-    const request: AddToCartRequest = {
-      productId: orderData.productId,
-      productCode: selectedProduct.code,
-      productName: selectedProduct.name,
-      items: orderData.items
-    };
-
-    this.cartService.addToCart(request).subscribe({
-      next: () => {
-        this.orderDialogSubmitting.set(false);
-        this.showMobileOrderDialog.set(false);
-        this.selectedProductForOrder.set(null);
-
-        // Show success toast
-        const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
-        this.toastService.showSuccess(
-          `Added ${totalItems} items to cart`,
-          5000,
-          {
-            label: 'View Cart',
-            handler: () => {
-              this.router.navigate(['/cart']);
-            }
-          }
-        );
-      },
-      error: (error) => {
-        this.orderDialogSubmitting.set(false);
-        this.toastService.showError(
-          'Failed to add items to cart. Please try again.',
-          7000
-        );
-        console.error('Failed to add to cart:', error);
-      }
+    // Add each item to cart
+    orderData.items.forEach(item => {
+      const itemRequest: AddToCartRequest = {
+        productId: orderData.productId,
+        productCode: selectedProduct.code,
+        productName: selectedProduct.name,
+        size: item.size,
+        quantity: item.quantity,
+        unitPrice: item.unitPrice
+      };
+      this.cartStore.addToCart(itemRequest);
     });
+
+    this.orderDialogSubmitting.set(false);
+    this.showMobileOrderDialog.set(false);
+    this.selectedProductForOrder.set(null);
+
+    // Show success toast
+    const totalItems = orderData.items.reduce((sum, item) => sum + item.quantity, 0);
+    this.toastService.showSuccess(
+      `Added ${totalItems} items to cart`,
+      5000,
+      {
+        label: 'View Cart',
+        handler: () => {
+          this.router.navigate(['/cart']);
+        }
+      }
+    );
   }
 
   protected onMobileOrderCancel(): void {
@@ -413,31 +407,22 @@ export class ProductsComponent implements OnInit, OnDestroy {
       productId: shoe.id,
       productCode: shoe.code,
       productName: shoe.name,
-      items: [{
-        size: availableSize.size,
-        quantity: 1,
-        unitPrice: availableSize.price
-      }]
+      size: availableSize.size,
+      quantity: 1,
+      unitPrice: availableSize.price
     };
 
-    this.cartService.addToCart(addToCartRequest).subscribe({
-      next: () => {
-        this.toastService.showSuccess(
-          `Added ${shoe.name} to cart`,
-          5000,
-          {
-            label: 'View Cart',
-            handler: () => {
-              this.router.navigate(['/cart']);
-            }
-          }
-        );
-      },
-      error: (error) => {
-        console.error('Error adding item to cart:', error);
-        this.toastService.showError(`Failed to add ${shoe.name} to cart`);
+    this.cartStore.addToCart(addToCartRequest);
+    this.toastService.showSuccess(
+      `Added ${shoe.name} to cart`,
+      5000,
+      {
+        label: 'View Cart',
+        handler: () => {
+          this.router.navigate(['/cart']);
+        }
       }
-    });
+    );
   }
 
   protected onViewDetails(shoe: Shoe): void {

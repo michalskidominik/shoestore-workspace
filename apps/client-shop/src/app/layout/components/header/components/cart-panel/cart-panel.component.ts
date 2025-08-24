@@ -3,7 +3,15 @@ import { CommonModule } from '@angular/common';
 import { PopoverModule } from 'primeng/popover';
 import { ButtonModule } from 'primeng/button';
 import { BadgeModule } from 'primeng/badge';
-import { CartItem, CartSummary } from '../../../../../shared/services/cart.service';
+import { CartItem } from '../../../../../features/cart/stores/cart.store';
+
+interface CartSummary {
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  total: number;
+  itemCount: number;
+}
 
 interface GroupedCartItem {
   productId: number;
@@ -127,7 +135,7 @@ interface GroupedCartItem {
           <div class="px-4 py-3 border-t border-slate-100 bg-slate-50/50">
             <div class="flex items-center justify-between mb-3">
               <span class="text-sm font-medium text-slate-700">Total:</span>
-              <span class="text-lg font-bold text-slate-900">€{{ cartSummary().totalPrice.toFixed(2) }}</span>
+              <span class="text-lg font-bold text-slate-900">€{{ cartSummary().total.toFixed(2) }}</span>
             </div>
             <p-button
               label="View Cart & Checkout"
@@ -155,7 +163,7 @@ export class CartPanelComponent {
 
   // Computed
   cartItemCount() {
-    return this.cartItems().reduce((total, item) => total + item.quantity, 0);
+    return this.cartSummary().itemCount;
   }
 
   groupedCartItems = computed(() => {
