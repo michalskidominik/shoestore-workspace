@@ -5,8 +5,7 @@ import { pipe, switchMap, tap, debounceTime, distinctUntilChanged, forkJoin } fr
 import { tapResponse } from '@ngrx/operators';
 import { computed, inject } from '@angular/core';
 import { Shoe, SizeTemplate } from '@shoestore/shared-models';
-import { ProductService, ProductCategory, ProductFilters } from '../../../shared/services/product.service';
-import { ProductApiService } from '../../../shared/services/product-api.service';
+import { ProductApiService, ProductCategory, ProductFilters } from '../../../shared/services/product-api.service';
 
 interface ProductState {
   isLoading: boolean;
@@ -101,7 +100,7 @@ export const ProductStore = signalStore(
              currentFilters.selectedAvailability.length > 0;
     })
   })),
-  withMethods((store, productService = inject(ProductService), productApiService = inject(ProductApiService)) => ({
+  withMethods((store, productApiService = inject(ProductApiService)) => ({
     // Load products with error handling
     loadProducts: rxMethod<void>(
       pipe(
@@ -145,10 +144,10 @@ export const ProductStore = signalStore(
       pipe(
         switchMap(() => 
           forkJoin({
-            categories: productService.getCategories(),
-            brands: productService.getBrands(),
-            brandStats: productService.getBrandStats(),
-            sizeTemplates: productService.getSizeTemplates()
+            categories: productApiService.getCategories(),
+            brands: productApiService.getBrands(),
+            brandStats: productApiService.getBrandStats(),
+            sizeTemplates: productApiService.getSizeTemplates()
           }).pipe(
             tapResponse({
               next: (data) => patchState(store, {

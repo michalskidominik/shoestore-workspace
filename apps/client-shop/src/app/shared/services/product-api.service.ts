@@ -1,7 +1,24 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Shoe } from '@shoestore/shared-models';
-import { ProductFilters } from './product.service';
+import { Shoe, SizeTemplate } from '@shoestore/shared-models';
+
+// Interface for filtering options (modern ProductStore)
+export interface ProductFilters {
+  searchTerm: string;
+  selectedBrands: string[];
+  selectedCategories: string[];
+  selectedAvailability: string[];
+  sortBy: string;
+  sizeSystem: 'eu' | 'us';
+}
+
+// Product category enumeration
+export interface ProductCategory {
+  id: string;
+  name: string;
+  icon: string;
+  description: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -10,6 +27,48 @@ export class ProductApiService {
   // ============================================
   // MOCK DATA - Will be replaced with real backend calls
   // ============================================
+
+  private mockCategories: ProductCategory[] = [
+    { id: 'all', name: 'All Categories', icon: 'pi pi-list', description: 'Show all footwear' },
+    { id: 'sneakers', name: 'Sneakers', icon: 'pi pi-circle', description: 'Athletic and casual sneakers' },
+    { id: 'dress', name: 'Dress Shoes', icon: 'pi pi-star', description: 'Formal and business shoes' },
+    { id: 'boots', name: 'Boots', icon: 'pi pi-shield', description: 'Boots and ankle boots' },
+    { id: 'sandals', name: 'Sandals', icon: 'pi pi-sun', description: 'Summer footwear' }
+  ];
+
+  private mockSizeTemplates: SizeTemplate[] = [
+    {
+      id: 1,
+      name: 'EU Standard',
+      pairs: [
+        { eu: 36, us: 6 },
+        { eu: 37, us: 6.5 },
+        { eu: 38, us: 7 },
+        { eu: 39, us: 7.5 },
+        { eu: 40, us: 8 },
+        { eu: 41, us: 8.5 },
+        { eu: 42, us: 9 },
+        { eu: 43, us: 9.5 },
+        { eu: 44, us: 10 },
+        { eu: 45, us: 10.5 },
+        { eu: 46, us: 11 },
+      ],
+    },
+    {
+      id: 2,
+      name: 'EU Women',
+      pairs: [
+        { eu: 35, us: 5 },
+        { eu: 36, us: 5.5 },
+        { eu: 37, us: 6 },
+        { eu: 38, us: 6.5 },
+        { eu: 39, us: 7 },
+        { eu: 40, us: 7.5 },
+        { eu: 41, us: 8 },
+        { eu: 42, us: 8.5 },
+      ],
+    },
+  ];
 
   private mockShoes: Shoe[] = [
     {
@@ -210,16 +269,16 @@ export class ProductApiService {
     if (filters.selectedBrands && filters.selectedBrands.length > 0) {
       filtered = filtered.filter(product => {
         const productBrand = product.name.split(' ')[0].toLowerCase();
-        return filters.selectedBrands!.some(brand => 
+        return filters.selectedBrands?.some(brand => 
           brand.toLowerCase() === productBrand
-        );
+        ) || false;
       });
     }
 
     // Apply category filter
     if (filters.selectedCategories && filters.selectedCategories.length > 0) {
       filtered = filtered.filter(product => 
-        filters.selectedCategories!.includes(product.category || 'sneakers')
+        filters.selectedCategories?.includes(product.category || 'sneakers') || false
       );
     }
 
@@ -227,7 +286,7 @@ export class ProductApiService {
     if (filters.selectedAvailability && filters.selectedAvailability.length > 0) {
       filtered = filtered.filter(product => {
         const totalStock = product.sizes.reduce((sum, size) => sum + size.quantity, 0);
-        return filters.selectedAvailability!.some(availability => {
+        return filters.selectedAvailability?.some(availability => {
           switch (availability) {
             case 'in-stock': return totalStock > 50;
             case 'low-stock': return totalStock > 0 && totalStock <= 50;
@@ -235,7 +294,7 @@ export class ProductApiService {
             case 'made-to-order': return product.name.toLowerCase().includes('custom');
             default: return false;
           }
-        });
+        }) || false;
       });
     }
 
@@ -247,16 +306,18 @@ export class ProductApiService {
         case 'name':
           comparison = a.name.localeCompare(b.name);
           break;
-        case 'price':
+        case 'price': {
           const priceA = Math.min(...a.sizes.map(size => size.price));
           const priceB = Math.min(...b.sizes.map(size => size.price));
           comparison = priceA - priceB;
           break;
-        case 'stock':
+        }
+        case 'stock': {
           const stockA = a.sizes.reduce((sum, size) => sum + size.quantity, 0);
           const stockB = b.sizes.reduce((sum, size) => sum + size.quantity, 0);
           comparison = stockA - stockB;
           break;
+        }
       }
       return sortDirection === 'desc' ? -comparison : comparison;
     });
@@ -272,5 +333,62 @@ export class ProductApiService {
     // TODO: Replace with real HTTP call to backend API
     // Example: return this.http.get<Shoe[]>('/api/products');
     return of([...this.mockShoes]);
+  }
+
+  /**
+   * Get available product categories
+   */
+  getCategories(): Observable<ProductCategory[]> {
+    // TODO: Replace with real HTTP call to backend API
+    // Example: return this.http.get<ProductCategory[]>('/api/categories');
+    return of(this.mockCategories);
+  }
+
+  /**
+   * Get available brands (extracted from products)
+   */
+  getBrands(): Observable<string[]> {
+    // TODO: Replace with real HTTP call to backend API
+    // Example: return this.http.get<string[]>('/api/brands');
+
+    // DEVELOPMENT ONLY - Extract brands from mock data
+    const brands = new Set<string>();
+    this.mockShoes.forEach(shoe => {
+      const brand = shoe.name.split(' ')[0];
+      brands.add(brand);
+    });
+    return of(Array.from(brands).sort());
+  }
+
+  /**
+   * Get brand statistics (product count per brand)
+   */
+  getBrandStats(): Observable<Record<string, number>> {
+    // TODO: Replace with real HTTP call to backend API
+    // Example: return this.http.get<Record<string, number>>('/api/brands/stats');
+
+    // DEVELOPMENT ONLY - Calculate brand counts from mock data
+    const counts: Record<string, number> = {};
+    this.mockShoes.forEach(shoe => {
+      const brand = shoe.name.split(' ')[0];
+      counts[brand] = (counts[brand] || 0) + 1;
+    });
+    return of(counts);
+  }
+
+  /**
+   * Get size templates for size conversion
+   */
+  getSizeTemplates(): Observable<SizeTemplate[]> {
+    // TODO: Replace with real HTTP call to backend API
+    // Example: return this.http.get<SizeTemplate[]>('/api/size-templates');
+    return of(this.mockSizeTemplates);
+  }
+
+  /**
+   * Get a specific size template by ID
+   */
+  getSizeTemplate(templateId: number): SizeTemplate | undefined {
+    return this.mockSizeTemplates.find(template => template.id === templateId);
   }
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, computed, signal, effect, ChangeDetectionStrategy, inject, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, effect, ChangeDetectionStrategy, inject, HostListener } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -20,8 +20,8 @@ import { DialogModule } from 'primeng/dialog';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // Models and services
-import { Shoe, SizeTemplate, SizeAvailability } from '@shoestore/shared-models';
-import { ProductService, LegacyProductFilters, ProductSort } from '../../shared/services/product.service';
+import { Shoe, SizeAvailability } from '@shoestore/shared-models';
+import { ProductStore } from '../../features/products/stores/product.store';
 import { CartStore, AddToCartRequest } from '../../features/cart/stores/cart.store';
 import { ToastService } from '../../shared/services/toast.service';
 import { AuthStore } from '../../core/stores/auth.store';
@@ -41,12 +41,6 @@ interface SortOption {
   label: string;
   value: string;
   icon: string;
-}
-
-interface BrandOption {
-  label: string;
-  value: string;
-  count?: number;
 }
 
 interface SizeSystemOption {
@@ -96,7 +90,7 @@ interface ViewOption {
 })
 export class ProductsComponent implements OnInit, OnDestroy {
   // Dependency injection using inject() function
-  private readonly productService = inject(ProductService);
+  private readonly productStore = inject(ProductStore);
   private readonly cartStore = inject(CartStore);
   private readonly toastService = inject(ToastService);
   private readonly authStore = inject(AuthStore);
@@ -105,13 +99,13 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // Authentication
   protected readonly isAuthenticated = this.authStore.isAuthenticated;
 
-  // State signals
-  protected readonly allShoes = signal<Shoe[]>([]);
-  protected readonly sizeTemplates = signal<SizeTemplate[]>([]);
-  protected readonly brands = signal<string[]>([]);
-  protected readonly brandStats = signal<Record<string, number>>({});
-  protected readonly loading = signal(true);
-  protected readonly error = signal<string | null>(null);
+  // Access ProductStore signals
+  protected readonly allShoes = this.productStore.entities;
+  protected readonly sizeTemplates = this.productStore.sizeTemplates;
+  protected readonly brands = this.productStore.brands;
+  protected readonly brandStats = this.productStore.brandStats;
+  protected readonly loading = this.productStore.isLoading;
+  protected readonly error = this.productStore.error;
   protected readonly filterLoading = signal(false);
 
   // Mobile dialog state
@@ -120,7 +114,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   protected readonly orderDialogSubmitting = signal(false);
   protected readonly isMobile = signal(false);
 
-  // Filter signals
+  // Local filter signals (will sync with ProductStore)
   protected readonly searchTerm = signal('');
   protected readonly selectedBrands = signal<string[]>([]);
   protected readonly selectedSort = signal('name-asc');
@@ -136,54 +130,14 @@ export class ProductsComponent implements OnInit, OnDestroy {
   protected readonly showMobileFilters = signal(false);
 
   // Computed values
-  protected readonly filteredShoes = computed(() => this.allShoes());
+  protected readonly filteredShoes = this.productStore.filteredProducts;
 
-  protected readonly brandOptions = computed<BrandOption[]>(() => {
-    const brands = this.brands();
-    const brandCounts = this.brandStats();
+  protected readonly brandOptions = this.productStore.brandOptions;
 
-    return [
-      { label: 'All Brands', value: 'all' },
-      ...brands.map(brand => ({
-        label: brand,
-        value: brand.toLowerCase(),
-        count: brandCounts[brand] || 0
-      }))
-    ];
-  });
+  protected readonly hasActiveFilters = this.productStore.hasActiveFilters;
 
-  protected readonly hasActiveFilters = computed(() => {
-    return this.searchTerm() !== '' ||
-           this.selectedBrands().length > 0;
-  });
-
-  // Active filters for display
-  protected readonly activeFilters = computed(() => {
-    const filters: Array<{type: string, label: string, value: string, displayValue: string}> = [];
-
-    // Search filter
-    if (this.searchTerm()) {
-      filters.push({
-        type: 'search',
-        label: 'Search',
-        value: 'search',
-        displayValue: this.searchTerm()
-      });
-    }
-
-    // Brand filters
-    this.selectedBrands().forEach(brand => {
-      const brandOption = this.brandOptions().find(b => b.value === brand);
-      filters.push({
-        type: 'brand',
-        label: 'Brand',
-        value: brand,
-        displayValue: brandOption?.label || brand
-      });
-    });
-
-    return filters;
-  });
+  // Active filters for display (delegated to store)
+  protected readonly activeFilters = this.productStore.activeFilters;
 
   readonly sortOptions: SortOption[] = [
     { label: 'Name A-Z', value: 'name-asc', icon: 'pi pi-sort-alpha-down' },
@@ -223,22 +177,28 @@ export class ProductsComponent implements OnInit, OnDestroy {
     // Initialize mobile detection
     this.checkIsMobile();
 
-    // Watch for filter changes and reload data
+    // Watch for filter changes and sync with ProductStore
     effect(() => {
       // Track all filter changes
-      this.searchTerm();
-      this.selectedBrands();
-      this.selectedSort();
+      const searchTerm = this.searchTerm();
+      const selectedBrands = this.selectedBrands();
+      const selectedSort = this.selectedSort();
 
-      // Only reload if we have initial data (avoid loading on component init)
+      // Only update store if we have initial data (avoid loading on component init)
       if (this.brands().length > 0) {
-        this.loadFilteredProducts();
+        // Update ProductStore filters
+        this.productStore.updateFilter('searchTerm', searchTerm);
+        this.productStore.updateFilter('selectedBrands', selectedBrands);
+        this.productStore.updateFilter('sortBy', selectedSort);
+        this.productStore.refreshFilteredProducts();
       }
     });
   }
 
   ngOnInit(): void {
     this.loadInitialData();
+    this.checkIsMobile();
+    this.setupSearchDebouncing();
   }
 
   ngOnDestroy(): void {
@@ -247,68 +207,21 @@ export class ProductsComponent implements OnInit, OnDestroy {
   }
 
   private loadInitialData(): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    // Load all static data using modern async/await pattern
-    this.loadStaticData()
-      .then(() => this.loadFilteredProducts())
-      .catch(error => {
-        console.error('Error loading initial data:', error);
-        this.error.set('Failed to load product data. Please try again.');
-        this.loading.set(false);
-      });
+    // Load products and supporting data using ProductStore
+    this.productStore.loadProducts();
+    this.productStore.loadSupportingData();
   }
 
-  private async loadStaticData(): Promise<void> {
-    try {
-      const [templates, brands, brandStats] = await Promise.all([
-        this.productService.getSizeTemplates().toPromise(),
-        this.productService.getBrands().toPromise(),
-        this.productService.getBrandStats().toPromise()
-      ]);
-
-      this.sizeTemplates.set(templates || []);
-      this.brands.set(brands || []);
-      this.brandStats.set(brandStats || {});
-    } catch (error) {
-      throw new Error(`Failed to load static data: ${error}`);
-    }
-  }
-
-  private loadFilteredProducts(): void {
-    const filters = this.buildFilters();
-    const sort = this.buildSort();
-
-    this.productService.getShoes(filters, sort)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        next: (shoes) => {
-          this.allShoes.set(shoes);
-          this.loading.set(false);
-          this.error.set(null);
-        },
-        error: (error) => {
-          console.error('Error loading products:', error);
-          this.error.set('Failed to load products. Please try again.');
-          this.loading.set(false);
-        }
-      });
-  }
-
-  private buildFilters(): LegacyProductFilters {
-    return {
-      searchTerm: this.searchTerm() || undefined,
-      brands: this.selectedBrands().length > 0 ? this.selectedBrands() : undefined,
-    };
-  }
-
-  private buildSort(): ProductSort {
-    const [sortField, sortDirection] = this.selectedSort().split('-');
-    return {
-      field: sortField as 'name' | 'price' | 'code' | 'stock',
-      direction: sortDirection as 'asc' | 'desc'
-    };
+  private setupSearchDebouncing(): void {
+    // Setup search debouncing
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(searchTerm => {
+      this.productStore.updateFilter('searchTerm', searchTerm);
+      this.productStore.refreshFilteredProducts();
+    });
   }
 
   private checkIsMobile(): void {
@@ -378,12 +291,14 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // ============================================
 
   protected onSearchInput(value: string): void {
+    this.searchTerm.set(value);
     this.searchSubject.next(value);
   }
 
   protected clearFilters(): void {
     this.searchTerm.set('');
     this.selectedBrands.set([]);
+    this.productStore.clearAllFilters();
   }
 
   protected onQuickOrder(shoe: Shoe): void {
@@ -545,11 +460,16 @@ export class ProductsComponent implements OnInit, OnDestroy {
     const current = this.selectedBrands();
     const index = current.indexOf(brandValue);
 
+    let newBrands: string[];
     if (index === -1) {
-      this.selectedBrands.set([...current, brandValue]);
+      newBrands = [...current, brandValue];
     } else {
-      this.selectedBrands.set(current.filter(b => b !== brandValue));
+      newBrands = current.filter(b => b !== brandValue);
     }
+    
+    this.selectedBrands.set(newBrands);
+    this.productStore.updateFilter('selectedBrands', newBrands);
+    this.productStore.refreshFilteredProducts();
 
     // Reset loading after a brief delay to show feedback
     setTimeout(() => this.filterLoading.set(false), 300);
@@ -562,9 +482,12 @@ export class ProductsComponent implements OnInit, OnDestroy {
   protected onRemoveFilter(event: {type: string, value: string}): void {
     if (event.type === 'search') {
       this.searchTerm.set('');
+      this.productStore.clearFilter('search');
     } else if (event.type === 'brand') {
       const current = this.selectedBrands();
       this.selectedBrands.set(current.filter(b => b !== event.value));
+      this.productStore.clearFilter('brand', event.value);
     }
+    this.productStore.refreshFilteredProducts();
   }
 }
