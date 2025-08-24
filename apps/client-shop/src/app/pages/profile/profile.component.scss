@@ -1,0 +1,286 @@
+.profile-container {
+  @apply max-w-5xl mx-auto p-6 space-y-6;
+}
+
+.profile-header {
+  @apply bg-white border border-slate-200 rounded-lg p-6 shadow-sm;
+}
+
+.profile-user-info {
+  @apply hidden md:block;
+}
+
+.profile-content {
+  @apply bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden;
+}
+
+// Tab styling overrides
+:host ::ng-deep {
+  .p-tabview {
+    .p-tabview-nav {
+      @apply bg-slate-50 border-b border-slate-200;
+      
+      .p-tabview-nav-link {
+        @apply text-slate-700 font-medium py-4 px-6 border-b-2 border-transparent;
+        
+        &:hover {
+          @apply text-slate-900 bg-slate-100;
+        }
+      }
+      
+      .p-highlight .p-tabview-nav-link {
+        @apply text-blue-600 border-blue-600 bg-white;
+      }
+    }
+    
+    .p-tabview-panels {
+      @apply p-0;
+      
+      .p-tabview-panel {
+        @apply p-6;
+      }
+    }
+  }
+
+  // Card styling
+  .p-card {
+    @apply border-0 shadow-none;
+    
+    .p-card-header {
+      @apply bg-slate-50 border-b border-slate-200 rounded-t-lg;
+    }
+    
+    .p-card-body {
+      @apply p-6;
+    }
+  }
+}
+
+// Address form styling
+.address-form {
+  @apply space-y-6;
+}
+
+.address-section {
+  @apply space-y-4;
+}
+
+.section-title {
+  @apply text-lg font-semibold text-slate-900 pb-2 border-b border-slate-200;
+}
+
+.form-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-4;
+}
+
+.form-field {
+  @apply space-y-2;
+  
+  label {
+    @apply block text-sm font-medium text-slate-700;
+  }
+  
+  input, :host ::ng-deep .p-select {
+    @apply w-full;
+  }
+  
+  .field-error {
+    @apply text-red-600 text-sm;
+  }
+  
+  // Error state styling
+  &.ng-dirty.ng-invalid {
+    input, :host ::ng-deep .p-select .p-select-label {
+      @apply border-red-300 focus:border-red-500 focus:ring-red-500;
+    }
+  }
+}
+
+.copy-address-section {
+  @apply flex justify-center py-4;
+}
+
+.form-actions {
+  @apply flex justify-end gap-3 pt-4 border-t border-slate-200;
+}
+
+// Password form styling
+.password-form {
+  @apply space-y-4 max-w-md;
+}
+
+// Email change styling
+.current-email-section {
+  @apply space-y-2 mb-6;
+  
+  label {
+    @apply block text-sm font-medium text-slate-700;
+  }
+}
+
+.current-email-display {
+  @apply flex items-center;
+}
+
+.email-change-section {
+  @apply space-y-6;
+}
+
+.email-step {
+  @apply space-y-4;
+  
+  &.success {
+    @apply text-center py-8;
+  }
+}
+
+.step-title {
+  @apply text-lg font-semibold text-slate-900 flex items-center gap-3;
+}
+
+.step-number {
+  @apply inline-flex items-center justify-center w-8 h-8 rounded-full bg-blue-600 text-white text-sm font-bold;
+}
+
+.step-description {
+  @apply text-slate-600 text-sm leading-relaxed;
+}
+
+.email-form, .token-form {
+  @apply space-y-4 max-w-md;
+}
+
+.token-info {
+  @apply flex items-center justify-between p-4 bg-slate-50 rounded-lg;
+}
+
+.token-timer {
+  @apply text-sm text-slate-600 flex items-center gap-2;
+}
+
+.token-expired {
+  @apply text-sm text-orange-600 flex items-center gap-2;
+}
+
+// Success state styling
+.success-icon {
+  @apply text-6xl text-green-600 mb-4;
+}
+
+.success-title {
+  @apply text-xl font-semibold text-slate-900 mb-2;
+}
+
+.success-description {
+  @apply text-slate-600 mb-2;
+}
+
+.success-note {
+  @apply text-sm text-slate-500 italic;
+}
+
+// Loading and disabled states
+:host ::ng-deep {
+  .p-button {
+    &.p-button-loading {
+      @apply opacity-75;
+    }
+    
+    &:disabled {
+      @apply opacity-50 cursor-not-allowed;
+    }
+  }
+  
+  .p-password, .p-inputtext {
+    &:disabled {
+      @apply bg-slate-100 cursor-not-allowed;
+    }
+  }
+  
+  // Invalid field styling
+  .ng-dirty.ng-invalid {
+    .p-inputtext, .p-password input {
+      @apply border-red-300 focus:border-red-500 focus:ring-red-500;
+    }
+    
+    .p-select .p-select-label {
+      @apply border-red-300;
+    }
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .profile-container {
+    @apply p-4 space-y-4;
+  }
+  
+  .profile-header {
+    @apply p-4;
+    
+    .flex {
+      @apply flex-col space-y-3;
+    }
+  }
+  
+  .profile-user-info {
+    @apply block text-left;
+  }
+  
+  .form-grid {
+    @apply grid-cols-1;
+  }
+  
+  .form-actions {
+    @apply flex-col-reverse;
+    
+    .p-button {
+      @apply w-full justify-center;
+    }
+  }
+  
+  .token-info {
+    @apply flex-col space-y-2 items-start;
+  }
+  
+  :host ::ng-deep .p-tabview .p-tabview-nav .p-tabview-nav-link {
+    @apply px-3 py-3 text-sm;
+  }
+}
+
+// Focus states for accessibility
+:host ::ng-deep {
+  .p-button:focus-visible,
+  .p-inputtext:focus-visible,
+  .p-password input:focus-visible,
+  .p-select:focus-visible {
+    @apply ring-2 ring-blue-500 ring-offset-2 outline-none;
+  }
+}
+
+// Animation for email change steps
+.email-step {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Print styles
+@media print {
+  .profile-container {
+    @apply shadow-none border-0;
+  }
+  
+  .form-actions, .token-info {
+    @apply hidden;
+  }
+}

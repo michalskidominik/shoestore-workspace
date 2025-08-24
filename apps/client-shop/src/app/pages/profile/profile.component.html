@@ -1,0 +1,534 @@
+<div class="profile-container">
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-slate-900">My Profile</h1>
+        @if (currentUser()) {
+          <p class="text-slate-600 mt-1">Manage your account settings and preferences</p>
+        }
+      </div>
+      <div class="profile-user-info">
+        @if (currentUser()) {
+          <div class="text-right">
+            <p class="text-lg font-medium text-slate-900">{{ currentUser()?.contactName }}</p>
+            <p class="text-sm text-slate-600">{{ currentUser()?.email }}</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading state for initial load -->
+  @if (!currentUser()) {
+    <div class="flex items-center justify-center py-20">
+      <div class="text-center">
+        <p-progressSpinner 
+          [style]="{ width: '50px', height: '50px' }"
+          strokeWidth="4"
+          fill="transparent"
+          animationDuration=".8s">
+        </p-progressSpinner>
+        <p class="mt-4 text-slate-600 font-medium">Loading profile...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Profile content -->
+  @if (currentUser()) {
+    <div class="profile-content">
+      <p-tabView>
+        <!-- Address Tab -->
+        <p-tabPanel header="Address Information">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="flex items-center gap-3 px-6 py-4">
+                <i class="pi pi-home text-blue-600 text-xl"></i>
+                <div>
+                  <h3 class="text-lg font-semibold text-slate-900">Address Information</h3>
+                  <p class="text-sm text-slate-600">Manage your shipping and billing addresses</p>
+                </div>
+              </div>
+            </ng-template>
+
+            <form [formGroup]="addressForm" (ngSubmit)="onSaveAddress()" class="address-form">
+              <!-- Shipping Address -->
+              <div class="address-section">
+                <h4 class="section-title">Shipping Address</h4>
+                <div class="form-grid">
+                  <div class="form-field">
+                    <label for="shippingStreet">Street Address *</label>
+                    <input 
+                      pInputText 
+                      id="shippingStreet"
+                      formControlName="shippingStreet"
+                      placeholder="Enter street address"
+                      [class.ng-dirty]="isFieldInvalid(addressForm, 'shippingStreet')"
+                    />
+                    @if (isFieldInvalid(addressForm, 'shippingStreet')) {
+                      <small class="field-error">{{ getFieldError(addressForm, 'shippingStreet') }}</small>
+                    }
+                  </div>
+                  
+                  <div class="form-field">
+                    <label for="shippingCity">City *</label>
+                    <input 
+                      pInputText 
+                      id="shippingCity"
+                      formControlName="shippingCity"
+                      placeholder="Enter city"
+                      [class.ng-dirty]="isFieldInvalid(addressForm, 'shippingCity')"
+                    />
+                    @if (isFieldInvalid(addressForm, 'shippingCity')) {
+                      <small class="field-error">{{ getFieldError(addressForm, 'shippingCity') }}</small>
+                    }
+                  </div>
+                  
+                  <div class="form-field">
+                    <label for="shippingPostalCode">Postal Code *</label>
+                    <input 
+                      pInputText 
+                      id="shippingPostalCode"
+                      formControlName="shippingPostalCode"
+                      placeholder="Enter postal code"
+                      [class.ng-dirty]="isFieldInvalid(addressForm, 'shippingPostalCode')"
+                    />
+                    @if (isFieldInvalid(addressForm, 'shippingPostalCode')) {
+                      <small class="field-error">{{ getFieldError(addressForm, 'shippingPostalCode') }}</small>
+                    }
+                  </div>
+                  
+                  <div class="form-field">
+                    <label for="shippingCountry">Country *</label>
+                    <p-select 
+                      formControlName="shippingCountry"
+                      [options]="countries"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Select country"
+                      styleClass="w-full"
+                      [class.ng-dirty]="isFieldInvalid(addressForm, 'shippingCountry')"
+                    ></p-select>
+                    @if (isFieldInvalid(addressForm, 'shippingCountry')) {
+                      <small class="field-error">{{ getFieldError(addressForm, 'shippingCountry') }}</small>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <p-divider></p-divider>
+
+              <!-- Copy to Billing Button -->
+              <div class="copy-address-section">
+                <p-button 
+                  label="Copy Shipping to Billing"
+                  icon="pi pi-copy"
+                  severity="secondary"
+                  size="small"
+                  [outlined]="true"
+                  (onClick)="copyShippingToBilling()"
+                  type="button">
+                </p-button>
+              </div>
+
+              <!-- Billing Address -->
+              <div class="address-section">
+                <h4 class="section-title">Billing Address</h4>
+                <div class="form-grid">
+                  <div class="form-field">
+                    <label for="billingStreet">Street Address *</label>
+                    <input 
+                      pInputText 
+                      id="billingStreet"
+                      formControlName="billingStreet"
+                      placeholder="Enter street address"
+                      [class.ng-dirty]="isFieldInvalid(addressForm, 'billingStreet')"
+                    />
+                    @if (isFieldInvalid(addressForm, 'billingStreet')) {
+                      <small class="field-error">{{ getFieldError(addressForm, 'billingStreet') }}</small>
+                    }
+                  </div>
+                  
+                  <div class="form-field">
+                    <label for="billingCity">City *</label>
+                    <input 
+                      pInputText 
+                      id="billingCity"
+                      formControlName="billingCity"
+                      placeholder="Enter city"
+                      [class.ng-dirty]="isFieldInvalid(addressForm, 'billingCity')"
+                    />
+                    @if (isFieldInvalid(addressForm, 'billingCity')) {
+                      <small class="field-error">{{ getFieldError(addressForm, 'billingCity') }}</small>
+                    }
+                  </div>
+                  
+                  <div class="form-field">
+                    <label for="billingPostalCode">Postal Code *</label>
+                    <input 
+                      pInputText 
+                      id="billingPostalCode"
+                      formControlName="billingPostalCode"
+                      placeholder="Enter postal code"
+                      [class.ng-dirty]="isFieldInvalid(addressForm, 'billingPostalCode')"
+                    />
+                    @if (isFieldInvalid(addressForm, 'billingPostalCode')) {
+                      <small class="field-error">{{ getFieldError(addressForm, 'billingPostalCode') }}</small>
+                    }
+                  </div>
+                  
+                  <div class="form-field">
+                    <label for="billingCountry">Country *</label>
+                    <p-select 
+                      formControlName="billingCountry"
+                      [options]="countries"
+                      optionLabel="label"
+                      optionValue="value"
+                      placeholder="Select country"
+                      styleClass="w-full"
+                      [class.ng-dirty]="isFieldInvalid(addressForm, 'billingCountry')"
+                    ></p-select>
+                    @if (isFieldInvalid(addressForm, 'billingCountry')) {
+                      <small class="field-error">{{ getFieldError(addressForm, 'billingCountry') }}</small>
+                    }
+                  </div>
+                </div>
+              </div>
+
+              <!-- Save Button -->
+              <div class="form-actions">
+                <p-button 
+                  type="submit"
+                  label="Save Address Changes"
+                  icon="pi pi-save"
+                  [loading]="addressUpdateLoading()"
+                  [disabled]="!isAddressFormDirty() || addressUpdateLoading()">
+                </p-button>
+              </div>
+            </form>
+          </p-card>
+        </p-tabPanel>
+
+        <!-- Password Tab -->
+        <p-tabPanel header="Password">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="flex items-center gap-3 px-6 py-4">
+                <i class="pi pi-key text-blue-600 text-xl"></i>
+                <div>
+                  <h3 class="text-lg font-semibold text-slate-900">Change Password</h3>
+                  <p class="text-sm text-slate-600">Update your account password for security</p>
+                </div>
+              </div>
+            </ng-template>
+
+            <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()" class="password-form">
+              <div class="form-field">
+                <label for="currentPassword">Current Password *</label>
+                <p-password 
+                  formControlName="currentPassword"
+                  inputId="currentPassword"
+                  placeholder="Enter current password"
+                  [feedback]="false"
+                  [toggleMask]="true"
+                  styleClass="w-full"
+                  inputStyleClass="w-full"
+                  [class.ng-dirty]="isFieldInvalid(passwordForm, 'currentPassword')"
+                ></p-password>
+                @if (isFieldInvalid(passwordForm, 'currentPassword')) {
+                  <small class="field-error">{{ getFieldError(passwordForm, 'currentPassword') }}</small>
+                }
+              </div>
+
+              <div class="form-field">
+                <label for="newPassword">New Password *</label>
+                <p-password 
+                  formControlName="newPassword"
+                  inputId="newPassword"
+                  placeholder="Enter new password (min 8 characters)"
+                  [feedback]="true"
+                  [toggleMask]="true"
+                  styleClass="w-full"
+                  inputStyleClass="w-full"
+                  [class.ng-dirty]="isFieldInvalid(passwordForm, 'newPassword')"
+                ></p-password>
+                @if (isFieldInvalid(passwordForm, 'newPassword')) {
+                  <small class="field-error">{{ getFieldError(passwordForm, 'newPassword') }}</small>
+                }
+              </div>
+
+              <div class="form-field">
+                <label for="confirmPassword">Confirm New Password *</label>
+                <p-password 
+                  formControlName="confirmPassword"
+                  inputId="confirmPassword"
+                  placeholder="Confirm new password"
+                  [feedback]="false"
+                  [toggleMask]="true"
+                  styleClass="w-full"
+                  inputStyleClass="w-full"
+                  [class.ng-dirty]="isFieldInvalid(passwordForm, 'confirmPassword')"
+                ></p-password>
+                @if (isFieldInvalid(passwordForm, 'confirmPassword')) {
+                  <small class="field-error">{{ getFieldError(passwordForm, 'confirmPassword') }}</small>
+                }
+              </div>
+
+              <div class="form-actions">
+                <p-button 
+                  type="submit"
+                  label="Change Password"
+                  icon="pi pi-key"
+                  [loading]="passwordChangeLoading()"
+                  [disabled]="!isPasswordFormValid() || passwordChangeLoading()">
+                </p-button>
+              </div>
+            </form>
+          </p-card>
+        </p-tabPanel>
+
+        <!-- Email Tab -->
+        <p-tabPanel header="Email Address">
+          <p-card>
+            <ng-template pTemplate="header">
+              <div class="flex items-center gap-3 px-6 py-4">
+                <i class="pi pi-envelope text-blue-600 text-xl"></i>
+                <div>
+                  <h3 class="text-lg font-semibold text-slate-900">Email Address</h3>
+                  <p class="text-sm text-slate-600">Change your account email address</p>
+                </div>
+              </div>
+            </ng-template>
+
+            <!-- Current Email Display -->
+            <div class="current-email-section">
+              <label class="text-sm font-medium text-slate-700">Current Email</label>
+              <div class="current-email-display">
+                <span class="text-lg font-medium text-slate-900">{{ currentUser()?.email }}</span>
+                <span class="text-sm text-green-600 ml-2">
+                  <i class="pi pi-check-circle"></i> Verified
+                </span>
+              </div>
+            </div>
+
+            <p-divider></p-divider>
+
+            <!-- Email Change Flow -->
+            <div class="email-change-section">
+              @switch (emailChangeStep()) {
+                @case ('initial') {
+                  <!-- Step 1: Enter new email -->
+                  <div class="email-step">
+                    <h4 class="step-title">
+                      <span class="step-number">1</span>
+                      Enter New Email Address
+                    </h4>
+                    <form [formGroup]="emailForm" (ngSubmit)="onInitiateEmailChange()" class="email-form">
+                      <div class="form-field">
+                        <label for="newEmail">New Email Address *</label>
+                        <input 
+                          pInputText 
+                          id="newEmail"
+                          formControlName="newEmail"
+                          placeholder="Enter new email address"
+                          type="email"
+                          [class.ng-dirty]="isFieldInvalid(emailForm, 'newEmail')"
+                        />
+                        @if (isFieldInvalid(emailForm, 'newEmail')) {
+                          <small class="field-error">{{ getFieldError(emailForm, 'newEmail') }}</small>
+                        }
+                      </div>
+                      <div class="form-actions">
+                        <p-button 
+                          type="submit"
+                          label="Send Verification Code"
+                          icon="pi pi-send"
+                          [loading]="emailChangeLoading()"
+                          [disabled]="!isEmailFormValid() || emailChangeLoading()">
+                        </p-button>
+                      </div>
+                    </form>
+                  </div>
+                }
+
+                @case ('verify-old') {
+                  <!-- Step 2: Verify old email token -->
+                  <div class="email-step">
+                    <h4 class="step-title">
+                      <span class="step-number">2</span>
+                      Verify Current Email
+                    </h4>
+                    <p class="step-description">
+                      We've sent a 6-digit verification code to your current email address: 
+                      <strong>{{ currentUser()?.email }}</strong>
+                    </p>
+                    
+                    <form [formGroup]="oldTokenForm" (ngSubmit)="onVerifyOldToken()" class="token-form">
+                      <div class="form-field">
+                        <label for="oldToken">Verification Code *</label>
+                        <input 
+                          pInputText 
+                          id="oldToken"
+                          formControlName="token"
+                          placeholder="Enter 6-digit code"
+                          maxlength="6"
+                          [class.ng-dirty]="isFieldInvalid(oldTokenForm, 'token')"
+                        />
+                        @if (isFieldInvalid(oldTokenForm, 'token')) {
+                          <small class="field-error">{{ getFieldError(oldTokenForm, 'token') }}</small>
+                        }
+                      </div>
+
+                      <!-- Timer and resend -->
+                      <div class="token-info">
+                        @if (oldTokenTimeLeft() > 0) {
+                          <p class="token-timer">
+                            <i class="pi pi-clock"></i>
+                            Code expires in: {{ formatTime(oldTokenTimeLeft()) }}
+                          </p>
+                        } @else {
+                          <p class="token-expired">
+                            <i class="pi pi-exclamation-triangle"></i>
+                            Code has expired
+                          </p>
+                        }
+                        
+                        <p-button 
+                          label="Resend Code"
+                          icon="pi pi-refresh"
+                          severity="secondary"
+                          size="small"
+                          [outlined]="true"
+                          [disabled]="!canResendOldToken() || emailChangeLoading()"
+                          [loading]="emailChangeLoading()"
+                          (onClick)="onResendOldToken()"
+                          type="button">
+                          @if (resendOldCooldown() > 0) {
+                            <span>({{ resendOldCooldown() }}s)</span>
+                          }
+                        </p-button>
+                      </div>
+
+                      <div class="form-actions">
+                        <p-button 
+                          type="button"
+                          label="Cancel"
+                          severity="secondary"
+                          [outlined]="true"
+                          (onClick)="resetEmailChangeFlow()"
+                          [disabled]="emailChangeLoading()">
+                        </p-button>
+                        <p-button 
+                          type="submit"
+                          label="Verify Code"
+                          icon="pi pi-check"
+                          [loading]="emailChangeLoading()"
+                          [disabled]="oldTokenForm.invalid || emailChangeLoading()">
+                        </p-button>
+                      </div>
+                    </form>
+                  </div>
+                }
+
+                @case ('verify-new') {
+                  <!-- Step 3: Verify new email token -->
+                  <div class="email-step">
+                    <h4 class="step-title">
+                      <span class="step-number">3</span>
+                      Verify New Email
+                    </h4>
+                    <p class="step-description">
+                      We've sent a 6-digit verification code to your new email address: 
+                      <strong>{{ emailChangeData().newEmail }}</strong>
+                    </p>
+                    
+                    <form [formGroup]="newTokenForm" (ngSubmit)="onVerifyNewToken()" class="token-form">
+                      <div class="form-field">
+                        <label for="newToken">Verification Code *</label>
+                        <input 
+                          pInputText 
+                          id="newToken"
+                          formControlName="token"
+                          placeholder="Enter 6-digit code"
+                          maxlength="6"
+                          [class.ng-dirty]="isFieldInvalid(newTokenForm, 'token')"
+                        />
+                        @if (isFieldInvalid(newTokenForm, 'token')) {
+                          <small class="field-error">{{ getFieldError(newTokenForm, 'token') }}</small>
+                        }
+                      </div>
+
+                      <!-- Timer and resend -->
+                      <div class="token-info">
+                        @if (newTokenTimeLeft() > 0) {
+                          <p class="token-timer">
+                            <i class="pi pi-clock"></i>
+                            Code expires in: {{ formatTime(newTokenTimeLeft()) }}
+                          </p>
+                        } @else {
+                          <p class="token-expired">
+                            <i class="pi pi-exclamation-triangle"></i>
+                            Code has expired
+                          </p>
+                        }
+                        
+                        <p-button 
+                          label="Resend Code"
+                          icon="pi pi-refresh"
+                          severity="secondary"
+                          size="small"
+                          [outlined]="true"
+                          [disabled]="!canResendNewToken() || emailChangeLoading()"
+                          [loading]="emailChangeLoading()"
+                          (onClick)="onResendNewToken()"
+                          type="button">
+                          @if (resendNewCooldown() > 0) {
+                            <span>({{ resendNewCooldown() }}s)</span>
+                          }
+                        </p-button>
+                      </div>
+
+                      <div class="form-actions">
+                        <p-button 
+                          type="button"
+                          label="Cancel"
+                          severity="secondary"
+                          [outlined]="true"
+                          (onClick)="resetEmailChangeFlow()"
+                          [disabled]="emailChangeLoading()">
+                        </p-button>
+                        <p-button 
+                          type="submit"
+                          label="Complete Email Change"
+                          icon="pi pi-check"
+                          [loading]="emailChangeLoading()"
+                          [disabled]="newTokenForm.invalid || emailChangeLoading()">
+                        </p-button>
+                      </div>
+                    </form>
+                  </div>
+                }
+
+                @case ('complete') {
+                  <!-- Step 4: Success -->
+                  <div class="email-step success">
+                    <div class="success-icon">
+                      <i class="pi pi-check-circle"></i>
+                    </div>
+                    <h4 class="success-title">Email Address Updated Successfully!</h4>
+                    <p class="success-description">
+                      Your email address has been changed to: <strong>{{ emailChangeData().newEmail }}</strong>
+                    </p>
+                    <p class="success-note">
+                      You will be automatically redirected to the main email section in a few seconds.
+                    </p>
+                  </div>
+                }
+              }
+            </div>
+          </p-card>
+        </p-tabPanel>
+      </p-tabView>
+    </div>
+  }
+</div>
