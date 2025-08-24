@@ -18,7 +18,7 @@ import { OrderStore } from '../../features/orders/stores/order.store';
   template: `
     <div class="payment-instructions-page min-h-screen bg-slate-50 py-8">
       <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         @if (orderStore.isLoading()) {
           <!-- Loading State -->
           <div class="text-center py-12">
@@ -98,19 +98,19 @@ import { OrderStore } from '../../features/orders/stores/order.store';
                   <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <div class="text-xs font-medium text-slate-600 uppercase tracking-wide mb-1">Bank Name:</div>
-                      <p class="font-mono text-sm text-slate-900 bg-white p-2 rounded border">{{ orderStore.currentOrder()?.paymentInfo.bankDetails.bankName }}</p>
+                      <p class="font-mono text-sm text-slate-900 bg-white p-2 rounded border">{{ orderStore.currentOrder()?.paymentInfo?.bankDetails?.bankName || '-' }}</p>
                     </div>
                     <div>
                       <div class="text-xs font-medium text-slate-600 uppercase tracking-wide mb-1">Account Holder:</div>
-                      <p class="font-mono text-sm text-slate-900 bg-white p-2 rounded border">{{ orderStore.currentOrder()?.paymentInfo.bankDetails.accountHolder }}</p>
+                      <p class="font-mono text-sm text-slate-900 bg-white p-2 rounded border">{{ orderStore.currentOrder()?.paymentInfo?.bankDetails?.accountHolder || '-' }}</p>
                     </div>
                     <div>
                       <div class="text-xs font-medium text-slate-600 uppercase tracking-wide mb-1">IBAN:</div>
-                      <p class="font-mono text-sm text-slate-900 bg-white p-2 rounded border">{{ orderStore.currentOrder()?.paymentInfo.bankDetails.iban }}</p>
+                      <p class="font-mono text-sm text-slate-900 bg-white p-2 rounded border">{{ orderStore.currentOrder()?.paymentInfo?.bankDetails?.iban || '-' }}</p>
                     </div>
                     <div>
                       <div class="text-xs font-medium text-slate-600 uppercase tracking-wide mb-1">SWIFT/BIC:</div>
-                      <p class="font-mono text-sm text-slate-900 bg-white p-2 rounded border">{{ orderStore.currentOrder()?.paymentInfo.bankDetails.swift }}</p>
+                      <p class="font-mono text-sm text-slate-900 bg-white p-2 rounded border">{{ orderStore.currentOrder()?.paymentInfo?.bankDetails?.swift || '-' }}</p>
                     </div>
                   </div>
 
@@ -142,15 +142,15 @@ import { OrderStore } from '../../features/orders/stores/order.store';
                   <i class="pi pi-shopping-cart text-blue-600"></i>
                   Order Summary
                 </h5>
-                
+
                 <div class="space-y-3">
                   <div class="flex justify-between">
-                    <span class="text-slate-600">Subtotal ({{ orderStore.currentOrder()?.summary.itemCount }} items)</span>
-                    <span class="text-slate-900 font-medium">€{{ orderStore.currentOrder()?.summary.subtotal.toFixed(2) }}</span>
+                    <span class="text-slate-600">Subtotal ({{ orderStore.currentOrder()?.summary?.itemCount || 0 }} items)</span>
+                    <span class="text-slate-900 font-medium">€{{ orderStore.currentOrder()?.summary?.subtotal?.toFixed(2) || '0.00' }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-slate-600">Tax</span>
-                    <span class="text-slate-900 font-medium">€{{ orderStore.currentOrder()?.summary.tax.toFixed(2) }}</span>
+                    <span class="text-slate-900 font-medium">€{{ orderStore.currentOrder()?.summary?.tax?.toFixed(2) || '0.00' }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-slate-600">Shipping</span>
@@ -158,7 +158,7 @@ import { OrderStore } from '../../features/orders/stores/order.store';
                   </div>
                   <div class="border-t border-slate-300 pt-3 flex justify-between text-lg">
                     <span class="font-semibold text-slate-900">Total</span>
-                    <span class="font-bold text-slate-900">€{{ orderStore.currentOrder()?.summary.total.toFixed(2) }}</span>
+                    <span class="font-bold text-slate-900">€{{ orderStore.currentOrder()?.summary?.total?.toFixed(2) || '0.00' }}</span>
                   </div>
                 </div>
               </div>

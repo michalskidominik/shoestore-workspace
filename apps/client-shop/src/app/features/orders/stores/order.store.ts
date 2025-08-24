@@ -79,25 +79,25 @@ export const OrderStore = signalStore(
       const order = currentOrder();
       return order !== null && order.status !== 'failed';
     }),
-    
+
     // Check if order is ready for payment instructions
     isOrderReady: computed(() => {
       const order = currentOrder();
       return order !== null && ['pending', 'processing'].includes(order.status);
     }),
-    
+
     // Get payment reference for display
     paymentReference: computed(() => {
       const order = currentOrder();
       return order?.paymentInfo.reference || null;
     }),
-    
+
     // Get total amount for payment
     paymentAmount: computed(() => {
       const order = currentOrder();
       return order?.paymentInfo.amount || 0;
     }),
-    
+
     // Get customer email
     customerEmail: computed(() => {
       const order = currentOrder();
@@ -105,7 +105,7 @@ export const OrderStore = signalStore(
     })
   })),
   withMethods((store, authStore = inject(AuthStore), toastStore = inject(ToastStore), orderApiService = inject(OrderApiService), router = inject(Router)) => ({
-    
+
     // Submit order from cart
     submitOrder: rxMethod<{
       items: OrderItem[];
@@ -118,7 +118,7 @@ export const OrderStore = signalStore(
           if (!user) {
             throw new Error('Authentication required');
           }
-          
+
           const submissionRequest = {
             userId: user.id,
             items: orderData.items,
@@ -126,40 +126,40 @@ export const OrderStore = signalStore(
             customerInfo: {
               email: user.email,
               contactName: user.name || user.email.split('@')[0],
-              phone: user.phone || '+48 123 456 789', // Default phone
-              companyName: user.companyName || `${user.name || user.email.split('@')[0]} Company`,
-              vatNumber: user.vatNumber || 'PL1234567890' // Default VAT for B2B
+              phone: '+48 123 456 789', // Default phone for B2B users
+              companyName: `${user.name || user.email.split('@')[0]} Company`,
+              vatNumber: 'PL1234567890' // Default VAT for B2B
             }
           };
-          
+
           return orderApiService.submitOrder(submissionRequest);
         }),
         tapResponse({
           next: (order: CurrentOrder) => {
-            patchState(store, { 
+            patchState(store, {
               currentOrder: order,
               isSubmitting: false,
               lastSubmissionAttempt: new Date().toISOString()
             });
-            
+
             toastStore.showSuccess('Order submitted successfully!');
-            
+
             // Navigate to payment instructions
             router.navigate(['/payment-instructions']);
           },
           error: (error: Error) => {
-            patchState(store, { 
+            patchState(store, {
               isSubmitting: false,
               error: error.message || 'Failed to submit order',
               lastSubmissionAttempt: new Date().toISOString()
             });
-            
+
             toastStore.showError('Failed to submit order. Please try again.');
           }
         })
       )
     ),
-    
+
     // Load order details (used by payment instructions and guard)
     loadOrder: rxMethod<string>(
       pipe(
@@ -167,13 +167,13 @@ export const OrderStore = signalStore(
         switchMap((orderId) => orderApiService.getOrderDetails(orderId)),
         tapResponse({
           next: (order: CurrentOrder) => {
-            patchState(store, { 
+            patchState(store, {
               currentOrder: order,
               isLoading: false
             });
           },
           error: (error: Error) => {
-            patchState(store, { 
+            patchState(store, {
               isLoading: false,
               error: error.message || 'Order not found',
               currentOrder: null
@@ -182,16 +182,16 @@ export const OrderStore = signalStore(
         })
       )
     ),
-    
+
     // Clear current order (logout, manual clear)
     clearOrder(): void {
-      patchState(store, { 
+      patchState(store, {
         currentOrder: null,
         error: null,
         lastSubmissionAttempt: null
       });
     },
-    
+
     // Update order status (when payment is processed, etc.)
     updateOrderStatus: rxMethod<{
       orderId: string;
@@ -202,7 +202,7 @@ export const OrderStore = signalStore(
         tapResponse({
           next: (updatedOrder: CurrentOrder) => {
             patchState(store, { currentOrder: updatedOrder });
-            
+
             if (status === 'completed') {
               toastStore.showSuccess('Order completed successfully!');
             } else if (status === 'processing') {
@@ -216,27 +216,27 @@ export const OrderStore = signalStore(
         })
       )
     ),
-    
+
     // Get order by ID (for guard validation)
     async validateOrderAccess(orderId: string): Promise<boolean> {
       try {
         const order = await orderApiService.getOrderDetails(orderId).toPromise();
-        
+
         if (!order) {
           return false;
         }
-        
+
         // Check if user has access to this order
         const user = authStore.user();
         if (!user || order.userId !== user.id) {
           return false;
         }
-        
+
         // Check if order is in valid state for payment instructions
         if (!['pending', 'processing', 'completed'].includes(order.status)) {
           return false;
         }
-        
+
         // Update store with validated order
         patchState(store, { currentOrder: order });
         return true;

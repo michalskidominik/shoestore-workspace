@@ -74,7 +74,7 @@ import { AuthService } from '../../../core/services/auth.service';
                 Contact & Support
               </a>
             </nav>
-            
+
             <!-- Company Registration Details -->
             <div class="pt-2 border-t border-slate-700">
               <div class="space-y-1 text-xs text-slate-500">

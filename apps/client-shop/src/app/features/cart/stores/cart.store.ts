@@ -50,16 +50,16 @@ export const CartStore = signalStore(
   withEntities<CartItem>(),
   withComputed(({ entities }) => ({
     // Essential cart computations
-    totalItems: computed(() => 
+    totalItems: computed(() =>
       entities().reduce((total, item) => total + item.quantity, 0)
     ),
-    
-    totalPrice: computed(() => 
+
+    totalPrice: computed(() =>
       entities().reduce((total, item) => total + item.totalPrice, 0)
     ),
-    
+
     isEmpty: computed(() => entities().length === 0),
-    
+
     // Grouped items for better UI display
     groupedItems: computed(() => {
       const groups = new Map<number, {
@@ -85,7 +85,8 @@ export const CartStore = signalStore(
           });
         }
 
-        const group = groups.get(item.productId)!;
+        const group = groups.get(item.productId);
+        if (!group) return; // Skip if group doesn't exist
         group.sizes.push({
           size: item.size,
           quantity: item.quantity,
@@ -122,9 +123,9 @@ export const CartStore = signalStore(
     effect(() => {
       const items = store.entities();
       const user = authStore.user();
-      
+
       if (items.length === 0) return;
-      
+
       const storageKey = user ? `userCart_${user.id}` : 'guestCart';
       try {
         localStorage.setItem(storageKey, JSON.stringify(items));
@@ -141,7 +142,7 @@ export const CartStore = signalStore(
           switchMap(() => {
             const user = authStore.user();
             const storageKey = user ? `userCart_${user.id}` : 'guestCart';
-            
+
             try {
               const storedCart = localStorage.getItem(storageKey);
               const items: CartItem[] = storedCart ? JSON.parse(storedCart) : [];
@@ -152,15 +153,15 @@ export const CartStore = signalStore(
           }),
           tapResponse({
             next: (items) => {
-              setAllEntities(items, store);
-              patchState(store, { 
+              patchState(store, setAllEntities(items));
+              patchState(store, {
                 isLoading: false,
                 lastUpdated: new Date().toISOString()
               });
             },
-            error: () => patchState(store, { 
+            error: () => patchState(store, {
               isLoading: false,
-              error: 'Failed to load cart' 
+              error: 'Failed to load cart'
             })
           })
         )
@@ -172,8 +173,8 @@ export const CartStore = signalStore(
           tap(() => patchState(store, { error: null })),
           switchMap((request) => {
             const itemId = `${request.productId}-${request.size}`;
-            const existingItem = store.entitiesMap()[itemId];
-            
+            const existingItem = store.entityMap()[itemId];
+
             if (existingItem) {
               // Update existing item quantity
               const updatedItem: CartItem = {
@@ -181,7 +182,7 @@ export const CartStore = signalStore(
                 quantity: existingItem.quantity + request.quantity,
                 totalPrice: (existingItem.quantity + request.quantity) * request.unitPrice
               };
-              
+
               patchState(store, updateEntity({ id: itemId, changes: updatedItem }));
               toastStore.showSuccess(`Updated ${request.productName} quantity in cart`);
             } else {
@@ -197,7 +198,7 @@ export const CartStore = signalStore(
                 totalPrice: request.quantity * request.unitPrice,
                 imageUrl: request.imageUrl
               };
-              
+
               patchState(store, addEntity(newItem));
               toastStore.showSuccess(`Added ${request.productName} to cart`);
             }
@@ -211,12 +212,12 @@ export const CartStore = signalStore(
       // Update item quantity
       updateQuantity(productId: number, size: number, newQuantity: number): void {
         const itemId = `${productId}-${size}`;
-        const existingItem = store.entitiesMap()[itemId];
-        
+        const existingItem = store.entityMap()[itemId];
+
         if (!existingItem) return;
-        
+
         if (newQuantity <= 0) {
-          removeEntity(itemId, store);
+          patchState(store, removeEntity(itemId));
           toastStore.showInfo(`Removed ${existingItem.productName} from cart`);
         } else {
           const updatedItem: CartItem = {
@@ -224,37 +225,37 @@ export const CartStore = signalStore(
             quantity: newQuantity,
             totalPrice: newQuantity * existingItem.unitPrice
           };
-          
-          updateEntity({ id: itemId, changes: updatedItem }, store);
+
+          patchState(store, updateEntity({ id: itemId, changes: updatedItem }));
         }
-        
-        patchState(store, { 
+
+        patchState(store, {
           lastUpdated: new Date().toISOString(),
-          error: null 
+          error: null
         });
       },
 
       // Remove specific item
       removeItem(productId: number, size: number): void {
         const itemId = `${productId}-${size}`;
-        const existingItem = store.entitiesMap()[itemId];
-        
+        const existingItem = store.entityMap()[itemId];
+
         if (existingItem) {
-          removeEntity(itemId, store);
+          patchState(store, removeEntity(itemId));
           toastStore.showInfo(`Removed ${existingItem.productName} from cart`);
-          patchState(store, { 
+          patchState(store, {
             lastUpdated: new Date().toISOString(),
-            error: null 
+            error: null
           });
         }
       },
 
       // Clear entire cart
       clearCart(): void {
-        setAllEntities([], store);
-        patchState(store, { 
+        patchState(store, setAllEntities<CartItem>([]));
+        patchState(store, {
           lastUpdated: new Date().toISOString(),
-          error: null 
+          error: null
         });
         toastStore.showInfo('Cart cleared');
       },
@@ -271,7 +272,7 @@ export const CartStore = signalStore(
                 requestedQuantity: item.quantity
               }))
             };
-            
+
             return cartApiService.validateStock(validationRequest);
           })
         )
@@ -286,10 +287,10 @@ export const CartStore = signalStore(
             if (!user) {
               throw new Error('Authentication required');
             }
-            
+
             const items = store.entities();
             const summary = store.cartSummary();
-            
+
             const orderRequest = {
               userId: user.id,
               items: items.map(item => ({
@@ -305,18 +306,18 @@ export const CartStore = signalStore(
               tax: summary.tax,
               total: summary.total
             };
-            
+
             return cartApiService.submitOrder(orderRequest);
           }),
           tapResponse({
             next: (result) => {
               if (result.success) {
-                setAllEntities([], store); // Clear cart
+                patchState(store, setAllEntities<CartItem>([])); // Clear cart
                 patchState(store, { isSubmittingOrder: false });
                 toastStore.showSuccess('Order submitted successfully!');
               }
             },
-            error: (error: Error) => patchState(store, { 
+            error: (error: Error) => patchState(store, {
               isSubmittingOrder: false,
               error: error.message || 'Failed to submit order'
             })
@@ -328,19 +329,19 @@ export const CartStore = signalStore(
       mergeGuestCart(): void {
         const user = authStore.user();
         if (!user) return;
-        
+
         try {
           const guestCartData = localStorage.getItem('guestCart');
           if (!guestCartData) return;
-          
+
           const guestItems: CartItem[] = JSON.parse(guestCartData);
           const currentItems = store.entities();
-          
+
           // Intelligent merging - combine quantities for duplicates
           const mergedItems = new Map<string, CartItem>();
-          
+
           currentItems.forEach(item => mergedItems.set(item.id, item));
-          
+
           guestItems.forEach(guestItem => {
             const existingItem = mergedItems.get(guestItem.id);
             if (existingItem) {
@@ -354,10 +355,10 @@ export const CartStore = signalStore(
               mergedItems.set(guestItem.id, guestItem);
             }
           });
-          
-          setAllEntities(Array.from(mergedItems.values()), store);
+
+          patchState(store, setAllEntities(Array.from(mergedItems.values())));
           localStorage.removeItem('guestCart');
-          
+
           if (guestItems.length > 0) {
             toastStore.showInfo('Guest cart merged with your account');
           }
