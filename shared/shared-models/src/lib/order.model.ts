@@ -51,6 +51,6 @@ export interface OrderQueryParams {
   search?: string; // np. szukaj po kodzie użytkownika lub ID
   page?: number;
   pageSize?: number;
-  sortBy?: 'date' | 'status' | 'totalAmount';
+  sortBy?: 'id' | 'date' | 'status' | 'totalAmount';
   sortDirection?: 'asc' | 'desc';
 }

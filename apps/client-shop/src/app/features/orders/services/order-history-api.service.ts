@@ -306,19 +306,27 @@ export class OrderHistoryApiService {
 
     // Sort items
     if (params.sortBy) {
+      console.log('Sorting by', params.sortBy, 'direction', params.sortDirection);
       items = items.sort((a, b) => {
         let fieldA: string | number | Date;
         let fieldB: string | number | Date;
 
         switch (params.sortBy) {
+          case 'id':
+            fieldA = a.id;
+            fieldB = b.id;
+            break;
           case 'date':
             fieldA = new Date(a.date);
             fieldB = new Date(b.date);
             break;
-          case 'status':
-            fieldA = a.status;
-            fieldB = b.status;
+          case 'status': {
+            // Define status order: placed -> processing -> completed -> cancelled
+            const statusOrder = { 'placed': 1, 'processing': 2, 'completed': 3, 'cancelled': 4 };
+            fieldA = statusOrder[a.status] || 5;
+            fieldB = statusOrder[b.status] || 5;
             break;
+          }
           case 'totalAmount':
             fieldA = a.totalAmount;
             fieldB = b.totalAmount;

@@ -147,6 +147,8 @@ export const OrderStore = signalStore(
             router.navigate(['/payment-instructions']);
           },
           error: (error: Error) => {
+            console.log('Order submission error:', error);
+
             patchState(store, {
               isSubmitting: false,
               error: error.message || 'Failed to submit order',

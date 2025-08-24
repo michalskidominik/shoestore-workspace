@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -125,8 +125,8 @@ import { CurrencyPipe } from '../../shared/pipes';
               [totalRecords]="orderHistoryStore.pagination().total"
               [lazy]="true"
               [loading]="orderHistoryStore.isLoading()"
-              [sortField]="'date'"
-              [sortOrder]="-1"
+              [sortField]="currentSortField()"
+              [sortOrder]="currentSortOrder()"
               (onSort)="onSort($event)"
               (onPage)="onPageChange($event)"
               dataKey="id"
@@ -297,6 +297,29 @@ export class OrdersComponent implements OnInit {
   protected searchTerm = '';
   protected selectedStatus: OrderStatus | null = null;
 
+  // Computed properties for table sorting
+  protected readonly currentSortField = computed(() => {
+    const queryParams = this.orderHistoryStore.queryParams();
+    const backendField = queryParams.sortBy || 'date';
+    
+    // Map backend field names back to PrimeNG table field names
+    switch (backendField) {
+      case 'id':
+        return 'id';
+      case 'date':
+        return 'date';
+      case 'status':
+        return 'status';
+      case 'totalAmount':
+        return 'totalAmount';
+      default:
+        return 'date';
+    }
+  });  protected readonly currentSortOrder = computed(() => {
+    const queryParams = this.orderHistoryStore.queryParams();
+    return queryParams.sortDirection === 'asc' ? 1 : -1;
+  });
+
   ngOnInit(): void {
     // Load initial orders
     this.orderHistoryStore.loadOrders();
@@ -321,7 +344,30 @@ export class OrdersComponent implements OnInit {
    */
   protected onSort(event: { field: string; order: number }): void {
     const sortDirection = event.order === 1 ? 'asc' : 'desc';
-    this.orderHistoryStore.sortOrders(event.field as 'date' | 'status' | 'totalAmount', sortDirection);
+
+    // Map field names to supported sort fields
+    let sortField: 'id' | 'date' | 'status' | 'totalAmount';
+
+    switch (event.field) {
+      case 'id':
+        sortField = 'id';
+        break;
+      case 'date':
+        sortField = 'date';
+        break;
+      case 'status':
+        sortField = 'status';
+        break;
+      case 'totalAmount':
+        sortField = 'totalAmount';
+        break;
+      default:
+        // Default to date sorting for unknown fields
+        sortField = 'date';
+        break;
+    }
+
+    this.orderHistoryStore.sortOrders(sortField, sortDirection);
   }
 
   /**

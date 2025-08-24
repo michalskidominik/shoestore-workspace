@@ -189,8 +189,8 @@ interface StockConflict {
                     <p-divider></p-divider>
 
                     <div class="flex justify-between text-lg">
-                      <span class="font-semibold text-slate-900">Total (excl. VAT)</span>
-                      <span class="font-bold text-slate-900">€{{ cartStore.cartSummary().total | appCurrency }}</span>
+                      <span class="font-semibold text-slate-900">Total</span>
+                      <span class="font-bold text-slate-900">{{ cartStore.cartSummary().total | appCurrency }}</span>
                     </div>
 
                     <!-- VAT Information -->
