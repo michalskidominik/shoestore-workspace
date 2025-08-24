@@ -2,7 +2,7 @@
 
 ## Executive Summary
 
-This document provides a comprehensive verification of all models across the Shoestore Workspace applications (client-shop and admin-panel) against the proposed FireStore database structure. After analyzing **32 distinct interfaces and types**, I've identified **15 additional collections and features** that should be considered for a complete production-ready system.
+This document provides a comprehensive verification of all models across the Shoestore Workspace applications (client-shop and admin-panel) against the proposed FireStore database structure. After analyzing **45+ distinct interfaces and types**, I've identified **20+ additional collections and 80+ CRUD endpoints** that should be considered for a complete production-ready system.
 
 ## Analysis Overview
 
@@ -21,10 +21,11 @@ The proposed database schema successfully covers the **core business domain**:
 
 | Category | Count | Examples |
 |----------|-------|----------|
-| **Core Business Models** | 12 | User, Shoe, Order, SizeTemplate |
-| **Authentication Models** | 8 | LoginCredentials, TokenResponse, PasswordChangeRequest |
-| **Cart & Commerce Models** | 7 | CartItem, AddToCartRequest, StockValidationRequest |
-| **UI & State Models** | 5 | ToastMessage, MenuItem, ProductFilters |
+| **Core Business Models** | 12 | User, Shoe, Order, SizeTemplate, CurrencyConfig |
+| **Authentication Models** | 10 | LoginCredentials, TokenResponse, PasswordChangeRequest, EmailChangeRequest |
+| **Cart & Commerce Models** | 12 | CartItem, AddToCartRequest, StockValidationRequest, OrderSubmissionRequest |
+| **UI & State Models** | 8 | ToastMessage, MenuItem, ProductFilters, LayoutConfig |
+| **Admin Management Models** | 3 | StatusOption, MenuChangeEvent, LayoutState |
 
 ## Missing Collections Analysis
 
@@ -332,8 +333,297 @@ const ADDITIONAL_REQUIRED_INDEXES = [
 - ✅ Scalable multi-currency support
 - ✅ Production-ready security features
 
+---
+
+## 📋 Complete CRUD Endpoint Specification
+
+Based on comprehensive analysis of all services, stores, and Redux patterns across both applications, here are the required API endpoints:
+
+### 🔐 Authentication & User Management
+
+#### Auth Endpoints
+```typescript
+// Authentication Service Endpoints
+POST   /api/auth/login                    // LoginCredentials → LoginResponse
+POST   /api/auth/logout                   // → ApiResponse  
+POST   /api/auth/refresh                  // → TokenResponse
+GET    /api/auth/validate                 // → User | null
+POST   /api/auth/request-access           // AccessRequest → ApiResponse
+
+// Password Management
+POST   /api/auth/password/forgot          // { email } → TokenResponse
+POST   /api/auth/password/reset           // { token, newPassword } → ApiResponse
+PUT    /api/auth/password/change          // PasswordChangeRequest → ApiResponse
+
+// Email Management  
+POST   /api/auth/email/request-change     // EmailChangeRequest → TokenResponse
+POST   /api/auth/email/verify-step        // EmailChangeStepRequest → ApiResponse
+POST   /api/auth/email/confirm-change     // { token } → ApiResponse
+
+// Session Management (Missing Collection)
+GET    /api/auth/sessions                 // → UserSession[]
+DELETE /api/auth/sessions/:id             // → ApiResponse
+DELETE /api/auth/sessions/all             // → ApiResponse
+```
+
+#### User Management Endpoints
+```typescript
+// User CRUD Operations
+GET    /api/users                         // OrderQueryParams → PagedResult<User>
+GET    /api/users/:id                     // → User
+PUT    /api/users/:id                     // User → User
+DELETE /api/users/:id                     // → ApiResponse
+
+// Profile Management
+PUT    /api/users/:id/addresses           // AddressUpdateRequest → User
+GET    /api/users/:id/preferences         // → UserPreferences
+PUT    /api/users/:id/preferences         // UserPreferences → UserPreferences
+
+// Registration Workflow
+POST   /api/registration/request          // RegistrationRequest → ApiResponse
+GET    /api/registration/requests         // → PagedResult<RegistrationRequest>
+PUT    /api/registration/requests/:id     // { status, notes } → ApiResponse
+```
+
+### 👟 Product Management
+
+#### Product Endpoints
+```typescript
+// Product CRUD Operations
+GET    /api/products                      // ShoeQueryParams → PagedResult<Shoe>
+GET    /api/products/:id                  // → Shoe
+POST   /api/products                      // ShoeCreateDto → Shoe
+PUT    /api/products/:id                  // ShoeUpdateDto → Shoe
+DELETE /api/products/:id                  // → ApiResponse
+
+// Product Categories (Missing Collection)
+GET    /api/products/categories           // → ProductCategory[]
+POST   /api/products/categories           // ProductCategory → ProductCategory
+PUT    /api/products/categories/:id       // ProductCategory → ProductCategory
+DELETE /api/products/categories/:id       // → ApiResponse
+
+// Product Search & Filtering
+GET    /api/products/search               // ProductFilters → PagedResult<Shoe>
+GET    /api/products/brands               // → string[]
+GET    /api/products/featured             // → Shoe[]
+
+// Size Templates
+GET    /api/size-templates                // → SizeTemplate[]
+GET    /api/size-templates/:id            // → SizeTemplate
+POST   /api/size-templates                // SizeTemplate → SizeTemplate
+PUT    /api/size-templates/:id            // SizeTemplate → SizeTemplate
+DELETE /api/size-templates/:id            // → ApiResponse
+```
+
+### 🛒 Shopping Cart Management
+
+#### Cart Endpoints
+```typescript
+// Cart Operations
+GET    /api/cart                          // → CartItem[]
+POST   /api/cart/items                    // AddToCartRequest → CartItem
+PUT    /api/cart/items/:productId/:size   // QuantityUpdateRequest → QuantityUpdateResponse
+DELETE /api/cart/items/:productId/:size   // → RemoveItemResponse
+DELETE /api/cart                          // → ApiResponse
+
+// Stock Validation
+POST   /api/cart/validate-stock           // StockValidationRequest → StockValidationResponse
+GET    /api/cart/summary                  // → OrderSummary
+
+// Stock Reservations (Missing Collection)
+POST   /api/cart/reserve-stock            // → ReservationResponse
+DELETE /api/cart/release-reservations     // → ApiResponse
+```
+
+### 📦 Order Management
+
+#### Order Processing Endpoints
+```typescript
+// Order Operations
+GET    /api/orders                        // OrderQueryParams → PagedResult<Order>
+GET    /api/orders/:id                    // → Order
+POST   /api/orders                        // OrderCreateDto → Order
+PUT    /api/orders/:id/status             // OrderUpdateStatusDto → Order
+
+// Order Submission
+POST   /api/orders/submit                 // OrderSubmissionRequest → CurrentOrder
+GET    /api/orders/:id/status             // → OrderStatus
+PUT    /api/orders/:id/payment-confirm    // PaymentConfirmation → Order
+
+// Order History
+GET    /api/orders/history                // → PagedResult<Order>
+GET    /api/orders/history/:userId        // → PagedResult<Order>
+
+// Admin Order Management
+GET    /api/admin/orders                  // AdminOrderQuery → PagedResult<Order>
+PUT    /api/admin/orders/:id              // OrderUpdate → Order
+POST   /api/admin/orders/external         // ExternalOrderCreate → Order
+```
+
+### 📊 Inventory & Stock Management
+
+#### Stock Operations
+```typescript
+// Stock Management
+GET    /api/stock                         // → StockLevel[]
+PUT    /api/stock/bulk-update             // BulkStockUpdateDto → ApiResponse
+GET    /api/stock/:productId              // → ProductStock
+PUT    /api/stock/:productId/:size        // { quantity } → StockLevel
+
+// Inventory Movements (Missing Collection)
+GET    /api/inventory/movements           // → PagedResult<InventoryMovement>
+POST   /api/inventory/movements           // InventoryMovement → InventoryMovement
+GET    /api/inventory/movements/:productId // → InventoryMovement[]
+
+// Stock Alerts & Reports
+GET    /api/stock/low-stock               // → LowStockAlert[]
+GET    /api/stock/reports                 // → StockReport
+```
+
+### 💰 Financial Management
+
+#### Currency & Pricing
+```typescript
+// Currency Management
+GET    /api/currencies                    // → CurrencyConfig[]
+PUT    /api/currencies/active             // { currency } → ApiResponse
+GET    /api/currencies/rates              // → ExchangeRate[]
+
+// Pricing Operations
+PUT    /api/products/:id/pricing          // PricingUpdate → Shoe
+GET    /api/products/:id/pricing-history  // → PriceHistory[]
+
+// Quotes & Proposals (Missing Collection)
+GET    /api/quotes                        // → PagedResult<Quote>
+POST   /api/quotes                        // QuoteRequest → Quote
+PUT    /api/quotes/:id                    // QuoteUpdate → Quote
+POST   /api/quotes/:id/convert-to-order   // → Order
+```
+
+### 🔔 Notifications & Communication
+
+#### Notification System (Missing Collection)
+```typescript
+// User Notifications
+GET    /api/notifications                 // → UserNotification[]
+PUT    /api/notifications/:id/read        // → ApiResponse
+DELETE /api/notifications/:id             // → ApiResponse
+POST   /api/notifications/mark-all-read   // → ApiResponse
+
+// Notification Templates (Admin)
+GET    /api/admin/notification-templates  // → NotificationTemplate[]
+POST   /api/admin/notification-templates  // NotificationTemplate → NotificationTemplate
+PUT    /api/admin/notification-templates/:id // NotificationTemplate → NotificationTemplate
+
+// Toast Messages (Client-side)
+POST   /api/notifications/toast           // ToastMessage → ApiResponse
+```
+
+### 🔍 Search & Preferences
+
+#### Search Management
+```typescript
+// Search Operations
+GET    /api/search/suggestions            // { term } → string[]
+POST   /api/search/history                // SearchQuery → ApiResponse
+GET    /api/search/history                // → SavedSearch[]
+
+// User Preferences (Missing Collection)
+GET    /api/preferences                   // → UserPreferences
+PUT    /api/preferences                   // UserPreferences → UserPreferences
+GET    /api/preferences/size-recommendations // → SizeRecommendation[]
+```
+
+### ⚙️ System Administration
+
+#### Admin Configuration
+```typescript
+// System Configuration (Missing Collection)
+GET    /api/admin/config                  // → SystemConfiguration
+PUT    /api/admin/config                  // SystemConfiguration → SystemConfiguration
+
+// Layout & UI Management
+GET    /api/admin/layout-config           // → LayoutConfig
+PUT    /api/admin/layout-config           // LayoutConfig → LayoutConfig
+
+// Audit & Logging (Missing Collection)
+GET    /api/admin/audit-logs              // → PagedResult<AuditLog>
+GET    /api/admin/audit-logs/:userId      // → PagedResult<AuditLog>
+POST   /api/admin/audit-logs              // AuditLogEntry → AuditLog
+```
+
+### 📈 Analytics & Reporting
+
+#### Business Intelligence
+```typescript
+// Analytics Endpoints
+GET    /api/analytics/sales               // → SalesReport
+GET    /api/analytics/products            // → ProductAnalytics
+GET    /api/analytics/users               // → UserAnalytics
+GET    /api/analytics/inventory           // → InventoryAnalytics
+
+// Export Operations
+GET    /api/exports/orders                // → FileDownload
+GET    /api/exports/users                 // → FileDownload
+GET    /api/exports/products              // → FileDownload
+```
+
+## 🔗 Service-to-Endpoint Mapping
+
+### Client-Shop Application Services:
+- **AuthStore/AuthApiService**: Auth endpoints, session management
+- **CartStore/CartApiService**: Cart operations, stock validation  
+- **OrderStore/OrderApiService**: Order submission, history
+- **ProductStore/ProductApiService**: Product search, categories
+- **RegistrationRequestStore**: Registration workflow
+- **ToastStore**: Notification system
+- **CurrencyStore**: Currency management
+
+### Admin-Panel Application Services:
+- **OrderService**: Admin order management
+- **ShoeService**: Product CRUD operations
+- **UserService**: User management
+- **StockService**: Inventory operations
+- **SizeTemplateService**: Size template management
+- **LayoutService**: UI configuration
+
+## 📊 Implementation Priority Matrix
+
+### Phase 1 (Weeks 1-2): Core Operations
+- Authentication & user management endpoints
+- Product CRUD operations
+- Basic cart functionality
+- Order submission workflow
+
+### Phase 2 (Weeks 3-4): Enhanced Features  
+- Stock management & reservations
+- Registration request workflow
+- User notifications system
+- Search & preferences
+
+### Phase 3 (Weeks 5-6): Business Intelligence
+- Audit logging system
+- Analytics & reporting endpoints
+- Quote management system
+- Advanced admin features
+
+### Phase 4 (Weeks 7-8): System Optimization
+- Performance monitoring endpoints
+- Advanced search capabilities
+- System configuration management
+- Complete testing & documentation
+
+---
+
+## Updated Summary
+
+✅ **Current Schema Coverage**: 75% of identified functionality  
+🔍 **Total Models Analyzed**: 45+ distinct interfaces/types  
+📋 **CRUD Endpoints Required**: 80+ endpoints across 8 major domains  
+⏱️ **Complete Implementation**: 8 weeks for full CRUD coverage  
+
 ## Conclusion
 
-The original database schema covers **80% of the core functionality** effectively. The identified additional collections would bring coverage to **100%** and add significant value for production deployment, particularly for B2B operations requiring audit trails, multi-step authentication workflows, and comprehensive inventory management.
+The comprehensive analysis reveals that while the original database schema covers core functionality effectively, a production-ready B2B system requires **80+ API endpoints** across 8 major functional domains. The identified additional collections and endpoints would bring coverage to **100%** and provide enterprise-grade functionality.
 
-**Recommendation**: Implement Phase 1 collections immediately as they address critical security and B2B workflow gaps. Phase 2 and 3 can be added incrementally based on business priorities.
+**Recommendation**: Implement endpoints in 4-phase approach over 8 weeks, prioritizing authentication, core commerce operations, and administrative features progressively.
