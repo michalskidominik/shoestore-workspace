@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
@@ -8,7 +8,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { CheckboxModule } from 'primeng/checkbox';
 import { SelectModule } from 'primeng/select';
-import { RegistrationRequestService, RegistrationRequest } from '../../core/services/registration-request.service';
+import { RegistrationRequestStore, RegistrationRequest } from '../../core/stores/registration-request.store';
 
 @Component({
   selector: 'app-request-access',
@@ -29,7 +29,7 @@ import { RegistrationRequestService, RegistrationRequest } from '../../core/serv
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RequestAccessComponent {
-  private registrationService = inject(RegistrationRequestService);
+  private registrationStore = inject(RegistrationRequestStore);
   private router = inject(Router);
   private fb = inject(FormBuilder);
 
@@ -37,8 +37,8 @@ export class RequestAccessComponent {
   requestForm: FormGroup;
 
   // State
-  readonly loading = this.registrationService.loading;
-  readonly error = this.registrationService.error;
+  readonly loading = this.registrationStore.loading;
+  readonly error = this.registrationStore.error;
   errorMessage = signal<string | null>(null);
 
   // Country options for dropdown
@@ -85,8 +85,8 @@ export class RequestAccessComponent {
       acceptsTerms: [false, [Validators.requiredTrue]]
     });
 
-    // Clear service state when component loads
-    this.registrationService.clearState();
+    // Clear store state when component loads
+    this.registrationStore.clearState();
   }
 
   async onSubmit(): Promise<void> {
@@ -112,13 +112,25 @@ export class RequestAccessComponent {
       acceptsTerms: formValue.acceptsTerms
     };
 
-    const result = await this.registrationService.submitRegistrationRequest(request);
+    // Submit the request and observe state changes
+    this.registrationStore.submitRegistrationRequest(request);
 
-    if (result.success) {
-      this.router.navigate(['/request-access-success']);
-    } else {
-      this.errorMessage.set(result.message);
-    }
+    // Watch for success or error state changes
+    const effectRef = effect(() => {
+      const success = this.registrationStore.success();
+      const error = this.registrationStore.error();
+      const loading = this.registrationStore.loading();
+
+      if (!loading) { // Only react when loading is complete
+        if (success) {
+          this.router.navigate(['/request-access-success']);
+          effectRef.destroy(); // Clean up the effect
+        } else if (error) {
+          this.errorMessage.set(error);
+          effectRef.destroy(); // Clean up the effect
+        }
+      }
+    }, { allowSignalWrites: true });
   }
 
   // Helper methods for form validation

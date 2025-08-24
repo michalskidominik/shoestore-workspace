@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
-import { RegistrationRequestService } from '../../core/services/registration-request.service';
+import { RegistrationRequestStore } from '../../core/stores/registration-request.store';
 
 @Component({
   selector: 'app-request-access-success',
@@ -19,7 +19,7 @@ import { RegistrationRequestService } from '../../core/services/registration-req
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class RequestAccessSuccessComponent {
-  private registrationService = inject(RegistrationRequestService);
+  private registrationStore = inject(RegistrationRequestStore);
 
-  readonly lastSubmission = this.registrationService.lastSubmission;
+  readonly lastSubmission = this.registrationStore.lastSubmission;
 }

@@ -3,6 +3,7 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { of, delay } from 'rxjs';
+import { User } from '@shoestore/shared-models';
 
 export interface RegistrationRequest {
   email: string;
@@ -44,7 +45,7 @@ export const RegistrationRequestStore = signalStore(
           error: null,
           success: false
         })),
-        switchMap((request) => 
+        switchMap((request) =>
           // Mock API call - replace with real HTTP service call
           of({
             success: true,
@@ -75,6 +76,35 @@ export const RegistrationRequestStore = signalStore(
         success: false,
         lastSubmission: null
       });
+    },
+
+    /**
+     * Convert a RegistrationRequest to a User object
+     * This can be used when creating a user account from registration data
+     */
+    convertToUser(request: RegistrationRequest, userId: number): User {
+      return {
+        id: userId,
+        email: request.email,
+        contactName: request.companyName, // Use company name as contact name for B2B
+        phone: request.phoneNumber,
+        shippingAddress: {
+          street: request.deliveryAddress.street,
+          city: request.deliveryAddress.city,
+          postalCode: request.deliveryAddress.postalCode,
+          country: request.deliveryAddress.country
+        },
+        billingAddress: {
+          street: request.deliveryAddress.street,
+          city: request.deliveryAddress.city,
+          postalCode: request.deliveryAddress.postalCode,
+          country: request.deliveryAddress.country
+        },
+        invoiceInfo: {
+          companyName: request.companyName,
+          vatNumber: request.vatId
+        }
+      };
     }
   }))
 );
