@@ -4,24 +4,37 @@ import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthApiService, LoginCredentials } from '../services/auth-api.service';
-import { User } from '@shoestore/shared-models';
+import { 
+  AuthApiService, 
+  LoginCredentials, 
+  PasswordChangeRequest, 
+  AddressUpdateRequest
+} from '../services/auth-api.service';
+import { User, Address } from '@shoestore/shared-models';
+import { ToastStore } from '../../shared/stores/toast.store';
 
 // Re-export types for components
-export type { User, LoginCredentials };
+export type { User, LoginCredentials, Address, PasswordChangeRequest, AddressUpdateRequest };
 
 interface AuthState {
   user: User | null;
   isLoading: boolean;
   error: string | null;
   isInitialized: boolean;
+  // Profile update loading states
+  addressUpdateLoading: boolean;
+  passwordChangeLoading: boolean;
+  emailChangeLoading: boolean;
 }
 
 const initialState: AuthState = {
   user: null,
   isLoading: false,
   error: null,
-  isInitialized: false
+  isInitialized: false,
+  addressUpdateLoading: false,
+  passwordChangeLoading: false,
+  emailChangeLoading: false
 };
 
 export const AuthStore = signalStore(
@@ -33,7 +46,7 @@ export const AuthStore = signalStore(
     userCompanyName: computed(() => user()?.invoiceInfo?.companyName || null),
     userVatNumber: computed(() => user()?.invoiceInfo?.vatNumber || null)
   })),
-  withMethods((store, router = inject(Router), authApiService = inject(AuthApiService)) => ({
+  withMethods((store, router = inject(Router), authApiService = inject(AuthApiService), toastStore = inject(ToastStore)) => ({
     // Initialize authentication from localStorage
     initializeAuth: rxMethod<void>(
       pipe(
@@ -118,6 +131,66 @@ export const AuthStore = signalStore(
 
     clearError(): void {
       patchState(store, { error: null });
+    },
+
+    // Update user address
+    updateAddress: rxMethod<AddressUpdateRequest>(
+      pipe(
+        tap(() => patchState(store, { addressUpdateLoading: true, error: null })),
+        switchMap((addressUpdate) => authApiService.updateAddress(addressUpdate)),
+        tapResponse({
+          next: (updatedUser) => {
+            patchState(store, { 
+              user: updatedUser, 
+              addressUpdateLoading: false 
+            });
+            toastStore.showSuccess('Address updated successfully');
+          },
+          error: (error: Error) => {
+            patchState(store, { 
+              addressUpdateLoading: false,
+              error: error.message || 'Failed to update address'
+            });
+            toastStore.showError(error.message || 'Failed to update address');
+          }
+        })
+      )
+    ),
+
+    // Change password
+    changePassword: rxMethod<PasswordChangeRequest>(
+      pipe(
+        tap(() => patchState(store, { passwordChangeLoading: true, error: null })),
+        switchMap((passwordChange) => authApiService.changePassword(passwordChange)),
+        tapResponse({
+          next: () => {
+            patchState(store, { passwordChangeLoading: false });
+            toastStore.showSuccess('Password changed successfully');
+          },
+          error: (error: Error) => {
+            patchState(store, { 
+              passwordChangeLoading: false,
+              error: error.message || 'Failed to change password'
+            });
+            toastStore.showError(error.message || 'Failed to change password');
+          }
+        })
+      )
+    ),
+
+    // Email change methods will be handled in the component due to multi-step flow
+    setEmailChangeLoading(loading: boolean): void {
+      patchState(store, { emailChangeLoading: loading });
+    },
+
+    updateUserEmail(newEmail: string): void {
+      const currentUser = store.user();
+      if (currentUser) {
+        const updatedUser = { ...currentUser, email: newEmail };
+        patchState(store, { user: updatedUser });
+        // Update localStorage as well
+        authApiService.storeUserSession(updatedUser);
+      }
     }
   }))
 );
