@@ -9,8 +9,9 @@ import { DialogModule } from 'primeng/dialog';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { DividerModule } from 'primeng/divider';
 import { FormsModule } from '@angular/forms';
-import { CartService, CartItem } from '../../shared/services/cart.service';
-import { AuthService } from '../../core/services/auth.service';
+import { CartStore } from '../../features/cart/stores/cart.store';
+import { OrderStore } from '../../features/orders/stores/order.store';
+import { CartApiService } from '../../features/cart/services/cart-api.service';
 
 interface StockConflict {
   productId: number;
@@ -56,7 +57,7 @@ interface GroupedCartItem {
           <p class="text-slate-600">Review and manage your B2B order</p>
         </div>
 
-        @if (cartService.isEmpty()) {
+        @if (cartStore.isEmpty()) {
           <!-- Empty Cart State -->
           <div class="text-center py-12">
             <div class="bg-white rounded-lg shadow-sm p-12">
@@ -79,11 +80,11 @@ interface GroupedCartItem {
             <div class="lg:col-span-2 space-y-4">
               <div class="bg-white rounded-lg shadow-sm">
                 <div class="p-6 border-b border-slate-200">
-                  <h2 class="text-xl font-semibold text-slate-900">Cart Items ({{ cartService.totalItems() }})</h2>
+                  <h2 class="text-xl font-semibold text-slate-900">Cart Items ({{ cartStore.totalItems() }})</h2>
                 </div>
 
                 <div class="divide-y divide-slate-200">
-                  @for (group of groupedCartItems(); track group.productId) {
+                  @for (group of cartStore.groupedItems(); track group.productId) {
                     <div class="p-6 hover:bg-slate-50 transition-colors">
                       <div class="flex items-start gap-4">
                         <!-- Product Image Placeholder -->
@@ -181,10 +182,10 @@ interface GroupedCartItem {
                 <div class="p-6">
                   <h2 class="text-xl font-semibold text-slate-900 mb-6">Order Summary</h2>
 
-                  <div class="space-y-4 mb-6">
+                    <div class="space-y-4 mb-6">
                     <div class="flex justify-between">
-                      <span class="text-slate-600">Subtotal ({{ cartService.totalItems() }} items)</span>
-                      <span class="text-slate-900 font-medium">\${{ cartService.totalPrice().toFixed(2) }}</span>
+                      <span class="text-slate-600">Subtotal ({{ cartStore.totalItems() }} items)</span>
+                      <span class="text-slate-900 font-medium">\${{ cartStore.cartSummary().subtotal.toFixed(2) }}</span>
                     </div>
 
                     <div class="flex justify-between">
@@ -194,14 +195,14 @@ interface GroupedCartItem {
 
                     <div class="flex justify-between">
                       <span class="text-slate-600">Tax</span>
-                      <span class="text-slate-900 font-medium">\${{ (cartService.totalPrice() * 0.08).toFixed(2) }}</span>
+                      <span class="text-slate-900 font-medium">\${{ cartStore.cartSummary().tax.toFixed(2) }}</span>
                     </div>
 
                     <p-divider></p-divider>
 
                     <div class="flex justify-between text-lg">
                       <span class="font-semibold text-slate-900">Total</span>
-                      <span class="font-bold text-slate-900">\${{ (cartService.totalPrice() * 1.08).toFixed(2) }}</span>
+                      <span class="font-bold text-slate-900">\${{ cartStore.cartSummary().total.toFixed(2) }}</span>
                     </div>
                   </div>
 
@@ -211,8 +212,8 @@ interface GroupedCartItem {
                     icon="pi pi-check"
                     styleClass="w-full !bg-blue-600 !border-blue-600 text-white hover:!bg-blue-700"
                     size="large"
-                    [loading]="isSubmittingOrder()"
-                    [disabled]="cartService.isEmpty() || isUpdating()"
+                    [loading]="orderStore.isSubmitting()"
+                    [disabled]="cartStore.isEmpty() || isUpdating()"
                     (onClick)="submitOrder()">
                   </p-button>
 
@@ -311,59 +312,23 @@ interface GroupedCartItem {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CartComponent {
-  protected readonly cartService = inject(CartService);
-  private readonly authService = inject(AuthService);
+  protected readonly cartStore = inject(CartStore);
+  protected readonly orderStore = inject(OrderStore);
+  private readonly cartApiService = inject(CartApiService);
   private readonly router = inject(Router);
 
   // Component state
   protected readonly isUpdating = signal(false);
-  protected readonly isSubmittingOrder = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
   protected readonly showStockConflictDialog = signal(false);
   protected readonly stockConflicts = signal<StockConflict[]>([]);
-  protected readonly orderId = signal<string | null>(null);
 
-  // Computed properties
-  protected readonly groupedCartItems = computed(() => {
-    const groups = new Map<number, GroupedCartItem>();
+  // Computed properties - removed groupedCartItems since it's now in the store
 
-    this.cartService.items().forEach(item => {
-      if (!groups.has(item.productId)) {
-        groups.set(item.productId, {
-          productId: item.productId,
-          productCode: item.productCode,
-          productName: item.productName,
-          unitPrice: item.unitPrice,
-          sizes: [],
-          totalQuantity: 0,
-          totalPrice: 0
-        });
-      }
-
-      const group = groups.get(item.productId);
-      if (!group) return;
-
-      group.sizes.push({
-        size: item.size,
-        quantity: item.quantity,
-        totalPrice: item.totalPrice
-      });
-      group.totalQuantity += item.quantity;
-      group.totalPrice += item.totalPrice;
-    });
-
-    // Sort sizes within each group
-    groups.forEach(group => {
-      group.sizes.sort((a, b) => a.size - b.size);
-    });
-
-    return Array.from(groups.values()).sort((a, b) => a.productName.localeCompare(b.productName));
-  });
-
-  protected updateQuantity(item: CartItem, newQuantity: number): void {
+  protected updateQuantity(productId: number, size: number, newQuantity: number): void {
     if (newQuantity <= 0) {
-      this.removeItem(item);
+      this.removeSizeVariant(productId, size);
       return;
     }
 
@@ -371,7 +336,7 @@ export class CartComponent {
     this.errorMessage.set(null);
 
     try {
-      this.cartService.updateQuantity(item.productId, item.size, newQuantity);
+      this.cartStore.updateQuantity(productId, size, newQuantity);
       this.successMessage.set('Cart updated successfully');
 
       // Clear success message after 3 seconds
@@ -393,7 +358,7 @@ export class CartComponent {
     this.errorMessage.set(null);
 
     try {
-      this.cartService.updateQuantity(productId, size, newQuantity);
+      this.cartStore.updateQuantity(productId, size, newQuantity);
       this.successMessage.set('Cart updated successfully');
 
       // Clear success message after 3 seconds
@@ -410,7 +375,7 @@ export class CartComponent {
     this.errorMessage.set(null);
 
     try {
-      this.cartService.removeItem(productId, size);
+      this.cartStore.removeItem(productId, size);
       this.successMessage.set('Item removed from cart');
 
       // Clear success message after 3 seconds
@@ -422,13 +387,13 @@ export class CartComponent {
     }
   }
 
-  protected removeItem(item: CartItem): void {
+  protected removeItem(productId: number, size: number): void {
     this.isUpdating.set(true);
     this.errorMessage.set(null);
 
     try {
-      this.cartService.removeItem(item.productId, item.size);
-      this.successMessage.set(`${item.productName} removed from cart`);
+      this.cartStore.removeItem(productId, size);
+      this.successMessage.set('Item removed from cart');
 
       // Clear success message after 3 seconds
       setTimeout(() => this.successMessage.set(null), 3000);
@@ -440,43 +405,47 @@ export class CartComponent {
   }
 
   protected submitOrder(): void {
-    this.isSubmittingOrder.set(true);
     this.errorMessage.set(null);
 
-    // Validate stock first
-    this.cartService.validateCartStock().then(stockValidation => {
-      if (!stockValidation.valid) {
-        this.stockConflicts.set(stockValidation.conflicts);
-        this.showStockConflictDialog.set(true);
-        this.isSubmittingOrder.set(false);
-        return;
-      }
+    // Validate stock first using CartApiService  
+    const items = this.cartStore.entities();
+    const validationRequest = {
+      items: items.map(item => ({
+        productId: item.productId,
+        size: item.size,
+        requestedQuantity: item.quantity
+      }))
+    };
 
-      // Submit order using Observable
-      this.cartService.submitOrder().subscribe({
-        next: (result) => {
-          if (result.success) {
-            this.orderId.set(result.orderId?.toString() || null);
-            // Redirect to payment instructions page with order details
-            this.router.navigate(['/payment-instructions'], {
-              queryParams: {
-                orderId: result.orderId,
-                amount: this.cartService.totalPrice()
-              }
-            });
-          } else {
-            this.errorMessage.set(result.error || 'Failed to submit order');
-          }
-          this.isSubmittingOrder.set(false);
-        },
-        error: () => {
-          this.errorMessage.set('An error occurred while submitting your order');
-          this.isSubmittingOrder.set(false);
+    this.cartApiService.validateStock(validationRequest).subscribe({
+      next: (stockValidation) => {
+        if (!stockValidation.valid) {
+          this.stockConflicts.set(stockValidation.conflicts);
+          this.showStockConflictDialog.set(true);
+          return;
         }
-      });
-    }).catch(() => {
-      this.errorMessage.set('Stock validation failed');
-      this.isSubmittingOrder.set(false);
+
+        // Submit order through OrderStore
+        const orderItems = items.map(item => ({
+          productId: item.productId,
+          productCode: item.productCode,
+          productName: item.productName,
+          size: item.size,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: item.totalPrice
+        }));
+
+        const summary = this.cartStore.cartSummary();
+
+        this.orderStore.submitOrder({ 
+          items: orderItems,
+          summary 
+        });
+      },
+      error: () => {
+        this.errorMessage.set('Stock validation failed');
+      }
     });
   }
 
@@ -486,7 +455,7 @@ export class CartComponent {
   }
 
   protected adjustToAvailableStock(conflict: StockConflict): void {
-    this.cartService.updateQuantity(conflict.productId, conflict.size, conflict.availableStock);
+    this.cartStore.updateQuantity(conflict.productId, conflict.size, conflict.availableStock);
 
     // Remove this conflict from the list
     const updatedConflicts = this.stockConflicts().filter(
@@ -501,7 +470,7 @@ export class CartComponent {
   }
 
   protected removeConflictItem(conflict: StockConflict): void {
-    this.cartService.removeItem(conflict.productId, conflict.size);
+    this.cartStore.removeItem(conflict.productId, conflict.size);
 
     // Remove this conflict from the list
     const updatedConflicts = this.stockConflicts().filter(
@@ -516,7 +485,7 @@ export class CartComponent {
   }
 
   protected getProductName(productId: number): string {
-    const item = this.cartService.items().find(item => item.productId === productId);
+    const item = this.cartStore.entities().find(item => item.productId === productId);
     return item?.productName || 'Unknown Product';
   }
 

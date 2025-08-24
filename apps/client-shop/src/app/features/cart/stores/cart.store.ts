@@ -4,9 +4,9 @@ import { rxMethod } from '@ngrx/signals/rxjs-interop';
 import { pipe, switchMap, tap, of } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { computed, effect, inject } from '@angular/core';
-import { AuthStore } from '../../core/stores/auth.store';
-import { ToastStore } from '../../shared/stores/toast.store';
-import { CartApiService } from './services/cart-api.service';
+import { AuthStore } from '../../../core/stores/auth.store';
+import { ToastStore } from '../../../shared/stores/toast.store';
+import { CartApiService } from '../services/cart-api.service';
 
 export interface CartItem {
   id: string; // productId-size for unique identification
@@ -182,7 +182,7 @@ export const CartStore = signalStore(
                 totalPrice: (existingItem.quantity + request.quantity) * request.unitPrice
               };
               
-              updateEntity({ id: itemId, changes: updatedItem }, store);
+              patchState(store, updateEntity({ id: itemId, changes: updatedItem }));
               toastStore.showSuccess(`Updated ${request.productName} quantity in cart`);
             } else {
               // Add new item
@@ -198,7 +198,7 @@ export const CartStore = signalStore(
                 imageUrl: request.imageUrl
               };
               
-              addEntity(newItem, store);
+              patchState(store, addEntity(newItem));
               toastStore.showSuccess(`Added ${request.productName} to cart`);
             }
 
