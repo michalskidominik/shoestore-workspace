@@ -24,7 +24,7 @@ import { Shoe, SizeTemplate, SizeAvailability } from '@shoestore/shared-models';
 import { ProductService, LegacyProductFilters, ProductSort } from '../../shared/services/product.service';
 import { CartService, AddToCartRequest } from '../../shared/services/cart.service';
 import { ToastService } from '../../shared/services/toast.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthStore } from '../../core/stores/auth.store';
 // Import order component
 import { QuickOrderComponent, OrderData } from './components/quick-order/quick-order.component';
 // Import new components
@@ -99,11 +99,11 @@ export class ProductsComponent implements OnInit, OnDestroy {
   private readonly productService = inject(ProductService);
   private readonly cartService = inject(CartService);
   private readonly toastService = inject(ToastService);
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
 
   // Authentication
-  protected readonly isAuthenticated = this.authService.isAuthenticated;
+  protected readonly isAuthenticated = this.authStore.isAuthenticated;
 
   // State signals
   protected readonly allShoes = signal<Shoe[]>([]);

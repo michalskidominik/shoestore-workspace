@@ -10,7 +10,7 @@ import { Shoe, SizeTemplate } from '@shoestore/shared-models';
 import { QuickOrderComponent, OrderData } from '../quick-order/quick-order.component';
 import { CartService, AddToCartRequest } from '../../../../shared/services/cart.service';
 import { ToastService } from '../../../../shared/services/toast.service';
-import { AuthService } from '../../../../core/services/auth.service';
+import { AuthStore } from '../../../../core/stores/auth.store';
 
 type ViewMode = 'grid' | 'list' | 'large' | 'compact';
 type ImageSize = 'small' | 'medium' | 'large';
@@ -296,7 +296,7 @@ export class ProductCardComponent {
   // Services
   private readonly cartService = inject(CartService);
   private readonly toastService = inject(ToastService);
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly router = inject(Router);
 
   // Inputs
@@ -316,7 +316,7 @@ export class ProductCardComponent {
   protected readonly isOrderSubmitting = signal(false);
 
   // Authentication
-  protected readonly isAuthenticated = this.authService.isAuthenticated;
+  protected readonly isAuthenticated = this.authStore.isAuthenticated;
 
   // Event handlers
   protected onAddToCart(): void {

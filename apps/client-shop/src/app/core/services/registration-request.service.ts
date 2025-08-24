@@ -1,4 +1,5 @@
 import { Injectable, signal } from '@angular/core';
+import { User } from '@shoestore/shared-models';
 
 export interface RegistrationRequest {
   email: string;
@@ -65,7 +66,7 @@ export class RegistrationRequestService {
       };
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Failed to submit registration request';
-      
+
       this._state.update(state => ({
         ...state,
         loading: false,
@@ -87,5 +88,34 @@ export class RegistrationRequestService {
       success: false,
       lastSubmission: null
     });
+  }
+
+  /**
+   * Convert a RegistrationRequest to a User object
+   * This can be used when creating a user account from registration data
+   */
+  convertToUser(request: RegistrationRequest, userId: number): User {
+    return {
+      id: userId,
+      email: request.email,
+      contactName: request.companyName, // Use company name as contact name for B2B
+      phone: request.phoneNumber,
+      shippingAddress: {
+        street: request.deliveryAddress.street,
+        city: request.deliveryAddress.city,
+        postalCode: request.deliveryAddress.postalCode,
+        country: request.deliveryAddress.country
+      },
+      billingAddress: {
+        street: request.deliveryAddress.street,
+        city: request.deliveryAddress.city,
+        postalCode: request.deliveryAddress.postalCode,
+        country: request.deliveryAddress.country
+      },
+      invoiceInfo: {
+        companyName: request.companyName,
+        vatNumber: request.vatId
+      }
+    };
   }
 }

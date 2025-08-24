@@ -7,7 +7,7 @@ import { TagModule } from 'primeng/tag';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { ChartModule } from 'primeng/chart';
 import { SkeletonModule } from 'primeng/skeleton';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthStore } from '../../core/stores/auth.store';
 import { CartService } from '../../shared/services/cart.service';
 import { OrderService } from '../../shared/services/order.service';
 import { Order } from '@shoestore/shared-models';
@@ -44,20 +44,20 @@ interface DashboardStats {
             <div>
               <h1 class="text-2xl sm:text-3xl font-bold text-slate-900">Business Dashboard</h1>
               @if (currentUser()) {
-                <p class="text-slate-600 mt-1">Welcome back, {{ currentUser()?.name || 'Partner' }}</p>
+                <p class="text-slate-600 mt-1">Welcome back, {{ currentUser()?.contactName || 'Partner' }}</p>
               }
             </div>
             <div class="mt-4 sm:mt-0 flex gap-3">
-              <p-button 
-                label="Browse Products" 
+              <p-button
+                label="Browse Products"
                 icon="pi pi-shopping-bag"
                 severity="primary"
                 routerLink="/products"
                 styleClass="!text-sm !px-4 !py-2">
               </p-button>
               @if (cartItemCount() > 0) {
-                <p-button 
-                  label="Review Cart" 
+                <p-button
+                  label="Review Cart"
                   icon="pi pi-shopping-cart"
                   severity="secondary"
                   [outlined]="true"
@@ -73,7 +73,7 @@ interface DashboardStats {
 
       <!-- Main Content -->
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         <!-- Quick Stats Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
           <!-- Total Orders -->
@@ -134,16 +134,16 @@ interface DashboardStats {
 
         <!-- Content Grid -->
         <div class="grid lg:grid-cols-3 gap-6 sm:gap-8">
-          
+
           <!-- Recent Orders -->
           <div class="lg:col-span-2">
             <div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
               <div class="px-6 py-4 border-b border-slate-200 bg-slate-50">
                 <div class="flex items-center justify-between">
                   <h2 class="text-lg font-semibold text-slate-900">Recent Orders</h2>
-                  <p-button 
-                    label="View All" 
-                    severity="secondary" 
+                  <p-button
+                    label="View All"
+                    severity="secondary"
                     [text]="true"
                     routerLink="/orders"
                     styleClass="!text-sm !p-2">
@@ -171,8 +171,8 @@ interface DashboardStats {
                     </div>
                     <h3 class="text-lg font-medium text-slate-900 mb-2">No orders yet</h3>
                     <p class="text-slate-600 mb-4">Start browsing our catalog to place your first order.</p>
-                    <p-button 
-                      label="Browse Products" 
+                    <p-button
+                      label="Browse Products"
                       severity="primary"
                       routerLink="/products"
                       styleClass="!text-sm !px-6 !py-2">
@@ -194,8 +194,8 @@ interface DashboardStats {
                           <p class="text-sm font-medium text-slate-900">€{{ order.totalAmount.toFixed(2) }}</p>
                         </div>
                         <div class="flex-shrink-0">
-                          <p-tag 
-                            [value]="getStatusLabel(order.status)" 
+                          <p-tag
+                            [value]="getStatusLabel(order.status)"
                             [severity]="getStatusSeverity(order.status)"
                             styleClass="!text-xs">
                           </p-tag>
@@ -210,37 +210,37 @@ interface DashboardStats {
 
           <!-- Quick Actions & Cart Summary -->
           <div class="space-y-6">
-            
+
             <!-- Quick Actions -->
             <div class="bg-white rounded-xl border border-slate-200 p-6">
               <h2 class="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
               <div class="space-y-3">
-                <p-button 
-                  label="Browse Products" 
+                <p-button
+                  label="Browse Products"
                   icon="pi pi-search"
                   severity="primary"
                   routerLink="/products"
                   styleClass="w-full !justify-start !text-sm !px-4 !py-3">
                 </p-button>
                 @if (cartItemCount() > 0) {
-                  <p-button 
-                    label="Complete Order" 
+                  <p-button
+                    label="Complete Order"
                     icon="pi pi-check"
                     severity="success"
                     routerLink="/cart"
                     styleClass="w-full !justify-start !text-sm !px-4 !py-3">
                   </p-button>
                 }
-                <p-button 
-                  label="Order History" 
+                <p-button
+                  label="Order History"
                   icon="pi pi-history"
                   severity="secondary"
                   [outlined]="true"
                   routerLink="/orders"
                   styleClass="w-full !justify-start !text-sm !px-4 !py-3">
                 </p-button>
-                <p-button 
-                  label="Account Settings" 
+                <p-button
+                  label="Account Settings"
                   icon="pi pi-cog"
                   severity="secondary"
                   [outlined]="true"
@@ -269,8 +269,8 @@ interface DashboardStats {
                     <span class="font-medium text-slate-900">€{{ (cartValue() * 0.23).toFixed(2) }}</span>
                   </div>
                 </div>
-                <p-button 
-                  label="Review & Order" 
+                <p-button
+                  label="Review & Order"
                   icon="pi pi-arrow-right"
                   severity="primary"
                   routerLink="/cart"
@@ -289,7 +289,7 @@ interface DashboardStats {
                       <i class="pi pi-user text-blue-600"></i>
                     </div>
                     <div>
-                      <p class="font-medium text-slate-900">{{ currentUser()?.name }}</p>
+                      <p class="font-medium text-slate-900">{{ currentUser()?.contactName }}</p>
                       <p class="text-sm text-slate-600">{{ currentUser()?.email }}</p>
                     </div>
                   </div>
@@ -311,7 +311,7 @@ interface DashboardStats {
     .dashboard {
       @apply min-h-screen;
     }
-    
+
     :host ::ng-deep .p-button.p-button-outlined:hover {
       @apply transform-none;
     }
@@ -319,7 +319,7 @@ interface DashboardStats {
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DashboardComponent implements OnInit {
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly cartService = inject(CartService);
   private readonly orderService = inject(OrderService);
 
@@ -328,7 +328,7 @@ export class DashboardComponent implements OnInit {
   protected readonly orders = signal<Order[]>([]);
 
   // Computed values from services
-  readonly currentUser = this.authService.currentUser;
+  readonly currentUser = this.authStore.user;
   readonly cartItemCount = this.cartService.totalItems;
   readonly cartValue = this.cartService.totalPrice;
 
@@ -337,14 +337,14 @@ export class DashboardComponent implements OnInit {
     const allOrders = this.orders();
     const completedOrders = allOrders.filter(o => o.status === 'completed');
     const pendingOrders = allOrders.filter(o => o.status === 'processing' || o.status === 'placed');
-    
+
     return {
       totalOrders: allOrders.length,
       pendingOrders: pendingOrders.length,
       completedOrders: completedOrders.length,
       totalSpent: completedOrders.reduce((sum, order) => sum + order.totalAmount, 0),
-      averageOrderValue: completedOrders.length > 0 
-        ? completedOrders.reduce((sum, order) => sum + order.totalAmount, 0) / completedOrders.length 
+      averageOrderValue: completedOrders.length > 0
+        ? completedOrders.reduce((sum, order) => sum + order.totalAmount, 0) / completedOrders.length
         : 0,
       cartItems: this.cartItemCount(),
       cartValue: this.cartValue()
@@ -364,7 +364,7 @@ export class DashboardComponent implements OnInit {
 
   private loadOrders(): void {
     this.isLoadingOrders.set(true);
-    
+
     // Get orders for the current user
     this.orderService.getOrders({}).subscribe({
       next: (result) => {

@@ -4,7 +4,8 @@ import { pipe, switchMap, tap } from 'rxjs';
 import { tapResponse } from '@ngrx/operators';
 import { inject, computed } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthApiService, User, LoginCredentials } from '../services/auth-api.service';
+import { AuthApiService, LoginCredentials } from '../services/auth-api.service';
+import { User } from '@shoestore/shared-models';
 
 // Re-export types for components
 export type { User, LoginCredentials };
@@ -28,8 +29,9 @@ export const AuthStore = signalStore(
   withState(initialState),
   withComputed(({ user }) => ({
     isAuthenticated: computed(() => !!user()),
-    userPermissions: computed(() => user()?.permissions || []),
-    userType: computed(() => user()?.type || null)
+    userContactName: computed(() => user()?.contactName || null),
+    userCompanyName: computed(() => user()?.invoiceInfo?.companyName || null),
+    userVatNumber: computed(() => user()?.invoiceInfo?.vatNumber || null)
   })),
   withMethods((store, router = inject(Router), authApiService = inject(AuthApiService)) => ({
     // Initialize authentication from localStorage
@@ -38,17 +40,17 @@ export const AuthStore = signalStore(
         tap(() => patchState(store, { isLoading: true })),
         switchMap(() => authApiService.validateSession()),
         tapResponse({
-          next: (user: User | null) => patchState(store, { 
-            user, 
-            isLoading: false, 
+          next: (user: User | null) => patchState(store, {
+            user,
+            isLoading: false,
             isInitialized: true,
-            error: null 
+            error: null
           }),
-          error: () => patchState(store, { 
-            user: null, 
-            isLoading: false, 
+          error: () => patchState(store, {
+            user: null,
+            isLoading: false,
             isInitialized: true,
-            error: 'Failed to initialize authentication' 
+            error: 'Failed to initialize authentication'
           })
         })
       )
@@ -62,16 +64,16 @@ export const AuthStore = signalStore(
         tapResponse({
           next: (result) => {
             authApiService.storeUserSession(result.user);
-            patchState(store, { 
-              user: result.user, 
+            patchState(store, {
+              user: result.user,
               isLoading: false,
-              error: null 
+              error: null
             });
             router.navigate(['/dashboard']);
           },
-          error: (error: Error) => patchState(store, { 
+          error: (error: Error) => patchState(store, {
             isLoading: false,
-            error: error.message || 'Login failed' 
+            error: error.message || 'Login failed'
           })
         })
       )
@@ -91,9 +93,9 @@ export const AuthStore = signalStore(
         switchMap((email) => authApiService.requestPasswordReset(email)),
         tapResponse({
           next: () => patchState(store, { isLoading: false }),
-          error: () => patchState(store, { 
+          error: () => patchState(store, {
             isLoading: false,
-            error: 'Failed to send password reset email' 
+            error: 'Failed to send password reset email'
           })
         })
       )
@@ -106,9 +108,9 @@ export const AuthStore = signalStore(
         switchMap((request) => authApiService.requestAccess(request)),
         tapResponse({
           next: () => patchState(store, { isLoading: false }),
-          error: () => patchState(store, { 
+          error: () => patchState(store, {
             isLoading: false,
-            error: 'Failed to submit access request' 
+            error: 'Failed to submit access request'
           })
         })
       )

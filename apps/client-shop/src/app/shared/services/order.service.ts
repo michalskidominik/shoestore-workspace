@@ -7,10 +7,9 @@ import {
   OrderQueryParams,
   PagedResult,
   OrderStatus,
-  User as OrderUser,
-  InvoiceInfo
+  User as OrderUser
 } from '@shoestore/shared-models';
-import { AuthService, User as AuthUser } from '../../core/services/auth.service';
+import { AuthStore, User as AuthUser } from '../../core/stores/auth.store';
 
 // Mock data for demo purposes
 const MOCK_ORDERS: Order[] = [
@@ -193,7 +192,7 @@ const MOCK_ORDERS: Order[] = [
 })
 export class OrderService {
   private readonly http = inject(HttpClient);
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly apiUrl = '/api/orders';
   private readonly localStorageKey = 'shoestore_orders';
 
@@ -216,7 +215,7 @@ export class OrderService {
     quantity: number;
     unitPrice: number;
   }>): Observable<Order> {
-    const currentUser = this.authService.currentUser();
+    const currentUser = this.authStore.user();
 
     if (!currentUser) {
       return throwError(() => new Error('User must be authenticated to create an order'));
@@ -261,35 +260,19 @@ export class OrderService {
   }
 
   /**
-   * Convert AuthService user to Order user format
+   * Convert AuthStore user to Order user format
    * All users are B2B customers and get invoices
    */
   private convertAuthUserToOrderUser(authUser: AuthUser): OrderUser {
-    // Extract name from email if needed
-    const contactName = authUser.name || authUser.email.split('@')[0];
-
-    // Create default addresses - in a real app these would come from user profile
-    const defaultAddress = {
-      street: 'Default Street 123',
-      city: 'Warsaw',
-      postalCode: '00-001',
-      country: 'Poland'
-    };
-
-    // All users are B2B and get proper invoice information
-    const invoiceInfo: InvoiceInfo = {
-      companyName: `${contactName} Company`,
-      vatNumber: 'PL1234567890' // Default B2B VAT number
-    };
-
+    // The shared User model already has all the required properties
     return {
       id: authUser.id,
       email: authUser.email,
-      contactName: contactName,
-      phone: '+48 123 456 789', // Default phone - would be from user profile
-      shippingAddress: defaultAddress,
-      billingAddress: defaultAddress,
-      invoiceInfo
+      contactName: authUser.contactName,
+      phone: authUser.phone,
+      shippingAddress: authUser.shippingAddress,
+      billingAddress: authUser.billingAddress,
+      invoiceInfo: authUser.invoiceInfo
     };
   }
 

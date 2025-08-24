@@ -189,7 +189,7 @@
                       {{ getGreeting() }}
                     </p>
                     <p class="text-xs text-slate-600 leading-tight">
-                      {{ currentUser()?.name || 'User' }}
+                      {{ currentUser()?.contactName }}
                     </p>
                   </div>
 
@@ -214,7 +214,7 @@
                       size="normal">
                     </p-avatar>
                     <div>
-                      <p class="text-sm font-semibold text-slate-900">{{ currentUser()?.name || 'User' }}</p>
+                      <p class="text-sm font-semibold text-slate-900">{{ currentUser()?.contactName }}</p>
                       <p class="text-xs text-slate-600">{{ currentUser()?.email || 'user@example.com' }}</p>
                     </div>
                   </div>
@@ -288,7 +288,7 @@
               size="normal">
             </p-avatar>
             <div>
-              <p class="text-sm font-semibold text-slate-900">{{ currentUser()?.name || 'User' }}</p>
+              <p class="text-sm font-semibold text-slate-900">{{ currentUser()?.contactName }}</p>
               <p class="text-xs text-slate-600">{{ currentUser()?.email || 'user@example.com' }}</p>
             </div>
           </div>

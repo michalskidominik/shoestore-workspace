@@ -112,7 +112,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     // Initialize authentication when app starts
     this.authStore.initializeAuth();
-    
+
     // Close menus when clicking outside
     document.addEventListener('click', this.handleDocumentClick.bind(this));
   }
@@ -236,9 +236,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   // Get user initials for avatar
   protected getUserInitials(): string {
     const user = this.currentUser();
-    if (!user?.name) return 'U';
+    if (!user?.contactName) return 'U';
 
-    return user.name
+    return user.contactName
       .split(' ')
       .map((n: string) => n.charAt(0))
       .join('')

@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, inject, effect } from '@angular/core';
 import { Observable, of, fromEvent } from 'rxjs';
 import { delay, filter } from 'rxjs/operators';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthStore } from '../../core/stores/auth.store';
 import { OrderService } from './order.service';
 
 export interface CartItem {
@@ -31,7 +31,7 @@ export interface AddToCartRequest {
   providedIn: 'root'
 })
 export class CartService {
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
   private readonly orderService = inject(OrderService);
 
   // Storage keys
@@ -191,7 +191,7 @@ export class CartService {
    */
   private loadCartFromStorage(): void {
     try {
-      const user = this.authService.currentUser();
+      const user = this.authStore.user();
       const storageKey = user ? `${this.USER_CART_PREFIX}${user.id}` : this.GUEST_CART_KEY;
       const savedCart = localStorage.getItem(storageKey);
 
@@ -209,7 +209,7 @@ export class CartService {
    */
   private persistCartToStorage(): void {
     try {
-      const user = this.authService.currentUser();
+      const user = this.authStore.user();
       const storageKey = user ? `${this.USER_CART_PREFIX}${user.id}` : this.GUEST_CART_KEY;
       const cartData = JSON.stringify(this.cartItems());
 
@@ -235,7 +235,7 @@ export class CartService {
         filter(event => event.key?.startsWith(this.USER_CART_PREFIX) || event.key === this.GUEST_CART_KEY)
       )
       .subscribe(event => {
-        const user = this.authService.currentUser();
+        const user = this.authStore.user();
         const expectedKey = user ? `${this.USER_CART_PREFIX}${user.id}` : this.GUEST_CART_KEY;
 
         if (event.key === expectedKey && event.newValue) {
@@ -268,7 +268,7 @@ export class CartService {
    */
   private setupAuthenticationHandler(): void {
     effect(() => {
-      const user = this.authService.currentUser();
+      const user = this.authStore.user();
       if (user) {
         this.mergeGuestCartWithUserCart(user.id);
       }

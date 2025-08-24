@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, input, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthStore } from '../../../core/stores/auth.store';
 
 @Component({
   selector: 'app-footer',
@@ -155,9 +155,9 @@ export class FooterComponent {
   readonly companyName = input.required<string>();
 
   // Services
-  private readonly authService = inject(AuthService);
+  private readonly authStore = inject(AuthStore);
 
   // Computed properties
   readonly currentYear = new Date().getFullYear();
-  readonly isAuthenticated = this.authService.isAuthenticated;
+  readonly isAuthenticated = this.authStore.isAuthenticated;
 }

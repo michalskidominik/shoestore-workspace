@@ -125,10 +125,10 @@ export const OrderStore = signalStore(
             summary: orderData.summary,
             customerInfo: {
               email: user.email,
-              contactName: user.name || user.email.split('@')[0],
-              phone: '+48 123 456 789', // Default phone for B2B users
-              companyName: `${user.name || user.email.split('@')[0]} Company`,
-              vatNumber: 'PL1234567890' // Default VAT for B2B
+              contactName: user.contactName,
+              phone: user.phone,
+              companyName: user.invoiceInfo.companyName,
+              vatNumber: user.invoiceInfo.vatNumber
             }
           };
 

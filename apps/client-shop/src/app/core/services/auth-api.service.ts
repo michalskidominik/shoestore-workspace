@@ -1,13 +1,6 @@
 import { Injectable } from '@angular/core';
+import { User } from '@shoestore/shared-models';
 import { Observable, of, delay, throwError, switchMap } from 'rxjs';
-
-export interface User {
-  id: number;
-  email: string;
-  name: string;
-  type: 'b2b';
-  permissions: string[];
-}
 
 export interface LoginCredentials {
   email: string;
@@ -49,15 +42,30 @@ export class AuthApiService {
             (creds.email === 'admin@sgats.com' && creds.password === 'admin123') ||
             (creds.email === 'user@sgats.com' && creds.password === 'user123') ||
             (creds.email === 'b2b-test@sgats.com' && creds.password === 'b2b123')) {
-          
+
           const user: User = {
             id: 1,
             email: creds.email,
-            name: creds.email.split('@')[0],
-            type: 'b2b',
-            permissions: ['order:create', 'order:view', 'products:view']
+            contactName: creds.email.split('@')[0],
+            phone: '+48 123 456 789',
+            shippingAddress: {
+              street: 'Default Street 123',
+              city: 'Warsaw',
+              postalCode: '00-001',
+              country: 'PL'
+            },
+            billingAddress: {
+              street: 'Default Street 123',
+              city: 'Warsaw',
+              postalCode: '00-001',
+              country: 'PL'
+            },
+            invoiceInfo: {
+              companyName: `${creds.email.split('@')[0]} Company`,
+              vatNumber: 'PL1234567890'
+            }
           };
-          
+
           return of({ success: true, user });
         }
         return throwError(() => new Error('Invalid email or password'));
