@@ -1,6 +1,29 @@
 import { Injectable } from '@angular/core';
 import { Observable, of, delay, throwError } from 'rxjs';
 
+export interface RemoveItemRequest {
+  productId: number;
+  size: number;
+}
+
+export interface RemoveItemResponse {
+  success: boolean;
+  message?: string;
+}
+
+export interface QuantityUpdateRequest {
+  productId: number;
+  size: number;
+  newQuantity: number;
+}
+
+export interface QuantityUpdateResponse {
+  success: boolean;
+  actualQuantity: number; // The quantity that was actually set (might be less than requested)
+  message?: string;
+  availableStock?: number;
+}
+
 export interface StockValidationRequest {
   items: Array<{
     productId: number;
@@ -46,6 +69,67 @@ export interface OrderSubmissionResponse {
   providedIn: 'root'
 })
 export class CartApiService {
+
+  /**
+   * Remove an item from cart
+   * TODO: Replace with real HTTP call to backend API
+   */
+  removeItem(request: RemoveItemRequest): Observable<RemoveItemResponse> {
+    // TODO: Replace with real HTTP call
+    // Example: return this.http.delete<RemoveItemResponse>('/api/cart/remove-item', { body: request });
+
+    return of({
+      success: true,
+      message: 'Item removed from cart'
+    }).pipe(delay(100));
+  }
+
+  /**
+   * Validate and update quantity for a specific cart item
+   * TODO: Replace with real HTTP call to backend API
+   */
+  updateItemQuantity(request: QuantityUpdateRequest): Observable<QuantityUpdateResponse> {
+    // TODO: Replace with real HTTP call
+    // Example: return this.http.put<QuantityUpdateResponse>('/api/cart/update-quantity', request);
+
+    // Mock quantity validation logic
+    const maxStock = 15; // Mock maximum stock per item/size
+    const requestedQuantity = request.newQuantity;
+
+    if (requestedQuantity <= 0) {
+      return of({
+        success: true,
+        actualQuantity: 0,
+        message: 'Item removed from cart'
+      }).pipe(delay(200));
+    }
+
+    if (requestedQuantity > maxStock) {
+      return of({
+        success: false,
+        actualQuantity: maxStock,
+        message: `Only ${maxStock} items available in stock`,
+        availableStock: maxStock
+      }).pipe(delay(200));
+    }
+
+    // Simulate occasional stock updates while user is on the page
+    const randomStock = Math.floor(Math.random() * 20) + 5; // Random stock between 5-24
+    if (requestedQuantity > randomStock && Math.random() < 0.1) { // 10% chance of stock conflict
+      return of({
+        success: false,
+        actualQuantity: randomStock,
+        message: `Only ${randomStock} items available in stock`,
+        availableStock: randomStock
+      }).pipe(delay(200));
+    }
+
+    return of({
+      success: true,
+      actualQuantity: requestedQuantity,
+      message: 'Quantity updated successfully'
+    }).pipe(delay(200));
+  }
 
   /**
    * Validate stock availability for cart items before checkout

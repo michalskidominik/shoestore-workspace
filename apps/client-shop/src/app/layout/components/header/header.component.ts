@@ -263,9 +263,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   protected onUpdateCartQuantity(productId: number, size: number, quantity: number): void {
     if (quantity <= 0) {
-      this.cartStore.removeItem(productId, size);
+      this.cartStore.removeItem({ productId, size });
     } else {
-      this.cartStore.updateQuantity(productId, size, quantity);
+      this.cartStore.updateQuantity({ productId, size, newQuantity: quantity });
     }
   }
 }

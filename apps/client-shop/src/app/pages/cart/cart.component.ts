@@ -100,10 +100,15 @@ interface StockConflict {
                                       [rounded]="true"
                                       styleClass="!w-7 !h-7 !text-slate-600 hover:!bg-slate-200"
                                       (onClick)="updateQuantityBySize(group.productId, sizeVariant.size, sizeVariant.quantity - 1)"
-                                      [disabled]="isUpdating()">
+                                      [disabled]="cartStore.isLoading()">
                                     </p-button>
 
-                                    <span class="text-sm font-semibold text-slate-900 min-w-8 text-center">{{ sizeVariant.quantity }}</span>
+                                    <div class="flex items-center gap-1">
+                                      @if (cartStore.isLoading()) {
+                                        <i class="pi pi-spinner pi-spin text-xs text-slate-400"></i>
+                                      }
+                                      <span class="text-sm font-semibold text-slate-900 min-w-8 text-center">{{ sizeVariant.quantity }}</span>
+                                    </div>
 
                                     <p-button
                                       icon="pi pi-plus"
@@ -112,7 +117,7 @@ interface StockConflict {
                                       [rounded]="true"
                                       styleClass="!w-7 !h-7 !text-slate-600 hover:!bg-slate-200"
                                       (onClick)="updateQuantityBySize(group.productId, sizeVariant.size, sizeVariant.quantity + 1)"
-                                      [disabled]="isUpdating()">
+                                      [disabled]="cartStore.isLoading()">
                                     </p-button>
                                   </div>
                                 </div>
@@ -130,7 +135,7 @@ interface StockConflict {
                                     size="small"
                                     styleClass="!w-7 !h-7"
                                     (onClick)="removeSizeVariant(group.productId, sizeVariant.size)"
-                                    [disabled]="isUpdating()"
+                                    [disabled]="cartStore.isLoading()"
                                     [attr.aria-label]="'Remove size ' + sizeVariant.size + ' from cart'">
                                   </p-button>
                                 </div>
@@ -205,7 +210,7 @@ interface StockConflict {
                     styleClass="w-full !bg-blue-600 !border-blue-600 text-white hover:!bg-blue-700"
                     size="large"
                     [loading]="orderStore.isSubmitting()"
-                    [disabled]="cartStore.isEmpty() || isUpdating()"
+                    [disabled]="cartStore.isEmpty() || cartStore.isLoading()"
                     (onClick)="submitOrder()">
                   </p-button>
 
@@ -310,7 +315,6 @@ export class CartComponent {
   private readonly router = inject(Router);
 
   // Component state
-  protected readonly isUpdating = signal(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
   protected readonly showStockConflictDialog = signal(false);
@@ -319,81 +323,25 @@ export class CartComponent {
   // Computed properties - removed groupedCartItems since it's now in the store
 
   protected updateQuantity(productId: number, size: number, newQuantity: number): void {
-    if (newQuantity <= 0) {
-      this.removeSizeVariant(productId, size);
-      return;
-    }
-
-    this.isUpdating.set(true);
     this.errorMessage.set(null);
-
-    try {
-      this.cartStore.updateQuantity(productId, size, newQuantity);
-      this.successMessage.set('Cart updated successfully');
-
-      // Clear success message after 3 seconds
-      setTimeout(() => this.successMessage.set(null), 3000);
-    } catch {
-      this.errorMessage.set('Failed to update item quantity');
-    } finally {
-      this.isUpdating.set(false);
-    }
+    this.cartStore.updateQuantity({ productId, size, newQuantity });
   }
 
   protected updateQuantityBySize(productId: number, size: number, newQuantity: number): void {
-    if (newQuantity <= 0) {
-      this.removeSizeVariant(productId, size);
-      return;
-    }
+    if (newQuantity < 0) return; // Prevent negative quantities
 
-    this.isUpdating.set(true);
     this.errorMessage.set(null);
-
-    try {
-      this.cartStore.updateQuantity(productId, size, newQuantity);
-      this.successMessage.set('Cart updated successfully');
-
-      // Clear success message after 3 seconds
-      setTimeout(() => this.successMessage.set(null), 3000);
-    } catch {
-      this.errorMessage.set('Failed to update item quantity');
-    } finally {
-      this.isUpdating.set(false);
-    }
+    this.cartStore.updateQuantity({ productId, size, newQuantity });
   }
 
   protected removeSizeVariant(productId: number, size: number): void {
-    this.isUpdating.set(true);
     this.errorMessage.set(null);
-
-    try {
-      this.cartStore.removeItem(productId, size);
-      this.successMessage.set('Item removed from cart');
-
-      // Clear success message after 3 seconds
-      setTimeout(() => this.successMessage.set(null), 3000);
-    } catch {
-      this.errorMessage.set('Failed to remove item from cart');
-    } finally {
-      this.isUpdating.set(false);
-    }
+    this.cartStore.removeItem({ productId, size });
   }
 
   protected removeItem(productId: number, size: number): void {
-    this.isUpdating.set(true);
     this.errorMessage.set(null);
-
-    try {
-      this.cartStore.removeItem(productId, size);
-      this.successMessage.set('Item removed from cart');
-
-      // Clear success message after 3 seconds
-      setTimeout(() => this.successMessage.set(null), 3000);
-    } catch {
-      this.errorMessage.set('Failed to remove item from cart');
-    } finally {
-      this.isUpdating.set(false);
-    }
+    this.cartStore.removeItem({ productId, size });
   }
 
   protected submitOrder(): void {
@@ -447,7 +395,11 @@ export class CartComponent {
   }
 
   protected adjustToAvailableStock(conflict: StockConflict): void {
-    this.cartStore.updateQuantity(conflict.productId, conflict.size, conflict.availableStock);
+    this.cartStore.updateQuantity({
+      productId: conflict.productId,
+      size: conflict.size,
+      newQuantity: conflict.availableStock
+    });
 
     // Remove this conflict from the list
     const updatedConflicts = this.stockConflicts().filter(
@@ -462,7 +414,10 @@ export class CartComponent {
   }
 
   protected removeConflictItem(conflict: StockConflict): void {
-    this.cartStore.removeItem(conflict.productId, conflict.size);
+    this.cartStore.removeItem({
+      productId: conflict.productId,
+      size: conflict.size
+    });
 
     // Remove this conflict from the list
     const updatedConflicts = this.stockConflicts().filter(
