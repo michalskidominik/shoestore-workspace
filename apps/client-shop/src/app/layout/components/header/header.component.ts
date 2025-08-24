@@ -108,8 +108,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ];
 
   ngOnInit(): void {
-    // Initialize authentication when app starts
-    this.authStore.initializeAuth();
+    // Authentication is now initialized during app bootstrap in app.config.ts
 
     // Close menus when clicking outside
     document.addEventListener('click', this.handleDocumentClick.bind(this));
@@ -258,7 +257,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   protected onRemoveCartItem(productId: number, size: number): void {
-    this.cartStore.removeItem(productId, size);
+    this.cartStore.removeItem({ productId, size });
   }
 
   protected onUpdateCartQuantity(productId: number, size: number, quantity: number): void {

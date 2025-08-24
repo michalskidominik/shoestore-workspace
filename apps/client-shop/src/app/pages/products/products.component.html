@@ -23,7 +23,7 @@
       [itemsPerPage]="itemsPerPage()"
       (viewChange)="onViewChange($event)"
       (sizeSystemChange)="onSizeSystemChange($event)"
-      (sortChange)="selectedSort.set($event)"
+      (sortChange)="onSortChange($event)"
       (itemsPerPageChange)="itemsPerPage.set($event)">
     </app-mobile-controls>
   }
@@ -55,7 +55,7 @@
         [activeFilters]="activeFilters()"
         [hasActiveFilters]="hasActiveFilters()"
         (searchChange)="onSearchInput($event)"
-        (clearSearch)="searchTerm.set('')"
+        (clearSearch)="onClearSearch()"
         (toggleBrand)="toggleBrandFilter($event)"
         (clearAllFilters)="clearFilters()"
         (removeFilter)="onRemoveFilter($event)">
@@ -69,7 +69,7 @@
         [selectedBrands]="selectedBrands()"
         (toggleFilters)="toggleMobileFilters()"
         (searchChange)="onSearchInput($event)"
-        (clearSearch)="searchTerm.set('')"
+        (clearSearch)="onClearSearch()"
         (toggleBrand)="toggleBrandFilter($event)"
         (clearAllFilters)="clearFilters()">
       </app-mobile-filters-overlay>
@@ -136,7 +136,7 @@
                     optionLabel="label"
                     optionValue="value"
                     [ngModel]="selectedSort()"
-                    (ngModelChange)="selectedSort.set($event)"
+                    (ngModelChange)="onSortChange($event)"
                     placeholder="Sort by"
                     styleClass="!w-40 !text-sm">
                   </p-select>

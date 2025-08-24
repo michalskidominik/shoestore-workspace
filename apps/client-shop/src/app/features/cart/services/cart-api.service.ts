@@ -74,7 +74,7 @@ export class CartApiService {
    * Remove an item from cart
    * TODO: Replace with real HTTP call to backend API
    */
-  removeItem(request: RemoveItemRequest): Observable<RemoveItemResponse> {
+  removeItem(request: RemoveItemRequest): Observable<RemoveItemResponse> { // eslint-disable-line @typescript-eslint/no-unused-vars
     // TODO: Replace with real HTTP call
     // Example: return this.http.delete<RemoveItemResponse>('/api/cart/remove-item', { body: request });
 
@@ -141,22 +141,42 @@ export class CartApiService {
 
     const conflicts: StockConflict[] = [];
 
-    // Mock stock validation - simulate conflicts for quantities > 10
+    // Mock stock database - simulate realistic stock levels
+    const mockStockDatabase: Record<string, number> = {
+      // Product 1 stock levels by size
+      '1-39': 15, '1-40': 8, '1-41': 12, '1-42': 5, '1-43': 20, '1-44': 3, '1-45': 18,
+      // Product 2 stock levels by size
+      '2-39': 25, '2-40': 7, '2-41': 15, '2-42': 22, '2-43': 9, '2-44': 12, '2-45': 6,
+      // Product 3 stock levels by size
+      '3-39': 4, '3-40': 16, '3-41': 11, '3-42': 8, '3-43': 14, '3-44': 19, '3-45': 13,
+      // Add more products as needed...
+    };
+
+    // Validate each item in the request
     request.items.forEach(item => {
-      if (item.requestedQuantity > 10) { // Mock max stock per size
+      const stockKey = `${item.productId}-${item.size}`;
+      const availableStock = mockStockDatabase[stockKey] ?? Math.floor(Math.random() * 20) + 1; // Random fallback 1-20
+
+      // Add some random variance to simulate real-time stock changes
+      const actualAvailableStock = Math.max(0, availableStock - Math.floor(Math.random() * 3));
+
+      if (item.requestedQuantity > actualAvailableStock) {
         conflicts.push({
           productId: item.productId,
           size: item.size,
           requestedQuantity: item.requestedQuantity,
-          availableStock: 10
+          availableStock: actualAvailableStock
         });
       }
     });
 
+    // Simulate different response times based on cart size
+    const responseDelay = Math.min(300 + (request.items.length * 50), 1000);
+
     return of({
       valid: conflicts.length === 0,
       conflicts
-    }).pipe(delay(300));
+    }).pipe(delay(responseDelay));
   }
 
   /**

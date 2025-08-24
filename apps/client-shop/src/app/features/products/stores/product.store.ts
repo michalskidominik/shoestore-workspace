@@ -104,7 +104,9 @@ export const ProductStore = signalStore(
     // Load products with error handling
     loadProducts: rxMethod<void>(
       pipe(
-        tap(() => patchState(store, { isLoading: true, error: null })),
+        tap(() => {
+          patchState(store, { isLoading: true, error: null });
+        }),
         switchMap(() =>
           productApiService.getAllProducts().pipe(
             tapResponse({
@@ -112,10 +114,12 @@ export const ProductStore = signalStore(
                 patchState(store, setAllEntities(products));
                 patchState(store, { isLoading: false });
               },
-              error: (error: Error) => patchState(store, {
-                isLoading: false,
-                error: error.message || 'Failed to load products'
-              })
+              error: (error: Error) => {
+                patchState(store, {
+                  isLoading: false,
+                  error: error.message || 'Failed to load products'
+                });
+              }
             })
           )
         )
@@ -129,10 +133,14 @@ export const ProductStore = signalStore(
           const currentFilters = store.filters();
           return productApiService.getFilteredAndSortedProducts(currentFilters).pipe(
             tapResponse({
-              next: (filteredProducts) => patchState(store, { filteredProducts }),
-              error: (error: Error) => patchState(store, {
-                error: error.message || 'Failed to load filtered products'
-              })
+              next: (filteredProducts) => {
+                patchState(store, { filteredProducts });
+              },
+              error: (error: Error) => {
+                patchState(store, {
+                  error: error.message || 'Failed to load filtered products'
+                });
+              }
             })
           );
         })
@@ -150,15 +158,20 @@ export const ProductStore = signalStore(
             sizeTemplates: productApiService.getSizeTemplates()
           }).pipe(
             tapResponse({
-              next: (data) => patchState(store, {
-                categories: data.categories,
-                brands: data.brands,
-                brandStats: data.brandStats,
-                sizeTemplates: data.sizeTemplates
-              }),
-              error: (error: Error) => patchState(store, {
-                error: error.message || 'Failed to load supporting data'
-              })
+              next: (data) => {
+                patchState(store, {
+                  categories: data.categories,
+                  brands: data.brands,
+                  brandStats: data.brandStats,
+                  sizeTemplates: data.sizeTemplates
+                });
+              },
+              error: (error: Error) => {
+                console.error('ProductStore.loadSupportingData() error:', error);
+                patchState(store, {
+                  error: error.message || 'Failed to load supporting data'
+                });
+              }
             })
           )
         )
