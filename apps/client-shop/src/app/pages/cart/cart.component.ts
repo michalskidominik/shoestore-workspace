@@ -98,7 +98,7 @@ interface GroupedCartItem {
                         <div class="flex-1 min-w-0">
                           <h3 class="text-lg font-semibold text-slate-900">{{ group.productName }}</h3>
                           <p class="text-slate-600 text-sm mt-1">{{ group.productCode }}</p>
-                          <p class="text-slate-900 font-medium mt-2">{{ group.unitPrice | currency }} each</p>
+                          <p class="text-slate-900 font-medium mt-2">{{ group.unitPrice | appCurrency }} each</p>
 
                           <!-- Size variants -->
                           <div class="mt-4 space-y-3">
@@ -135,7 +135,7 @@ interface GroupedCartItem {
 
                                 <div class="flex items-center gap-3">
                                   <!-- Size Total -->
-                                  <span class="text-sm font-bold text-slate-900">{{ sizeVariant.totalPrice | currency }}</span>
+                                  <span class="text-sm font-bold text-slate-900">{{ sizeVariant.totalPrice | appCurrency }}</span>
 
                                   <!-- Remove Size Button -->
                                   <p-button
@@ -157,7 +157,7 @@ interface GroupedCartItem {
                           <!-- Product Total -->
                           <div class="mt-4 pt-3 border-t border-slate-200 flex justify-between items-center">
                             <span class="text-sm font-medium text-slate-700">Product Total ({{ group.totalQuantity }} items):</span>
-                            <span class="text-lg font-bold text-slate-900">{{ group.totalPrice | currency }}</span>
+                            <span class="text-lg font-bold text-slate-900">{{ group.totalPrice | appCurrency }}</span>
                           </div>
                         </div>
                       </div>
@@ -187,7 +187,7 @@ interface GroupedCartItem {
                     <div class="space-y-4 mb-6">
                     <div class="flex justify-between">
                       <span class="text-slate-600">Subtotal ({{ cartStore.totalItems() }} items)</span>
-                      <span class="text-slate-900 font-medium">{{ cartStore.cartSummary().subtotal | currency }}</span>
+                      <span class="text-slate-900 font-medium">{{ cartStore.cartSummary().subtotal | appCurrency }}</span>
                     </div>
 
                     <div class="flex justify-between">
@@ -197,14 +197,14 @@ interface GroupedCartItem {
 
                     <div class="flex justify-between">
                       <span class="text-slate-600">Tax</span>
-                      <span class="text-slate-900 font-medium">{{ cartStore.cartSummary().tax | currency }}</span>
+                      <span class="text-slate-900 font-medium">{{ cartStore.cartSummary().tax | appCurrency }}</span>
                     </div>
 
                     <p-divider></p-divider>
 
                     <div class="flex justify-between text-lg">
                       <span class="font-semibold text-slate-900">Total</span>
-                      <span class="font-bold text-slate-900">{{ cartStore.cartSummary().total | currency }}</span>
+                      <span class="font-bold text-slate-900">{{ cartStore.cartSummary().total | appCurrency }}</span>
                     </div>
                   </div>
 
@@ -409,7 +409,7 @@ export class CartComponent {
   protected submitOrder(): void {
     this.errorMessage.set(null);
 
-    // Validate stock first using CartApiService  
+    // Validate stock first using CartApiService
     const items = this.cartStore.entities();
     const validationRequest = {
       items: items.map(item => ({
@@ -440,9 +440,9 @@ export class CartComponent {
 
         const summary = this.cartStore.cartSummary();
 
-        this.orderStore.submitOrder({ 
+        this.orderStore.submitOrder({
           items: orderItems,
-          summary 
+          summary
         });
       },
       error: () => {

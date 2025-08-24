@@ -188,7 +188,7 @@ import { CurrencyPipe } from '../../shared/pipes';
                   <!-- Total Amount -->
                   <td class="text-right">
                     <div class="font-bold text-slate-900">
-                      {{ order.totalAmount | currency }}
+                      {{ order.totalAmount | appCurrency }}
                     </div>
                   </td>
 
@@ -278,7 +278,7 @@ import { CurrencyPipe } from '../../shared/pipes';
               <div class="text-sm text-slate-500">Processing</div>
             </div>
             <div class="bg-white rounded-lg shadow-sm p-6 text-center">
-              <div class="text-2xl font-bold text-slate-900">{{ getTotalOrderValue() | currency }}</div>
+              <div class="text-2xl font-bold text-slate-900">{{ getTotalOrderValue() | appCurrency }}</div>
               <div class="text-sm text-slate-500">Total Value</div>
             </div>
           </div>

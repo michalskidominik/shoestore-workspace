@@ -121,7 +121,7 @@ export interface OrderData {
                             {{ getSizeDisplay(getAvailableSizes()[$index]) }}
                           </span>
                           <span class="text-sm font-semibold text-blue-600">
-                            {{ getAvailableSizes()[$index].price | currency }}
+                            {{ getAvailableSizes()[$index].price | appCurrency }}
                           </span>
                         </div>
                       </div>
@@ -183,7 +183,7 @@ export interface OrderData {
                     <!-- Price -->
                     <div class="w-16 flex-shrink-0">
                       <span class="text-xs font-medium text-blue-600">
-                        {{ getAvailableSizes()[$index].price | currency }}
+                        {{ getAvailableSizes()[$index].price | appCurrency }}
                       </span>
                     </div>
 
@@ -267,7 +267,7 @@ export interface OrderData {
               <span class="text-sm font-semibold text-slate-800">Total</span>
             </div>
             <div class="text-right">
-              <div class="text-lg font-bold text-blue-700">{{ getTotalPrice() | currency }}</div>
+              <div class="text-lg font-bold text-blue-700">{{ getTotalPrice() | appCurrency }}</div>
               <div class="text-xs text-slate-600">
                 {{ getTotalQuantity() }} {{ getTotalQuantity() === 1 ? 'item' : 'items' }}
               </div>
@@ -311,7 +311,7 @@ export interface OrderData {
                 <span class="text-base font-semibold text-slate-800">Order Total</span>
               </div>
               <div class="text-right">
-                <div class="text-2xl font-bold text-blue-700">{{ getTotalPrice() | currency }}</div>
+                <div class="text-2xl font-bold text-blue-700">{{ getTotalPrice() | appCurrency }}</div>
                 <div class="text-sm text-slate-600">
                   {{ getTotalQuantity() }} {{ getTotalQuantity() === 1 ? 'item' : 'items' }}
                 </div>

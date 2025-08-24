@@ -133,7 +133,7 @@ import { CurrencyPipe } from '../../shared/pipes';
 
                   <div class="pt-4 border-t border-slate-200">
                     <div class="text-xs font-medium text-slate-600 uppercase tracking-wide mb-2">Amount to Transfer:</div>
-                    <p class="text-2xl font-bold text-slate-900">{{ orderStore.paymentAmount() | currency }}</p>
+                    <p class="text-2xl font-bold text-slate-900">{{ orderStore.paymentAmount() | appCurrency }}</p>
                   </div>
                 </div>
               </div>
@@ -148,11 +148,11 @@ import { CurrencyPipe } from '../../shared/pipes';
                 <div class="space-y-3">
                   <div class="flex justify-between">
                     <span class="text-slate-600">Subtotal ({{ orderStore.currentOrder()?.summary?.itemCount || 0 }} items)</span>
-                    <span class="text-slate-900 font-medium">{{ (orderStore.currentOrder()?.summary?.subtotal || 0) | currency }}</span>
+                    <span class="text-slate-900 font-medium">{{ (orderStore.currentOrder()?.summary?.subtotal || 0) | appCurrency }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-slate-600">Tax</span>
-                    <span class="text-slate-900 font-medium">{{ (orderStore.currentOrder()?.summary?.tax || 0) | currency }}</span>
+                    <span class="text-slate-900 font-medium">{{ (orderStore.currentOrder()?.summary?.tax || 0) | appCurrency }}</span>
                   </div>
                   <div class="flex justify-between">
                     <span class="text-slate-600">Shipping</span>
@@ -160,7 +160,7 @@ import { CurrencyPipe } from '../../shared/pipes';
                   </div>
                   <div class="border-t border-slate-300 pt-3 flex justify-between text-lg">
                     <span class="font-semibold text-slate-900">Total</span>
-                    <span class="font-bold text-slate-900">{{ (orderStore.currentOrder()?.summary?.total || 0) | currency }}</span>
+                    <span class="font-bold text-slate-900">{{ (orderStore.currentOrder()?.summary?.total || 0) | appCurrency }}</span>
                   </div>
                 </div>
               </div>

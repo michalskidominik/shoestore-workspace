@@ -2,7 +2,7 @@ import { Pipe, PipeTransform, inject } from '@angular/core';
 import { CurrencyStore } from '../stores/currency.store';
 
 @Pipe({
-  name: 'currency',
+  name: 'appCurrency',
   pure: true
 })
 export class CurrencyPipe implements PipeTransform {
