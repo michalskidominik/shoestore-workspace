@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, signal, effect, ChangeDetectionStrategy, inject, HostListener } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { Component, OnInit, signal, ChangeDetectionStrategy, inject, HostListener, computed } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -17,8 +16,6 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { ChipModule } from 'primeng/chip';
 import { DialogModule } from 'primeng/dialog';
-import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 // Models and services
 import { Shoe, SizeAvailability } from '@shoestore/shared-models';
 import { ProductStore } from '../../features/products/stores/product.store';
@@ -89,7 +86,7 @@ interface ViewOption {
   styleUrls: ['./products.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ProductsComponent implements OnInit, OnDestroy {
+export class ProductsComponent implements OnInit {
   // Dependency injection using inject() function
   private readonly productStore = inject(ProductStore);
   private readonly cartStore = inject(CartStore);
@@ -101,7 +98,7 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // Authentication
   protected readonly isAuthenticated = this.authStore.isAuthenticated;
 
-  // Access ProductStore signals
+  // Access ProductStore signals directly instead of maintaining local state
   protected readonly allShoes = this.productStore.entities;
   protected readonly sizeTemplates = this.productStore.sizeTemplates;
   protected readonly brands = this.productStore.brands;
@@ -110,23 +107,21 @@ export class ProductsComponent implements OnInit, OnDestroy {
   protected readonly error = this.productStore.error;
   protected readonly filterLoading = signal(false);
 
+  // Use store's filter state directly instead of local signals
+  protected readonly searchTerm = computed(() => this.productStore.filters().searchTerm);
+  protected readonly selectedBrands = computed(() => this.productStore.filters().selectedBrands);
+  protected readonly selectedSort = computed(() => this.productStore.filters().sortBy);
+  protected readonly sizeSystem = computed(() => this.productStore.filters().sizeSystem);
+
   // Mobile dialog state
   protected readonly showMobileOrderDialog = signal(false);
   protected readonly selectedProductForOrder = signal<Shoe | null>(null);
   protected readonly orderDialogSubmitting = signal(false);
   protected readonly isMobile = signal(false);
 
-  // Local filter signals (will sync with ProductStore)
-  protected readonly searchTerm = signal('');
-  protected readonly selectedBrands = signal<string[]>([]);
-  protected readonly selectedSort = signal('name-asc');
-  protected readonly sizeSystem = signal<'eu' | 'us'>('eu');
+  // UI-only state (not synced with store)
   protected readonly currentView = signal<'grid' | 'list'>('grid');
   protected readonly itemsPerPage = signal(12);
-
-  // Search debouncing
-  private readonly searchSubject = new Subject<string>();
-  private readonly destroy$ = new Subject<void>();
 
   // Mobile sidebar state
   protected readonly showMobileFilters = signal(false);
@@ -167,67 +162,58 @@ export class ProductsComponent implements OnInit, OnDestroy {
   ];
 
   constructor() {
-    // Setup search debouncing
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntilDestroyed()
-    ).subscribe(searchTerm => {
-      this.searchTerm.set(searchTerm);
-    });
-
     // Initialize mobile detection
     this.checkIsMobile();
-
-    // Watch for filter changes and sync with ProductStore
-    effect(() => {
-      // Track all filter changes
-      const searchTerm = this.searchTerm();
-      const selectedBrands = this.selectedBrands();
-      const selectedSort = this.selectedSort();
-
-      // Only update store if we have initial data (avoid loading on component init)
-      if (this.brands().length > 0) {
-        // Update ProductStore filters
-        this.productStore.updateFilter('searchTerm', searchTerm);
-        this.productStore.updateFilter('selectedBrands', selectedBrands);
-        this.productStore.updateFilter('sortBy', selectedSort);
-        this.productStore.refreshFilteredProducts();
-      }
-    });
   }
 
   ngOnInit(): void {
     this.loadInitialData();
     this.checkIsMobile();
-    this.setupSearchDebouncing();
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   private loadInitialData(): void {
     // Load products and supporting data using ProductStore
     this.productStore.loadProducts();
     this.productStore.loadSupportingData();
-  }
 
-  private setupSearchDebouncing(): void {
-    // Setup search debouncing
-    this.searchSubject.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      takeUntil(this.destroy$)
-    ).subscribe(searchTerm => {
-      this.productStore.updateFilter('searchTerm', searchTerm);
+    // Load initial filtered products after data is loaded
+    setTimeout(() => {
       this.productStore.refreshFilteredProducts();
-    });
+    }, 100);
+
   }
 
   private checkIsMobile(): void {
     this.isMobile.set(window.innerWidth < 1024); // lg breakpoint
+  }
+
+  // ============================================
+  // FILTER INTERACTION METHODS
+  // ============================================
+
+  protected onSearchChange(searchTerm: string): void {
+    this.productStore.updateFilter('searchTerm', searchTerm);
+    this.productStore.refreshFilteredProducts();
+  }
+
+  protected onBrandToggle(brand: string): void {
+    const currentBrands = this.selectedBrands();
+    const newBrands = currentBrands.includes(brand)
+      ? currentBrands.filter(b => b !== brand)
+      : [...currentBrands, brand];
+
+    this.productStore.updateFilter('selectedBrands', newBrands);
+    this.productStore.refreshFilteredProducts();
+  }
+
+  protected onSortChange(sortBy: string): void {
+    this.productStore.updateFilter('sortBy', sortBy);
+    this.productStore.refreshFilteredProducts();
+  }
+
+  protected onClearSearch(): void {
+    this.productStore.updateFilter('searchTerm', '');
+    this.productStore.refreshFilteredProducts();
   }
 
   // ============================================
@@ -293,13 +279,10 @@ export class ProductsComponent implements OnInit, OnDestroy {
   // ============================================
 
   protected onSearchInput(value: string): void {
-    this.searchTerm.set(value);
-    this.searchSubject.next(value);
+    this.onSearchChange(value);
   }
 
   protected clearFilters(): void {
-    this.searchTerm.set('');
-    this.selectedBrands.set([]);
     this.productStore.clearAllFilters();
   }
 
@@ -443,14 +426,15 @@ export class ProductsComponent implements OnInit, OnDestroy {
   protected onSizeSystemChange(newSizeSystem: 'eu' | 'us'): void {
     // Ensure size system is always valid - prevent deselection
     if (newSizeSystem && (newSizeSystem === 'eu' || newSizeSystem === 'us')) {
-      this.sizeSystem.set(newSizeSystem);
+      this.productStore.updateFilter('sizeSystem', newSizeSystem);
     } else {
       // Fallback to current value or default if invalid
       const current = this.sizeSystem();
       if (!current || (current !== 'eu' && current !== 'us')) {
-        this.sizeSystem.set('eu'); // Default fallback
+        this.productStore.updateFilter('sizeSystem', 'eu'); // Default fallback
       }
     }
+    this.productStore.refreshFilteredProducts();
   }
 
   // ============================================
@@ -469,7 +453,6 @@ export class ProductsComponent implements OnInit, OnDestroy {
       newBrands = current.filter(b => b !== brandValue);
     }
 
-    this.selectedBrands.set(newBrands);
     this.productStore.updateFilter('selectedBrands', newBrands);
     this.productStore.refreshFilteredProducts();
 
@@ -483,11 +466,8 @@ export class ProductsComponent implements OnInit, OnDestroy {
 
   protected onRemoveFilter(event: {type: string, value: string}): void {
     if (event.type === 'search') {
-      this.searchTerm.set('');
       this.productStore.clearFilter('search');
     } else if (event.type === 'brand') {
-      const current = this.selectedBrands();
-      this.selectedBrands.set(current.filter(b => b !== event.value));
       this.productStore.clearFilter('brand', event.value);
     }
     this.productStore.refreshFilteredProducts();

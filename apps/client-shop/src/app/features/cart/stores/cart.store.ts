@@ -108,12 +108,10 @@ export const CartStore = signalStore(
     // Cart summary for checkout
     cartSummary: computed(() => {
       const subtotal = entities().reduce((sum, item) => sum + item.totalPrice, 0);
-      const tax = subtotal * 0.08; // 8% tax rate for B2B
       return {
         subtotal,
-        tax,
         shipping: 0, // Free shipping for B2B orders
-        total: subtotal + tax,
+        total: subtotal, // Netto price (VAT will be calculated at checkout)
         itemCount: entities().reduce((sum, item) => sum + item.quantity, 0)
       };
     })
@@ -209,46 +207,120 @@ export const CartStore = signalStore(
         )
       ),
 
-      // Update item quantity
-      updateQuantity(productId: number, size: number, newQuantity: number): void {
-        const itemId = `${productId}-${size}`;
-        const existingItem = store.entityMap()[itemId];
+      // Update item quantity with backend validation
+      updateQuantity: rxMethod<{ productId: number; size: number; newQuantity: number }>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap(({ productId, size, newQuantity }) => {
+            const itemId = `${productId}-${size}`;
+            const existingItem = store.entityMap()[itemId];
 
-        if (!existingItem) return;
+            if (!existingItem) {
+              patchState(store, { isLoading: false, error: 'Item not found in cart' });
+              return of(null);
+            }
 
-        if (newQuantity <= 0) {
-          patchState(store, removeEntity(itemId));
-          toastStore.showInfo(`Removed ${existingItem.productName} from cart`);
-        } else {
-          const updatedItem: CartItem = {
-            ...existingItem,
-            quantity: newQuantity,
-            totalPrice: newQuantity * existingItem.unitPrice
-          };
+            // Call backend to validate quantity update
+            return cartApiService.updateItemQuantity({
+              productId,
+              size,
+              newQuantity
+            }).pipe(
+              tapResponse({
+                next: (response) => {
+                  if (response.success) {
+                    if (response.actualQuantity === 0) {
+                      // Remove item if quantity is 0
+                      patchState(store, removeEntity(itemId));
+                      toastStore.showInfo(`Removed ${existingItem.productName} from cart`);
+                    } else {
+                      // Update item with validated quantity
+                      const updatedItem: CartItem = {
+                        ...existingItem,
+                        quantity: response.actualQuantity,
+                        totalPrice: response.actualQuantity * existingItem.unitPrice
+                      };
+                      patchState(store, updateEntity({ id: itemId, changes: updatedItem }));
 
-          patchState(store, updateEntity({ id: itemId, changes: updatedItem }));
-        }
+                      if (response.actualQuantity === newQuantity) {
+                        toastStore.showSuccess(response.message || 'Quantity updated successfully');
+                      } else {
+                        toastStore.showWarning(response.message || `Quantity adjusted to ${response.actualQuantity}`);
+                      }
+                    }
+                  } else {
+                    // Backend rejected the quantity update
+                    if (response.availableStock !== undefined && response.availableStock > 0) {
+                      // Update to available stock
+                      const updatedItem: CartItem = {
+                        ...existingItem,
+                        quantity: response.availableStock,
+                        totalPrice: response.availableStock * existingItem.unitPrice
+                      };
+                      patchState(store, updateEntity({ id: itemId, changes: updatedItem }));
+                    }
+                    toastStore.showError(response.message || 'Failed to update quantity');
+                  }
 
-        patchState(store, {
-          lastUpdated: new Date().toISOString(),
-          error: null
-        });
-      },
+                  patchState(store, {
+                    isLoading: false,
+                    lastUpdated: new Date().toISOString()
+                  });
+                },
+                error: (error: Error) => {
+                  patchState(store, {
+                    isLoading: false,
+                    error: error.message || 'Failed to update quantity'
+                  });
+                  toastStore.showError('Failed to update cart. Please try again.');
+                }
+              })
+            );
+          })
+        )
+      ),
 
-      // Remove specific item
-      removeItem(productId: number, size: number): void {
-        const itemId = `${productId}-${size}`;
-        const existingItem = store.entityMap()[itemId];
+      // Remove specific item with backend validation
+      removeItem: rxMethod<{ productId: number; size: number }>(
+        pipe(
+          tap(() => patchState(store, { isLoading: true, error: null })),
+          switchMap(({ productId, size }) => {
+            const itemId = `${productId}-${size}`;
+            const existingItem = store.entityMap()[itemId];
 
-        if (existingItem) {
-          patchState(store, removeEntity(itemId));
-          toastStore.showInfo(`Removed ${existingItem.productName} from cart`);
-          patchState(store, {
-            lastUpdated: new Date().toISOString(),
-            error: null
-          });
-        }
-      },
+            if (!existingItem) {
+              patchState(store, { isLoading: false, error: 'Item not found in cart' });
+              return of(null);
+            }
+
+            // Call backend to remove item
+            return cartApiService.removeItem({ productId, size }).pipe(
+              tapResponse({
+                next: (response) => {
+                  if (response.success) {
+                    patchState(store, removeEntity(itemId));
+                    toastStore.showInfo(response.message || `Removed ${existingItem.productName} from cart`);
+                  } else {
+                    toastStore.showError('Failed to remove item from cart');
+                  }
+
+                  patchState(store, {
+                    isLoading: false,
+                    lastUpdated: new Date().toISOString()
+                  });
+                },
+                error: (error: Error) => {
+                  patchState(store, {
+                    isLoading: false,
+                    error: error.message || 'Failed to remove item'
+                  });
+                  toastStore.showError('Failed to remove item from cart. Please try again.');
+                }
+              })
+            );
+          })
+        )
+      ),
 
       // Clear entire cart
       clearCart(): void {
@@ -303,7 +375,6 @@ export const CartStore = signalStore(
                 totalPrice: item.totalPrice
               })),
               subtotal: summary.subtotal,
-              tax: summary.tax,
               total: summary.total
             };
 

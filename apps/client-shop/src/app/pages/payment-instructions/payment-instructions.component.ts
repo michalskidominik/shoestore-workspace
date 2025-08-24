@@ -151,16 +151,22 @@ import { CurrencyPipe } from '../../shared/pipes';
                     <span class="text-slate-900 font-medium">{{ (orderStore.currentOrder()?.summary?.subtotal || 0) | appCurrency }}</span>
                   </div>
                   <div class="flex justify-between">
-                    <span class="text-slate-600">Tax</span>
-                    <span class="text-slate-900 font-medium">{{ (orderStore.currentOrder()?.summary?.tax || 0) | appCurrency }}</span>
-                  </div>
-                  <div class="flex justify-between">
                     <span class="text-slate-600">Shipping</span>
                     <span class="text-green-600 font-medium">Free</span>
                   </div>
                   <div class="border-t border-slate-300 pt-3 flex justify-between text-lg">
                     <span class="font-semibold text-slate-900">Total</span>
                     <span class="font-bold text-slate-900">{{ (orderStore.currentOrder()?.summary?.total || 0) | appCurrency }}</span>
+                  </div>
+
+                  <!-- VAT Information -->
+                  <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-3">
+                    <div class="flex items-start gap-2">
+                      <i class="pi pi-info-circle text-blue-600 text-sm mt-0.5"></i>
+                      <div class="text-xs text-blue-800">
+                        <p class="font-medium">Prices do NOT include VAT</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -8,7 +8,6 @@ import { CurrencyPipe } from '../../../../../shared/pipes';
 
 interface CartSummary {
   subtotal: number;
-  tax: number;
   shipping: number;
   total: number;
   itemCount: number;
