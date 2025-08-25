@@ -1,9 +1,13 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
+import { HealthService } from './health/health.service';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
+  constructor(
+    private readonly appService: AppService,
+    private readonly healthService: HealthService
+  ) {}
 
   @Get()
   getData() {
@@ -11,11 +15,24 @@ export class AppController {
   }
 
   @Get('/health')
-  getHealth() {
+  async getHealth() {
+    return this.healthService.getHealth();
+  }
+
+  @Get('/health/ready')
+  async getReadiness() {
+    const isReady = await this.healthService.isReady();
     return {
-      status: 'ok',
+      status: isReady ? 'ready' : 'not-ready',
       timestamp: new Date().toISOString(),
-      service: 'shoestore-api'
+    };
+  }
+
+  @Get('/health/live')
+  getLiveness() {
+    return {
+      status: this.healthService.isAlive() ? 'alive' : 'dead',
+      timestamp: new Date().toISOString(),
     };
   }
 }

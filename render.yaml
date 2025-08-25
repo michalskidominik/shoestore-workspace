@@ -148,6 +148,20 @@ services:
         value: "false"
       - key: NX_SKIP_NX_CACHE
         value: "true"
+      # Performance optimizations
+      - key: ENABLE_COMPRESSION
+        value: "true"
+      - key: ENABLE_HELMET
+        value: "true"
+      - key: LOG_LEVEL
+        value: "error"
+      - key: MEMORY_THRESHOLD
+        value: "524288000"
+      # CORS configuration for SPAs
+      - key: CLIENT_SHOP_URL
+        value: "https://shoestore-client-shop.onrender.com"
+      - key: ADMIN_PANEL_URL
+        value: "https://shoestore-admin-panel.onrender.com"
     healthCheckPath: /api/health
     # Auto-deploy on every commit to develop branch
     autoDeployTrigger: commit
