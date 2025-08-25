@@ -26,7 +26,6 @@ import { ProductCardComponent } from '../product-card/product-card.component';
             [product]="product"
             [viewMode]="viewMode()"
             [imageSize]="imageSize()"
-            [sizeSystem]="sizeSystem()"
             [sizeTemplates]="sizeTemplates()"
             [isMobile]="isMobile()"
             (addToCart)="addToCart.emit(product)"
@@ -48,7 +47,6 @@ import { ProductCardComponent } from '../product-card/product-card.component';
             [product]="product"
             [viewMode]="mobileViewMode()"
             [imageSize]="mobileImageSize()"
-            [sizeSystem]="sizeSystem()"
             [sizeTemplates]="sizeTemplates()"
             [isMobile]="isMobile()"
             (addToCart)="mobileOrder.emit(product)"
@@ -111,7 +109,6 @@ export class ProductGridComponent {
   readonly imageSize = input<'small' | 'medium' | 'large'>('medium');
   readonly mobileImageSize = input<'small' | 'medium' | 'large'>('small');
   readonly isLoading = input<boolean>(false);
-  readonly sizeSystem = input.required<'eu' | 'us'>();
   readonly sizeTemplates = input.required<SizeTemplate[]>();
   readonly isMobile = input<boolean>(false);
 

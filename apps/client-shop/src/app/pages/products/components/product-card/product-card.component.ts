@@ -11,6 +11,7 @@ import { QuickOrderComponent, OrderData } from '../quick-order/quick-order.compo
 import { CartStore, AddToCartRequest } from '../../../../features/cart/stores/cart.store';
 import { ToastStore } from '../../../../shared/stores/toast.store';
 import { AuthStore } from '../../../../core/stores/auth.store';
+import { UserSettingsStore } from '../../../../shared/stores/user-settings.store';
 import { ProductPriceRangePipe } from '../../../../shared/pipes';
 
 type ViewMode = 'grid' | 'list' | 'large' | 'compact';
@@ -207,7 +208,6 @@ type ImageSize = 'small' | 'medium' | 'large';
       @if (showQuickOrderDialog() && isAuthenticated()) {
         <app-quick-order
           [product]="product()"
-          [sizeSystem]="sizeSystem()"
           [isSubmitting]="isOrderSubmitting()"
           (placeOrder)="onQuickOrderSubmit($event)"
           (cancelOrder)="onQuickOrderCancel()">
@@ -298,15 +298,18 @@ export class ProductCardComponent {
   private readonly cartStore = inject(CartStore);
   private readonly toastStore = inject(ToastStore);
   private readonly authStore = inject(AuthStore);
+  private readonly userSettingsStore = inject(UserSettingsStore);
   private readonly router = inject(Router);
 
   // Inputs
   readonly product = input.required<Shoe>();
   readonly viewMode = input.required<ViewMode>();
   readonly imageSize = input<ImageSize>('medium');
-  readonly sizeSystem = input<'eu' | 'us'>('eu');
   readonly sizeTemplates = input<SizeTemplate[]>([]);
   readonly isMobile = input<boolean>(false);
+
+  // Size system from UserSettingsStore
+  protected readonly sizeSystem = this.userSettingsStore.sizeSystem;
 
   // Outputs
   readonly addToCart = output<Shoe>();

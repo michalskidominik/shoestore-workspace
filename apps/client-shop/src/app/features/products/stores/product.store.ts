@@ -23,8 +23,7 @@ const initialFilters: ProductFilters = {
   selectedBrands: [],
   selectedCategories: [],
   selectedAvailability: [],
-  sortBy: 'name-asc',
-  sizeSystem: 'eu'
+  sortBy: 'name-asc'
 };
 
 const initialState: ProductState = {
