@@ -11,13 +11,14 @@ import {
   Address,
   LoginCredentials,
   PasswordChangeRequest,
-  AddressUpdateRequest
+  AddressUpdateRequest,
+  AccessRequest
 } from '@shoestore/shared-models';
 import { ToastStore } from '../../shared/stores/toast.store';
 import { environment } from '../../../environments/environment';
 
 // Re-export types for components
-export type { User, LoginCredentials, Address, PasswordChangeRequest, AddressUpdateRequest };
+export type { User, LoginCredentials, Address, PasswordChangeRequest, AddressUpdateRequest, AccessRequest };
 
 // Complete auth state for client-shop
 interface ClientAuthState {
@@ -253,7 +254,7 @@ export const AuthStore = signalStore(
         )
       ),
 
-      requestAccess: rxMethod<{ email: string; company: string }>(
+      requestAccess: rxMethod<AccessRequest>(
         pipe(
           tap(() => patchState(store, { isLoading: true })),
           switchMap((request) => authApiService.requestAccess(request)),
