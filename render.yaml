@@ -115,17 +115,17 @@ services:
     runtime: node
     plan: free
     buildCommand: |
-      echo "Installing dependencies..."
-      npm ci
-      echo "Setting up environment for NX..."
-      export NODE_PATH="./node_modules:$NODE_PATH"
-      export NX_BASE_BRANCH="develop"
-      echo "Working directory:"
-      pwd
-      echo "Node modules path:"
-      echo $NODE_PATH
-      echo "Building API with proper environment..."
-      NODE_PATH="./node_modules" npx nx build api --configuration=production
+      echo "Cleaning previous installations..."
+      rm -rf node_modules package-lock.json
+      echo "Installing dependencies with optional packages..."
+      npm install
+      echo "Verifying NX native module installation..."
+      find node_modules -name "@nx" -type d
+      find node_modules -name "nx-*" -type d
+      echo "Testing NX..."
+      npx nx --version
+      echo "Building API..."
+      npx nx build api --configuration=production
     startCommand: node dist/apps/api/main.js
     buildFilter:
       paths:
