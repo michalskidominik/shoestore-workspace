@@ -142,6 +142,12 @@ export const UserSettingsStore = signalStore(
 
       // Update size system preference
       setSizeSystem(sizeSystem: 'eu' | 'us'): void {
+        // Validate the input
+        if (sizeSystem !== 'eu' && sizeSystem !== 'us') {
+          console.warn(`Invalid size system: ${sizeSystem}. Must be 'eu' or 'us'.`);
+          return;
+        }
+        
         const currentPreferences = store.preferences();
         const updatedPreferences = {
           ...currentPreferences,
