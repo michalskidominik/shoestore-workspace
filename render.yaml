@@ -7,7 +7,7 @@ services:
     runtime: static
     buildCommand: |
       echo "Installing dependencies..."
-      npm ci --ignore-scripts
+      npm ci
       echo "Building client-shop..."
       npx nx build client-shop --configuration=production
     staticPublishPath: ./dist/apps/client-shop/browser
@@ -59,7 +59,7 @@ services:
     runtime: static
     buildCommand: |
       echo "Installing dependencies..."
-      npm ci --ignore-scripts
+      npm ci
       echo "Building admin-panel..."
       npx nx build admin-panel --configuration=production
     staticPublishPath: ./dist/apps/admin-panel/browser
@@ -112,7 +112,7 @@ services:
     plan: free
     buildCommand: |
       echo "Installing dependencies..."
-      npm ci --ignore-scripts
+      npm ci
       echo "Building API..."
       npx nx build api --configuration=production
     startCommand: node dist/apps/api/main.js
