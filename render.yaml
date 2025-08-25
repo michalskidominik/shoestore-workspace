@@ -7,8 +7,14 @@ services:
     runtime: static
     buildCommand: |
       echo "Node version:" && node -v
-      echo "Using installed dependencies (dev + prod)"
-      npx nx --version || echo "Nx version check failed"
+      echo "Installing dependencies (dev + prod)"
+      if [ -f package-lock.json ]; then
+        npm ci || (echo "npm ci failed; falling back to npm install" && npm install)
+      else
+        npm install
+      fi
+      echo "Verifying Nx installation"
+      npx nx --version || (echo "Local Nx not found, temporarily installing..." && npx -y nx@21.1.2 --version)
       echo "Building client-shop via Nx..."
       npx nx build client-shop --configuration=production
     staticPublishPath: ./dist/apps/client-shop/browser
@@ -64,8 +70,14 @@ services:
     runtime: static
     buildCommand: |
       echo "Node version:" && node -v
-      echo "Using installed dependencies (dev + prod)"
-      npx nx --version || echo "Nx version check failed"
+      echo "Installing dependencies (dev + prod)"
+      if [ -f package-lock.json ]; then
+        npm ci || (echo "npm ci failed; falling back to npm install" && npm install)
+      else
+        npm install
+      fi
+      echo "Verifying Nx installation"
+      npx nx --version || (echo "Local Nx not found, temporarily installing..." && npx -y nx@21.1.2 --version)
       echo "Building admin-panel via Nx..."
       npx nx build admin-panel --configuration=production
     staticPublishPath: ./dist/apps/admin-panel/browser
@@ -122,8 +134,14 @@ services:
     plan: free
     buildCommand: |
       echo "Node version:" && node -v
-      echo "Using installed dependencies (dev + prod)"
-      npx nx --version || echo "Nx version check failed"
+      echo "Installing dependencies (dev + prod)"
+      if [ -f package-lock.json ]; then
+        npm ci || (echo "npm ci failed; falling back to npm install" && npm install)
+      else
+        npm install
+      fi
+      echo "Verifying Nx installation"
+      npx nx --version || (echo "Local Nx not found, temporarily installing..." && npx -y nx@21.1.2 --version)
       echo "Building API via Nx..."
       npx nx build api --configuration=production
     startCommand: node dist/apps/api/main.js
