@@ -1,19 +1,35 @@
-# 🚀 Render.com Migration Guide
+# 🚀 Render.com Deployment Guide
 
-This guide walks you through deploying your NX workspace to Render.com after migrating from Vercel.
+This guide walks you through deploying your NX workspace to Render.com using **100% FREE TIER** services.
 
 ## 📋 Prerequisites
 
 1. **GitHub Repository**: Ensure your code is pushed to GitHub
-2. **Render.com Account**: Sign up at [render.com](https://render.com)
+2. **Render.com Account**: Sign up at [render.com](https://render.com) (no payment required)
 3. **Node.js 18+**: Verify with `node --version`
 
 ## 🎯 Deployment Overview
 
-Your workspace will be deployed as:
-- **Client Shop**: Static Site (Angular SPA)
-- **Admin Panel**: Static Site (Angular SPA)  
-- **API**: Web Service (NestJS)
+Your workspace will be deployed as **ALL FREE TIER**:
+- **Client Shop**: Static Site (Angular SPA) - **FREE**
+- **Admin Panel**: Static Site (Angular SPA) - **FREE**  
+- **API**: Web Service (NestJS) - **FREE TIER** with `plan: free`
+
+## 💰 Free Tier Limits
+
+### What's Included FREE:
+- **Static Sites**: Unlimited deployments, global CDN
+- **Web Service**: 750 hours/month (always-on if traffic < 750h)
+- **Bandwidth**: 100GB/month
+- **Build Minutes**: Included monthly allotment
+- **SSL Certificates**: Automatic & free
+- **Custom Domains**: Free (up to 25 per site)
+
+### Free Tier Limitations:
+- **API Spinning**: Free web services sleep after 15 minutes of inactivity
+- **Single Instance**: No scaling beyond 1 instance
+- **Monthly Limits**: 750 hours/month for web services
+- **No Databases**: Free PostgreSQL available separately (1GB, 30-day limit)
 
 ## 📦 Step 1: Deploy Using Blueprint (Recommended)
 
@@ -80,6 +96,7 @@ If you prefer manual setup:
 
 1. **Create Web Service**:
    - Service Type: `Web Service`
+   - **Instance Type**: `Free` ⚠️ **IMPORTANT: Select FREE tier**
    - Build Command: `npm ci --ignore-scripts && npx nx build api --configuration=production`
    - Start Command: `node dist/apps/api/main.js`
    - Auto-Deploy: `Yes`
@@ -123,18 +140,30 @@ If you prefer manual setup:
 
 ### Common Issues
 
-1. **Build Failures**:
+1. **Payment Required Error**:
+   ```bash
+   # Ensure your render.yaml specifies plan: free for web services
+   # Static sites are always free
+   # Check that you selected "Free" tier in dashboard
+   ```
+
+2. **Build Failures**:
    ```bash
    # Check Node.js version in build logs
    # Ensure all dependencies are in package.json
    # Verify build commands work locally
    ```
 
-2. **Static Site Routing**:
+3. **API Sleeping (Free Tier)**:
+   - Free web services sleep after 15 minutes of inactivity
+   - First request after sleep takes 30-60 seconds to wake up
+   - This is normal behavior for free tier
+
+4. **Static Site Routing**:
    - SPA routing is configured in `render.yaml`
    - All routes redirect to `index.html`
 
-3. **API Not Starting**:
+5. **API Not Starting**:
    - Check PORT environment variable
    - Verify health endpoint responds
    - Review start command
