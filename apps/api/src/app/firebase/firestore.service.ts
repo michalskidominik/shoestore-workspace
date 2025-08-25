@@ -113,7 +113,7 @@ export class FirestoreService {
   async create<T>(collectionName: string, data: T, docId?: string): Promise<string> {
     try {
       const collection = this.collection(collectionName);
-      
+
       if (docId) {
         await collection.doc(docId).set({
           ...data,
@@ -141,7 +141,7 @@ export class FirestoreService {
   async findById<T>(collectionName: string, docId: string): Promise<T | null> {
     try {
       const doc = await this.doc(collectionName, docId).get();
-      
+
       if (!doc.exists) {
         return null;
       }

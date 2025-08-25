@@ -103,7 +103,13 @@ export const OrderStore = signalStore(
       return order?.customerInfo.email || null;
     })
   })),
-  withMethods((store, authStore = inject(AuthStore), toastStore = inject(ToastStore), orderApiService = inject(OrderApiService), router = inject(Router)) => ({
+  withMethods((store) => {
+    const authStore = inject(AuthStore);
+    const toastStore = inject(ToastStore);
+    const orderApiService = inject(OrderApiService);
+    const router = inject(Router);
+
+    return {
 
     // Submit order from cart
     submitOrder: rxMethod<{
@@ -245,5 +251,6 @@ export const OrderStore = signalStore(
         return false;
       }
     }
-  }))
+    };
+  })
 );

@@ -19,19 +19,19 @@
     },
     "serve": {
       "continuous": true,
-      "executor": "@nx/js:node",
+      "executor": "nx:run-commands",
       "defaultConfiguration": "development",
       "dependsOn": ["build"],
       "options": {
-        "buildTarget": "api:build",
-        "runBuildTargetDependencies": false
+        "command": "node dist/apps/api/main.js",
+        "cwd": "{workspaceRoot}"
       },
       "configurations": {
         "development": {
-          "buildTarget": "api:build:development"
+          "command": "node dist/apps/api/main.js"
         },
         "production": {
-          "buildTarget": "api:build:production"
+          "command": "node dist/apps/api/main.js"
         }
       }
     },

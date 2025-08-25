@@ -25,12 +25,12 @@ export const orderGuard: CanActivateFn = async (route, state) => {
 
   // Try to extract order ID from route or query params if available
   const orderId = route.queryParams?.['orderId'] || route.params?.['orderId'];
-  
+
   if (orderId) {
     try {
       // Validate order access through the store
       const hasAccess = await orderStore.validateOrderAccess(orderId);
-      
+
       if (hasAccess) {
         return true;
       }
@@ -40,11 +40,11 @@ export const orderGuard: CanActivateFn = async (route, state) => {
   }
 
   // If no valid order found, redirect to cart with message
-  router.navigate(['/cart'], { 
-    queryParams: { 
-      message: 'Please complete your order to access payment instructions' 
+  router.navigate(['/cart'], {
+    queryParams: {
+      message: 'Please complete your order to access payment instructions'
     }
   });
-  
+
   return false;
 };

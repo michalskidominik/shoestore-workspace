@@ -1,0 +1,89 @@
+<div class="login-container">
+  <div class="login-card-wrapper">
+    <p-card header="Admin Login" [style]="{ width: '100%', maxWidth: '400px' }">
+      <div class="logo-section">
+        <h2 class="app-title">Shoe Store Admin</h2>
+        <p class="app-subtitle">Sign in to access the admin panel</p>
+      </div>
+
+      <!-- Error Message -->
+      @if (error()) {
+        <p-message
+          severity="error"
+          [text]="error() || ''"
+          [closable]="true"
+          (onClose)="onClearError()"
+          styleClass="mb-3">
+        </p-message>
+      }
+
+      <!-- Login Form -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <!-- Email Field -->
+        <div class="field">
+          <label for="email" class="field-label">Email Address</label>
+          <input
+            pInputText
+            id="email"
+            formControlName="email"
+            placeholder="Enter your email"
+            [class.ng-invalid]="isFieldInvalid('email')"
+            class="w-full"
+          />
+          @if (isFieldInvalid('email')) {
+            <small class="field-error">{{ getFieldError('email') }}</small>
+          }
+        </div>
+
+        <!-- Password Field -->
+        <div class="field">
+          <label for="password" class="field-label">Password</label>
+          <p-password
+            id="password"
+            formControlName="password"
+            placeholder="Enter your password"
+            [feedback]="false"
+            [toggleMask]="true"
+            [class.ng-invalid]="isFieldInvalid('password')"
+            styleClass="w-full"
+            inputStyleClass="w-full">
+          </p-password>
+          @if (isFieldInvalid('password')) {
+            <small class="field-error">{{ getFieldError('password') }}</small>
+          }
+        </div>
+
+        <!-- Login Button -->
+        <div class="login-button-container">
+          <p-button
+            type="submit"
+            label="Sign In"
+            icon="pi pi-sign-in"
+            [loading]="isLoading()"
+            [disabled]="loginForm.invalid || isLoading()"
+            styleClass="w-full">
+          </p-button>
+        </div>
+      </form>
+
+      <!-- Divider -->
+      <p-divider align="center">
+        <span class="divider-text">OR</span>
+      </p-divider>
+
+      <!-- Quick Login Section -->
+      <div class="quick-login-section">
+        <p class="quick-login-title">Quick Access for Testing</p>
+        <p-button
+          label="Mock Admin Login"
+          icon="pi pi-user"
+          severity="secondary"
+          [loading]="isLoading()"
+          [disabled]="isLoading()"
+          styleClass="w-full"
+          (onClick)="onMockAdminLogin()">
+        </p-button>
+      </div>
+    </p-card>
+  </div>
+</div>

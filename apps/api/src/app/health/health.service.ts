@@ -104,7 +104,7 @@ export class HealthService {
   private async checkFirebase(): Promise<HealthCheck> {
     try {
       const firebaseHealth = await this.firebaseAdminService.healthCheck();
-      
+
       // Filter out services that are not enabled (like auth)
       const enabledServices = Object.entries(firebaseHealth)
         .filter(([key]) => {
@@ -119,7 +119,7 @@ export class HealthService {
         .map(([key]) => key);
 
       const enabledServiceNames = enabledServices.map(([key]) => key);
-      
+
       // Special handling for auth not being enabled
       let message = '';
       if (!firebaseHealth.authEnabled) {

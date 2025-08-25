@@ -1,5 +1,6 @@
 import { Route } from '@angular/router';
 import { AppLayoutComponent } from './layout/component/app-layout.component';
+import { LoginComponent } from './pages/auth/login.component';
 import { OrderDetailComponent } from './pages/orders/components/order-detail/order-detail.component';
 import { OrdersComponent } from './pages/orders/orders.component';
 import { ShoeFormComponent } from './pages/shoes/components/shoe-form/shoe-form.component';
@@ -9,11 +10,20 @@ import { SizeTemplateFormComponent } from './pages/size-templates/components/siz
 import { SizeTemplateListComponent } from './pages/size-templates/components/size-template-list.component';
 import { UserDetailComponent } from './pages/users/components/user-detail/user-detail.component';
 import { UsersComponent } from './pages/users/users.component';
+import { authGuard, guestGuard } from './core/guards/auth.guard';
 
 export const appRoutes: Route[] = [
+  // Login page (for guests only)
+  {
+    path: 'login',
+    component: LoginComponent,
+    canActivate: [guestGuard]
+  },
+  // Main layout with auth protection
   {
     path: '',
     component: AppLayoutComponent,
+    canActivate: [authGuard],
     children: [
       // TODO: Add lazy loading for shoes, size templates, orders, and users
       { path: '', component: ShoesComponent },

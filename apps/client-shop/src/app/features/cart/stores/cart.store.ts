@@ -117,7 +117,11 @@ export const CartStore = signalStore(
       };
     })
   })),
-  withMethods((store, authStore = inject(AuthStore), toastStore = inject(ToastStore), cartApiService = inject(CartApiService)) => {
+  withMethods((store) => {
+    const authStore = inject(AuthStore);
+    const toastStore = inject(ToastStore);
+    const cartApiService = inject(CartApiService);
+
     // Automatic persistence effect
     effect(() => {
       const items = store.entities();

@@ -21,7 +21,7 @@ export class FirebaseConfigService {
   createFirebaseConfig(): FirebaseConfig {
     // Try to get Firebase config from JSON string first (Render.com preferred method)
     const firebaseConfigJson = this.configService.get<string>('FIREBASE_CONFIG');
-    
+
     if (firebaseConfigJson) {
       try {
         const parsedConfig = JSON.parse(firebaseConfigJson);
@@ -62,7 +62,7 @@ export class FirebaseConfigService {
    */
   createFirebaseCredential(): admin.credential.Credential {
     const config = this.createFirebaseConfig();
-    
+
     return admin.credential.cert({
       projectId: config.projectId,
       privateKey: config.privateKey,
@@ -75,7 +75,7 @@ export class FirebaseConfigService {
    */
   getFirebaseAppOptions(): admin.AppOptions {
     const config = this.createFirebaseConfig();
-    
+
     const options: admin.AppOptions = {
       credential: this.createFirebaseCredential(),
       projectId: config.projectId,

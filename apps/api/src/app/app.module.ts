@@ -4,6 +4,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { HealthService } from './health/health.service';
 import { FirebaseModule } from './firebase';
+import { AuthModule } from './auth/auth.module';
+import { AdminModule } from './admin/admin.module';
 import configuration from './config/configuration';
 
 @Module({
@@ -15,6 +17,8 @@ import configuration from './config/configuration';
       envFilePath: ['.env.local', '.env'],
     }),
     FirebaseModule,
+    AuthModule,
+    AdminModule,
   ],
   controllers: [AppController],
   providers: [AppService, HealthService],

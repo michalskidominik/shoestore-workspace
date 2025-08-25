@@ -1,14 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { StyleClassModule } from 'primeng/styleclass';
+import { ButtonModule } from 'primeng/button';
 import { LayoutService } from '../service/layout.service';
+import { AuthStore } from '../../core/stores/auth.store';
 
 @Component({
   selector: 'app-topbar',
   standalone: true,
-  imports: [RouterModule, CommonModule, StyleClassModule],
+  imports: [RouterModule, CommonModule, StyleClassModule, ButtonModule],
   template: ` <div class="layout-topbar">
     <div class="layout-topbar-logo-container">
       <button class="layout-menu-button layout-topbar-action" (click)="layoutService.onMenuToggle()">
@@ -78,10 +80,19 @@ import { LayoutService } from '../service/layout.service';
 
       <div class="layout-topbar-menu hidden lg:block">
         <div class="layout-topbar-menu-content">
-          <button type="button" class="layout-topbar-action">
-            <i class="pi pi-sign-out"></i>
-            <span>Wyloguj</span>
-          </button>
+          @if (authStore.isAuthenticated()) {
+            <div class="user-info">
+              <span class="user-name">{{ authStore.userName() }}</span>
+              <button
+                type="button"
+                class="layout-topbar-action"
+                (click)="onLogout()"
+                title="Logout">
+                <i class="pi pi-sign-out"></i>
+                <span>Logout</span>
+              </button>
+            </div>
+          }
         </div>
       </div>
     </div>
@@ -89,6 +100,7 @@ import { LayoutService } from '../service/layout.service';
 })
 export class AppTopbarComponent {
   items!: MenuItem[];
+  public readonly authStore = inject(AuthStore);
 
   constructor(public layoutService: LayoutService) {}
 
@@ -97,5 +109,9 @@ export class AppTopbarComponent {
       ...state,
       darkTheme: !state.darkTheme,
     }));
+  }
+
+  onLogout(): void {
+    this.authStore.logout();
   }
 }

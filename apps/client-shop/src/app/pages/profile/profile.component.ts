@@ -89,8 +89,8 @@ export class ProfileComponent implements OnDestroy {
   readonly emailChangeStep = signal<EmailChangeStep>('initial');
   readonly emailChangeData = signal<{
     newEmail: string;
-    oldEmailToken: string;
-    newEmailToken: string;
+    oldEmailToken?: string;
+    newEmailToken?: string;
     oldTokenExpiry?: Date;
     newTokenExpiry?: Date;
   }>({
@@ -315,8 +315,8 @@ export class ProfileComponent implements OnDestroy {
         this.emailChangeData.update(data => ({
           ...data,
           newEmail,
-          oldEmailToken: response.token,
-          oldTokenExpiry: new Date(response.expiresAt)
+          oldEmailToken: response.token || '',
+          oldTokenExpiry: response.expiresAt ? new Date(response.expiresAt) : undefined
         }));
         this.emailChangeStep.set('verify-old');
 
@@ -348,8 +348,8 @@ export class ProfileComponent implements OnDestroy {
         this.authStore.setEmailChangeLoading(false);
         this.emailChangeData.update(current => ({
           ...current,
-          newEmailToken: response.token,
-          newTokenExpiry: new Date(response.expiresAt)
+          newEmailToken: response.token || '',
+          newTokenExpiry: response.expiresAt ? new Date(response.expiresAt) : undefined
         }));
         this.emailChangeStep.set('verify-new');
 
@@ -407,8 +407,8 @@ export class ProfileComponent implements OnDestroy {
         this.authStore.setEmailChangeLoading(false);
         this.emailChangeData.update(current => ({
           ...current,
-          oldEmailToken: response.token,
-          oldTokenExpiry: new Date(response.expiresAt)
+          oldEmailToken: response.token || '',
+          oldTokenExpiry: response.expiresAt ? new Date(response.expiresAt) : undefined
         }));
 
         // Start cooldown
@@ -439,8 +439,8 @@ export class ProfileComponent implements OnDestroy {
         this.authStore.setEmailChangeLoading(false);
         this.emailChangeData.update(current => ({
           ...current,
-          newEmailToken: response.token,
-          newTokenExpiry: new Date(response.expiresAt)
+          newEmailToken: response.token || '',
+          newTokenExpiry: response.expiresAt ? new Date(response.expiresAt) : undefined
         }));
 
         // Start cooldown

@@ -15,6 +15,7 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
+      "@shoestore/shared-auth": ["shared/shared-auth/src/index.ts"],
       "@shoestore/shared-models": ["shared/shared-models/src/index.ts"],
       "@shoestore/shared-utils": ["shared/shared-utils/src/index.ts"]
     }

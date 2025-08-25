@@ -1,10 +1,10 @@
 export { FirebaseModule } from './firebase.module';
 export { FirebaseAdminService } from './firebase-admin.service';
 export { FirebaseConfigService, FirebaseConfig } from './firebase.config';
-export { 
-  FirestoreService, 
-  FIRESTORE_COLLECTIONS, 
+export {
+  FirestoreService,
+  FIRESTORE_COLLECTIONS,
   FirestoreCollections,
   PaginatedResult,
-  QueryOptions 
+  QueryOptions
 } from './firestore.service';

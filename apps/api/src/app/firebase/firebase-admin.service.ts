@@ -49,9 +49,9 @@ export class FirebaseAdminService implements OnModuleInit, OnModuleDestroy {
     }
 
     const options = this.firebaseConfigService.getFirebaseAppOptions();
-    
+
     this.app = admin.initializeApp(options, this.appName);
-    
+
     // Test the connection
     await this.testConnection();
   }
@@ -229,7 +229,7 @@ export class FirebaseAdminService implements OnModuleInit, OnModuleDestroy {
       result.authEnabled = true;
     } catch (error) {
       // Check if this is specifically about auth not being enabled
-      if (error.message?.includes('no configuration corresponding') || 
+      if (error.message?.includes('no configuration corresponding') ||
           error.message?.includes('auth/configuration-not-found') ||
           error.code === 'auth/configuration-not-found') {
         this.logger.debug('Firebase Authentication is not enabled in this project');

@@ -15,6 +15,7 @@ export interface User {
   email: string;
   contactName: string;
   phone: string;
+  role?: string;
   shippingAddress: Address;
   billingAddress: Address;
   invoiceInfo: InvoiceInfo;

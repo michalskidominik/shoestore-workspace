@@ -711,10 +711,10 @@ const COMPREHENSIVE_INDEXES = [
 #### Authentication Endpoints
 ```typescript
 // Core Authentication
-POST   /api/auth/login                    // LoginCredentials → LoginResponse
-POST   /api/auth/logout                   // → ApiResponse  
-POST   /api/auth/refresh                  // → TokenResponse
-GET    /api/auth/validate                 // → User | null
+✅ POST   /api/auth/login                    // LoginCredentials → LoginResponse
+✅ POST   /api/auth/logout                   // → ApiResponse  
+✅ POST   /api/auth/refresh                  // → TokenResponse
+✅ GET    /api/auth/validate                 // → UserValidationResponse
 POST   /api/auth/request-access           // AccessRequest → ApiResponse
 
 // Password Management
