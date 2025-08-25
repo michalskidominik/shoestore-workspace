@@ -17,7 +17,12 @@ export interface AppConfig {
 }
 
 export const DEFAULT_API_CONFIG: ApiConfig = {
-  baseUrl: 'http://localhost:3000/api',
+  // Use env override if provided (e.g., injected at build time) otherwise default to production API to prevent accidental localhost calls in deployed builds
+  baseUrl: ((): string => {
+    interface GlobalWithApiVar { API_BASE_URL?: string }
+    const g = globalThis as GlobalWithApiVar;
+    return g.API_BASE_URL || 'https://shoestore-api.onrender.com/api';
+  })(),
   timeout: 30000,
   retryAttempts: 3
 };
