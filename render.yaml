@@ -8,6 +8,8 @@ services:
     buildCommand: |
       echo "Installing dependencies..."
       npm ci
+      echo "Verifying NX installation..."
+      npx nx --version
       echo "Building client-shop..."
       npx nx build client-shop --configuration=production
     staticPublishPath: ./dist/apps/client-shop/browser
@@ -60,6 +62,8 @@ services:
     buildCommand: |
       echo "Installing dependencies..."
       npm ci
+      echo "Verifying NX installation..."
+      npx nx --version
       echo "Building admin-panel..."
       npx nx build admin-panel --configuration=production
     staticPublishPath: ./dist/apps/admin-panel/browser
@@ -113,6 +117,12 @@ services:
     buildCommand: |
       echo "Installing dependencies..."
       npm ci
+      echo "Current working directory:"
+      pwd
+      echo "Listing files:"
+      ls -la
+      echo "Checking NX workspace..."
+      npx nx show projects
       echo "Building API..."
       npx nx build api --configuration=production
     startCommand: node dist/apps/api/main.js
