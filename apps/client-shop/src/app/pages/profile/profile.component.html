@@ -124,10 +124,8 @@
                 </div>
               </div>
 
-              <p-divider></p-divider>
-
-              <!-- Copy to Billing Button -->
-              <div class="copy-address-section">
+              <!-- Copy to Billing Button integrated in divider -->
+              <p-divider align="center">
                 <p-button
                   label="Copy Shipping to Billing"
                   icon="pi pi-copy"
@@ -137,7 +135,7 @@
                   (onClick)="copyShippingToBilling()"
                   type="button">
                 </p-button>
-              </div>
+              </p-divider>
 
               <!-- Billing Address -->
               <div class="address-section">

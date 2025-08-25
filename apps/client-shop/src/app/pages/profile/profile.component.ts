@@ -202,12 +202,12 @@ export class ProfileComponent implements OnDestroy {
     // Setup token expiry timers
     this.timerInterval = setInterval(() => {
       const data = this.emailChangeData();
-      
+
       if (data.oldTokenExpiry) {
         const timeLeft = Math.max(0, Math.floor((data.oldTokenExpiry.getTime() - Date.now()) / 1000));
         this.oldTokenTimeLeft.set(timeLeft);
       }
-      
+
       if (data.newTokenExpiry) {
         const timeLeft = Math.max(0, Math.floor((data.newTokenExpiry.getTime() - Date.now()) / 1000));
         this.newTokenTimeLeft.set(timeLeft);
@@ -287,10 +287,10 @@ export class ProfileComponent implements OnDestroy {
 
     // Clear any previous errors
     this.passwordForm.get('currentPassword')?.setErrors(null);
-    
+
     // Use store method which handles loading state automatically
     this.authStore.changePassword(passwordChange);
-    
+
     // Reset form on success (we could also listen to store state changes)
     setTimeout(() => {
       if (!this.passwordChangeLoading()) {
@@ -308,7 +308,7 @@ export class ProfileComponent implements OnDestroy {
 
     const newEmail = this.emailForm.value.newEmail;
     this.authStore.setEmailChangeLoading(true);
-    
+
     this.authApiService.initiateEmailChange(newEmail).subscribe({
       next: (response) => {
         this.authStore.setEmailChangeLoading(false);
@@ -319,7 +319,7 @@ export class ProfileComponent implements OnDestroy {
           oldTokenExpiry: new Date(response.expiresAt)
         }));
         this.emailChangeStep.set('verify-old');
-        
+
         // Show token in alert for development
         alert(`Token sent to your current email: ${response.token}`);
         this.toastStore.showInfo(`Verification code sent to your current email`);
@@ -340,9 +340,9 @@ export class ProfileComponent implements OnDestroy {
 
     const token = this.oldTokenForm.value.token;
     const data = this.emailChangeData();
-    
+
     this.authStore.setEmailChangeLoading(true);
-    
+
     this.authApiService.verifyOldEmailToken(token, data.newEmail).subscribe({
       next: (response) => {
         this.authStore.setEmailChangeLoading(false);
@@ -352,7 +352,7 @@ export class ProfileComponent implements OnDestroy {
           newTokenExpiry: new Date(response.expiresAt)
         }));
         this.emailChangeStep.set('verify-new');
-        
+
         // Show token in alert for development
         alert(`Token sent to your new email (${data.newEmail}): ${response.token}`);
         this.toastStore.showInfo(`Verification code sent to ${data.newEmail}`);
@@ -373,16 +373,16 @@ export class ProfileComponent implements OnDestroy {
 
     const token = this.newTokenForm.value.token;
     const data = this.emailChangeData();
-    
+
     this.authStore.setEmailChangeLoading(true);
-    
+
     this.authApiService.verifyNewEmailToken(token, data.newEmail).subscribe({
       next: () => {
         this.authStore.setEmailChangeLoading(false);
         this.authStore.updateUserEmail(data.newEmail);
         this.emailChangeStep.set('complete');
         this.toastStore.showSuccess('Email address updated successfully');
-        
+
         // Reset email change flow after 3 seconds
         setTimeout(() => {
           this.resetEmailChangeFlow();
@@ -398,10 +398,10 @@ export class ProfileComponent implements OnDestroy {
 
   onResendOldToken(): void {
     if (!this.canResendOldToken()) return;
-    
+
     const data = this.emailChangeData();
     this.authStore.setEmailChangeLoading(true);
-    
+
     this.authApiService.initiateEmailChange(data.newEmail).subscribe({
       next: (response) => {
         this.authStore.setEmailChangeLoading(false);
@@ -410,11 +410,11 @@ export class ProfileComponent implements OnDestroy {
           oldEmailToken: response.token,
           oldTokenExpiry: new Date(response.expiresAt)
         }));
-        
+
         // Start cooldown
         this.canResendOldToken.set(false);
         this.resendOldCooldown.set(60);
-        
+
         alert(`New token sent to your current email: ${response.token}`);
         this.toastStore.showInfo('New verification code sent to your current email');
       },
@@ -428,12 +428,12 @@ export class ProfileComponent implements OnDestroy {
 
   onResendNewToken(): void {
     if (!this.canResendNewToken()) return;
-    
+
     const data = this.emailChangeData();
     const token = this.oldTokenForm.value.token;
-    
+
     this.authStore.setEmailChangeLoading(true);
-    
+
     this.authApiService.verifyOldEmailToken(token, data.newEmail).subscribe({
       next: (response) => {
         this.authStore.setEmailChangeLoading(false);
@@ -442,11 +442,11 @@ export class ProfileComponent implements OnDestroy {
           newEmailToken: response.token,
           newTokenExpiry: new Date(response.expiresAt)
         }));
-        
+
         // Start cooldown
         this.canResendNewToken.set(false);
         this.resendNewCooldown.set(60);
-        
+
         alert(`New token sent to ${data.newEmail}: ${response.token}`);
         this.toastStore.showInfo(`New verification code sent to ${data.newEmail}`);
       },
@@ -480,13 +480,13 @@ export class ProfileComponent implements OnDestroy {
   isFieldInvalid(form: FormGroup, fieldName: string): boolean {
     const field = form.get(fieldName);
     const fieldInvalid = !!(field && field.invalid && (field.dirty || field.touched));
-    
+
     // Check for form-level errors (like password mismatch) for confirm password field
     if (fieldName === 'confirmPassword') {
       const formInvalid = !!(form.errors?.['passwordMismatch'] && field && (field.dirty || field.touched));
       return fieldInvalid || formInvalid;
     }
-    
+
     return fieldInvalid;
   }
 
@@ -499,12 +499,12 @@ export class ProfileComponent implements OnDestroy {
       if (field.errors['pattern']) return 'Please enter a valid 6-digit code';
       if (field.errors['incorrectPassword']) return 'Current password is incorrect';
     }
-    
+
     // Check for form-level errors (like password mismatch)
     if (fieldName === 'confirmPassword' && form.errors?.['passwordMismatch']) {
       return 'Passwords do not match';
     }
-    
+
     return '';
   }
 
