@@ -6,11 +6,11 @@ services:
     type: web
     runtime: static
     buildCommand: |
-  echo "Installing dependencies (dev + prod)..."
-  npm ci --ignore-scripts
-  echo "Node version:" && node -v
-  echo "Building client-shop via Nx..."
-  npx nx build client-shop --configuration=production
+      echo "Node version:" && node -v
+      echo "Using installed dependencies (dev + prod)"
+      npx nx --version || echo "Nx version check failed"
+      echo "Building client-shop via Nx..."
+      npx nx build client-shop --configuration=production
     staticPublishPath: ./dist/apps/client-shop/browser
     buildFilter:
       paths:
@@ -63,11 +63,11 @@ services:
     type: web
     runtime: static
     buildCommand: |
-  echo "Installing dependencies (dev + prod)..."
-  npm ci --ignore-scripts
-  echo "Node version:" && node -v
-  echo "Building admin-panel via Nx..."
-  npx nx build admin-panel --configuration=production
+      echo "Node version:" && node -v
+      echo "Using installed dependencies (dev + prod)"
+      npx nx --version || echo "Nx version check failed"
+      echo "Building admin-panel via Nx..."
+      npx nx build admin-panel --configuration=production
     staticPublishPath: ./dist/apps/admin-panel/browser
     buildFilter:
       paths:
@@ -121,11 +121,11 @@ services:
     runtime: node
     plan: free
     buildCommand: |
-  echo "Installing dependencies (dev + prod)..."
-  npm ci --ignore-scripts
-  echo "Node version:" && node -v
-  echo "Building API via Nx..."
-  npx nx build api --configuration=production
+      echo "Node version:" && node -v
+      echo "Using installed dependencies (dev + prod)"
+      npx nx --version || echo "Nx version check failed"
+      echo "Building API via Nx..."
+      npx nx build api --configuration=production
     startCommand: node dist/apps/api/main.js
     buildFilter:
       paths:
