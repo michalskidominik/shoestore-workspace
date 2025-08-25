@@ -3,6 +3,8 @@
  * Nx-aware Vercel build script for Angular SPA apps.
  * Builds multiple Angular apps and structures output for Vercel deployment.
  * Optimized for 2025 Vercel + Nx best practices.
+ * 
+ * Includes cache busting for development/preview deployments.
  */
 
 const { execSync } = require('child_process');
@@ -11,6 +13,23 @@ const path = require('path');
 
 const root = path.join(__dirname, '..');
 const distVercel = path.join(root, 'dist-vercel');
+
+// Detect environment for cache busting
+const isDevelopment = process.env.VERCEL_ENV === 'preview' || 
+                     process.env.NODE_ENV === 'development' || 
+                     (process.env.VERCEL_GIT_COMMIT_REF && process.env.VERCEL_GIT_COMMIT_REF !== 'master');
+
+// Default to production if no specific environment is set
+const isProduction = !isDevelopment && (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV === 'production' || !process.env.NODE_ENV);
+
+const buildConfig = isProduction ? 'production' : 'development';
+const timestamp = Date.now();
+
+console.log(`🌍 Environment: ${isProduction ? 'Production' : 'Development/Preview'}`);
+console.log(`📦 Build Configuration: ${buildConfig}`);
+if (!isProduction) {
+  console.log(`🕒 Cache busting timestamp: ${timestamp}`);
+}
 
 function run(cmd) {
   console.log(`\n▶ ${cmd}`);
@@ -40,6 +59,34 @@ function copyDir(src, dest) {
   }
 }
 
+function addCacheBustingToHtml(htmlPath, appName) {
+  if (isProduction) return;
+  
+  console.log(`🚫 Adding cache busting to ${appName} HTML...`);
+  
+  let html = fs.readFileSync(htmlPath, 'utf8');
+  
+  // Add cache busting meta tags
+  const cacheBustingMeta = `
+  <!-- Cache busting for development -->
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="cache-bust" content="${timestamp}">
+  <!-- End cache busting -->`;
+  
+  // Insert before closing head tag
+  html = html.replace('</head>', `${cacheBustingMeta}\n</head>`);
+  
+  // Add timestamp to asset URLs for additional cache busting
+  html = html.replace(/(src|href)="([^"]*\.(js|css))"/g, (match, attr, url, ext) => {
+    if (url.startsWith('http') || url.includes('?')) return match;
+    return `${attr}="${url}?v=${timestamp}"`;
+  });
+  
+  fs.writeFileSync(htmlPath, html);
+}
+
 console.log('🔨 Building Nx workspace for Vercel deployment...');
 
 // Clean problematic cache directories that interfere with Nx project graph
@@ -59,10 +106,18 @@ try {
   console.log('⚠️ Nx reset failed, continuing...');
 }
 
-// Build both Angular apps with production configuration and correct base href
+// Build both Angular apps with appropriate configuration and correct base href
 console.log('\n📦 Building Angular applications...');
-run('npx nx build client-shop --configuration=production --base-href=/client-shop/');
-run('npx nx build admin-panel --configuration=production --base-href=/admin-panel/');
+
+if (isProduction) {
+  // Production builds (existing behavior)
+  run('npx nx build client-shop --configuration=production --base-href=/client-shop/');
+  run('npx nx build admin-panel --configuration=production --base-href=/admin-panel/');
+} else {
+  // Development builds with enhanced cache busting
+  run(`npx nx build client-shop --configuration=development --base-href=/client-shop/ --output-hashing=all`);
+  run(`npx nx build admin-panel --configuration=development --base-href=/admin-panel/ --output-hashing=all`);
+}
 
 // Copy build outputs to Vercel structure
 const clientOut = path.join(root, 'dist', 'apps', 'client-shop', 'browser');
@@ -72,6 +127,13 @@ console.log('\n📁 Structuring output for Vercel...');
 copyDir(clientOut, path.join(distVercel, 'client-shop'));
 copyDir(adminOut, path.join(distVercel, 'admin-panel'));
 
+// Apply cache busting to HTML files in development
+if (!isProduction) {
+  console.log('\n🚫 Applying cache busting for development...');
+  addCacheBustingToHtml(path.join(distVercel, 'client-shop', 'index.html'), 'client-shop');
+  addCacheBustingToHtml(path.join(distVercel, 'admin-panel', 'index.html'), 'admin-panel');
+}
+
 // Create root landing page
 const landingHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -80,6 +142,13 @@ const landingHtml = `<!DOCTYPE html>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shoestore Applications</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
+    ${!isProduction ? `
+    <!-- Cache busting for development -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <meta name="cache-bust" content="${timestamp}">
+    <!-- End cache busting -->` : ''}
     <style>
         body {
             font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
@@ -118,6 +187,19 @@ const landingHtml = `<!DOCTYPE html>
             margin-bottom: 32px;
             font-size: 1.1rem;
         }
+        ${!isProduction ? `
+        .dev-indicator {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: #f59e0b;
+            color: #000;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 1000;
+        }` : ''}
         a.card {
             display: block;
             padding: 20px 24px;
@@ -152,17 +234,18 @@ const landingHtml = `<!DOCTYPE html>
     </style>
 </head>
 <body>
+    ${!isProduction ? `<div class="dev-indicator">DEV MODE - Cache Disabled</div>` : ''}
     <main>
         <h1>Shoestore</h1>
         <p class="subtitle">Select an application to continue</p>
-        <a class="card" href="/client-shop/">
+        <a class="card" href="/client-shop/${!isProduction ? `?v=${timestamp}` : ''}">
             <span class="card-emoji">🛍️</span>Client Shop
         </a>
-        <a class="card" href="/admin-panel/">
+        <a class="card" href="/admin-panel/${!isProduction ? `?v=${timestamp}` : ''}">
             <span class="card-emoji">⚙️</span>Admin Panel
         </a>
         <footer>
-            Powered by Nx • Deployed on Vercel
+            Powered by Nx • Deployed on Vercel${!isProduction ? ` • Build: ${timestamp}` : ''}
         </footer>
     </main>
 </body>
@@ -170,6 +253,41 @@ const landingHtml = `<!DOCTYPE html>
 
 fs.writeFileSync(path.join(distVercel, 'index.html'), landingHtml);
 
+// Create development headers configuration for cache busting
+if (!isProduction) {
+  console.log('\n⚙️ Creating development headers configuration...');
+  const headersConfig = {
+    headers: [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-cache, no-store, must-revalidate"
+          },
+          {
+            key: "Pragma", 
+            value: "no-cache"
+          },
+          {
+            key: "Expires",
+            value: "0"
+          },
+          {
+            key: "X-Cache-Bust",
+            value: timestamp.toString()
+          }
+        ]
+      }
+    ]
+  };
+  
+  fs.writeFileSync(path.join(distVercel, '_headers.json'), JSON.stringify(headersConfig, null, 2));
+}
+
 console.log('\n✅ Vercel build completed successfully!');
 console.log(`📂 Output directory: ${distVercel}`);
-console.log('🚀 Ready for deployment on Vercel');
+console.log(`🚀 Ready for ${isProduction ? 'production' : 'development/preview'} deployment on Vercel`);
+if (!isProduction) {
+  console.log(`🚫 Cache busting enabled with timestamp: ${timestamp}`);
+}

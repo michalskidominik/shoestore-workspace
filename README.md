@@ -1,10 +1,54 @@
-# ShoestoreWorkspace
+# Shoestore Workspace
 
 <a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+A modern Angular workspace featuring two applications: **Client Shop** and **Admin Panel**, built with Nx, Angular 19, and deployed on Vercel.
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+## Applications
+
+- **Client Shop** (`apps/client-shop`): Customer-facing e-commerce application
+- **Admin Panel** (`apps/admin-panel`): Administrative interface for managing the store
+- **API** (`apps/api`): Backend API service
+- **Shared Libraries** (`shared/`): Reusable models and utilities
+
+## Key Features
+
+✨ **Modern Angular 19** with signals and standalone components  
+🎨 **Tailwind CSS** with PrimeNG components  
+📱 **Responsive Design** optimized for mobile and desktop  
+🚀 **Vercel Deployment** with automatic cache busting for development  
+🔧 **Nx Workspace** for scalable monorepo management  
+
+## Development & Deployment
+
+### Cache Busting for Mobile Development
+
+This workspace includes an intelligent cache busting system that automatically prevents aggressive caching during development while maintaining optimal performance for production deployments. 
+
+**Key Features:**
+- 🔄 **Automatic Detection**: Detects Vercel preview/development environments
+- 📱 **Mobile-Friendly**: Ensures immediate updates on mobile devices
+- ⚡ **Zero Configuration**: Works out of the box with environment variables
+- 🎯 **Production Optimized**: No performance impact on production builds
+
+See [Cache Busting Documentation](./docs/CACHE_BUSTING.md) for detailed information.
+
+### Build Commands
+
+```bash
+# Development build with cache busting
+NODE_ENV=development npm run build:vercel
+
+# Preview build (simulates Vercel preview)
+VERCEL_ENV=preview npm run build:vercel
+
+# Production build (standard caching)
+npm run build:vercel
+
+# Local development
+npx nx serve client-shop
+npx nx serve admin-panel
+```
 
 ## Run tasks
 
