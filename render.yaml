@@ -114,16 +114,27 @@ services:
     type: web
     runtime: node
     plan: free
+    envVars:
+      - key: NODE_VERSION
+        value: "18"
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: NX_SKIP_NX_CACHE
+        value: "true"
     buildCommand: |
-      echo "Cleaning previous installations..."
-      rm -rf node_modules package-lock.json
-      echo "Installing dependencies with optional packages..."
+      echo "Installing dependencies..."
       npm install
-      echo "Verifying NX native module installation..."
-      find node_modules -name "@nx" -type d
-      find node_modules -name "nx-*" -type d
-      echo "Testing NX..."
-      npx nx --version
+      echo "Node version:"
+      node --version
+      echo "NPM version:"
+      npm --version
+      echo "Current working directory and contents:"
+      pwd
+      ls -la | grep -E "(nx\.json|package\.json|node_modules)"
+      echo "Testing NX workspace detection..."
+      npx nx show projects || echo "NX workspace not detected"
       echo "Building API..."
       npx nx build api --configuration=production
     startCommand: node dist/apps/api/main.js
@@ -137,13 +148,6 @@ services:
         - apps/api/**/*.spec.ts
         - apps/api/**/*.test.ts
         - "**/*.md"
-    envVars:
-      - key: NODE_ENV
-        value: production
-      - key: PORT
-        value: "3000"
-      - key: NX_SKIP_NX_CACHE
-        value: "true"
     healthCheckPath: /api/health
     # Auto-deploy on every commit to develop branch
     autoDeployTrigger: commit
