@@ -33,7 +33,11 @@ export interface ApiResponse {
 
 export interface AccessRequest {
   email: string;
-  company: string;
+  companyName: string;
+  vatId: string;
+  phoneNumber: string;
+  deliveryAddress: Address;
+  acceptsTerms: boolean;
 }
 
 export interface AccessRequestResponse {
@@ -66,5 +70,43 @@ export interface TokenResponse {
   token?: string;
   expiresAt?: number;
   message?: string;
+}
+
+// Registration Request Management
+export interface RegistrationRequestDocument {
+  id: string;
+  email: string;
+  companyName: string;
+  vatId: string;
+  phoneNumber: string;
+  deliveryAddress: Address;
+  acceptsTerms: boolean;
+  status: 'pending' | 'approved' | 'rejected';
+  submittedAt: Date;
+  reviewedAt?: Date;
+  reviewedBy?: string; // Admin user ID
+  rejectionReason?: string;
+  notes?: string;
+}
+
+export interface RegistrationRequestCreateDto {
+  email: string;
+  companyName: string;
+  vatId: string;
+  phoneNumber: string;
+  deliveryAddress: Address;
+  acceptsTerms: boolean;
+}
+
+export interface RegistrationRequestUpdateDto {
+  status: 'approved' | 'rejected';
+  rejectionReason?: string;
+  notes?: string;
+  reviewedBy: string;
+}
+
+export interface UserCredentials {
+  email: string;
+  temporaryPassword: string;
 }
 

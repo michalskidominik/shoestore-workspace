@@ -1,7 +1,13 @@
-import { Controller, Post, Get, Body, Headers, HttpCode, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Post, Get, Put, Body, Headers, HttpCode, HttpStatus, Logger, Param, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { VerifyTokenDto } from './dto/auth.dto';
-import { LoginResponse, UserValidationResponse } from '@shoestore/shared-models';
+import { VerifyTokenDto, RegistrationRequestDto, UpdateRegistrationRequestDto } from './dto/auth.dto';
+import { 
+  LoginResponse, 
+  UserValidationResponse, 
+  ApiResponse, 
+  RegistrationRequestDocument,
+  UserCredentials
+} from '@shoestore/shared-models';
 
 @Controller('auth')
 export class AuthController {
@@ -40,5 +46,27 @@ export class AuthController {
     }
 
     return await this.authService.validateUser(token);
+  }
+
+  @Post('request-access')
+  @HttpCode(HttpStatus.OK)
+  async requestAccess(@Body() requestDto: RegistrationRequestDto): Promise<ApiResponse> {
+    this.logger.log(`Access request from: ${requestDto.email}`);
+    return await this.authService.submitRegistrationRequest(requestDto);
+  }
+
+  @Get('registration-requests')
+  async getRegistrationRequests(): Promise<RegistrationRequestDocument[]> {
+    this.logger.log('Fetching registration requests');
+    return await this.authService.getRegistrationRequests();
+  }
+
+  @Put('registration-requests/:id')
+  async updateRegistrationRequest(
+    @Param('id') id: string,
+    @Body() updateDto: UpdateRegistrationRequestDto
+  ): Promise<{ success: boolean; message?: string; credentials?: UserCredentials }> {
+    this.logger.log(`Updating registration request ${id} to ${updateDto.status}`);
+    return await this.authService.updateRegistrationRequest(id, updateDto);
   }
 }

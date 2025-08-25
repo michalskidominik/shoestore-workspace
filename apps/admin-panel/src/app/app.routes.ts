@@ -10,6 +10,7 @@ import { SizeTemplateFormComponent } from './pages/size-templates/components/siz
 import { SizeTemplateListComponent } from './pages/size-templates/components/size-template-list.component';
 import { UserDetailComponent } from './pages/users/components/user-detail/user-detail.component';
 import { UsersComponent } from './pages/users/users.component';
+import { RegistrationRequestsComponent } from './pages/registration-requests/registration-requests.component';
 import { authGuard, guestGuard } from './core/guards/auth.guard';
 
 export const appRoutes: Route[] = [
@@ -36,6 +37,7 @@ export const appRoutes: Route[] = [
       { path: 'orders/:id', component: OrderDetailComponent },
       { path: 'users', component: UsersComponent },
       { path: 'users/:id', component: UserDetailComponent },
+      { path: 'registration-requests', component: RegistrationRequestsComponent },
     ],
   },
   { path: 'notfound', component: NotfoundComponent },

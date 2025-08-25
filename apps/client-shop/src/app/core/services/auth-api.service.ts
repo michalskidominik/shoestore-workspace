@@ -61,14 +61,9 @@ export class AuthApiService {
 
   /**
    * Submit access request for new B2B users
-   * TODO: Implement when backend endpoint is available
    */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  requestAccess(_request: AccessRequest): Observable<ApiResponse> {
-    // TODO: Replace with real HTTP call when endpoint is implemented
-    // return this.http.post<ApiResponse>(`${this.apiUrl}/auth/request-access`, request);
-
-    return of({ success: true, message: 'Access request functionality not yet implemented' }).pipe(delay(500));
+  requestAccess(request: AccessRequest): Observable<ApiResponse> {
+    return this.http.post<ApiResponse>(`${this.apiUrl}/auth/request-access`, request);
   }
 
   /**
