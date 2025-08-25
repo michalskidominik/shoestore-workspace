@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, OnInit, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -41,14 +41,16 @@ import { CurrencyPipe } from '../../shared/pipes';
     CurrencyPipe
   ],
   template: `
-    <div class="orders-page min-h-screen bg-slate-50 py-8">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <!-- Page Header -->
-        <div class="mb-8">
+    <div class="orders-page min-h-screen bg-slate-50 md:py-4">
+      <!-- Header Section (matches dashboard structure) -->
+      <div class="px-4 sm:px-6 lg:px-8 py-4">
+        <div class="max-w-7xl mx-auto">
           <h1 class="text-3xl font-bold text-slate-900 mb-2">My Orders</h1>
           <p class="text-slate-600">Track and manage your orders</p>
         </div>
+      </div>
 
+  <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         <!-- Filters and Search -->
         <div class="bg-white rounded-lg shadow-sm p-6 mb-6">
           <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -59,7 +61,7 @@ import { CurrencyPipe } from '../../shared/pipes';
                 id="search"
                 type="text"
                 pInputText
-                placeholder="Search by order ID, email, or customer name..."
+                placeholder="Search by order ID, email"
                 [(ngModel)]="searchTerm"
                 (ngModelChange)="onSearchChange($event)"
                 class="w-full"
@@ -82,7 +84,7 @@ import { CurrencyPipe } from '../../shared/pipes';
           </div>
         </div>
 
-        <!-- Orders Table -->
+        <!-- Orders Content: Desktop Table / Mobile Cards -->
         <div class="bg-white rounded-lg shadow-sm">
           @if (orderHistoryStore.isLoading()) {
             <!-- Loading State -->
@@ -116,93 +118,167 @@ import { CurrencyPipe } from '../../shared/pipes';
                 />
               </div>
             </div>
-          } @else {
-            <!-- Orders Table -->
-            <p-table
-              [value]="orderHistoryStore.orders()"
-              [paginator]="true"
-              [rows]="orderHistoryStore.queryParams().pageSize || 10"
-              [totalRecords]="orderHistoryStore.pagination().total"
-              [lazy]="true"
-              [loading]="orderHistoryStore.isLoading()"
-              [sortField]="'date'"
-              [sortOrder]="-1"
-              (onSort)="onSort($event)"
-              (onPage)="onPageChange($event)"
-              dataKey="id"
-              [tableStyle]="{ 'min-width': '50rem' }"
-              styleClass="p-datatable-sm"
-            >
-              <!-- Table Header -->
-              <ng-template pTemplate="header">
-                <tr>
-                  <th pSortableColumn="id" class="text-left">
-                    Order ID <p-sortIcon field="id" />
-                  </th>
-                  <th pSortableColumn="date" class="text-left">
-                    Order Date <p-sortIcon field="date" />
-                  </th>
-                  <th class="text-left">Items</th>
-                  <th pSortableColumn="totalAmount" class="text-right">
-                    Total Amount <p-sortIcon field="totalAmount" />
-                  </th>
-                  <th pSortableColumn="status" class="text-center">
-                    Status <p-sortIcon field="status" />
-                  </th>
-                  <th class="text-center">Actions</th>
-                </tr>
-              </ng-template>
-
-              <!-- Table Body -->
-              <ng-template pTemplate="body" let-order>
-                <tr class="hover:bg-slate-50">
-                  <!-- Order ID -->
-                  <td class="font-mono text-sm font-medium text-slate-900">
-                    #{{ order.id }}
-                  </td>
-
-                  <!-- Order Date -->
-                  <td class="text-slate-600">
-                    {{ order.date | date:'MMM d, y' }}<br>
-                    <span class="text-xs text-slate-400">{{ order.date | date:'HH:mm' }}</span>
-                  </td>
-
-                  <!-- Items Summary -->
-                  <td>
-                    <div class="space-y-1">
-                      <div class="text-sm font-medium text-slate-900">
-                        {{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}
-                      </div>
-                      <div class="text-xs text-slate-500">
-                        {{ getTotalQuantity(order) }} pieces total
-                      </div>
-                      @if (order.items.length > 0) {
-                        <div class="text-xs text-slate-400 truncate max-w-48"
-                             [title]="getItemsSummary(order)">
-                          {{ getItemsPreview(order) }}
-                        </div>
-                      }
-                    </div>
-                  </td>
-
-                  <!-- Total Amount -->
-                  <td class="text-right">
-                    <div class="font-bold text-slate-900">
-                      {{ order.totalAmount | appCurrency }}
-                    </div>
-                  </td>
-
-                  <!-- Status -->
-                  <td class="text-center">
-                    <p-tag
-                      [value]="orderHistoryStore.getStatusLabel(order.status)"
-                      [severity]="orderHistoryStore.getStatusSeverity(order.status)"
+          } @else if (orderHistoryStore.orders().length === 0) {
+            <!-- Empty State -->
+            <div class="text-center py-12">
+              <div class="space-y-4">
+                <i class="pi pi-shopping-bag text-slate-300 text-4xl"></i>
+                <div>
+                  <h3 class="text-lg font-medium text-slate-900 mb-2">No orders found</h3>
+                  @if (hasActiveFilters()) {
+                    <p class="text-slate-500 mb-4">Try adjusting your search criteria or filters.</p>
+                    <p-button
+                      label="Clear Filters"
+                      icon="pi pi-filter-slash"
+                      severity="secondary"
+                      [outlined]="true"
+                      (onClick)="clearFilters()"
                     />
-                  </td>
+                  } @else {
+                    <p class="text-slate-500 mb-4">You haven't placed any orders yet.</p>
+                    <p-button
+                      label="Start Shopping"
+                      icon="pi pi-shopping-cart"
+                      (onClick)="navigateToProducts()"
+                    />
+                  }
+                </div>
+              </div>
+            </div>
+          } @else {
+            <!-- Desktop Table View (hidden on mobile) -->
+            <div class="hidden md:block">
+              <p-table
+                [value]="orderHistoryStore.orders()"
+                [paginator]="true"
+                [rows]="orderHistoryStore.queryParams().pageSize || 10"
+                [totalRecords]="orderHistoryStore.pagination().total"
+                [lazy]="true"
+                [loading]="orderHistoryStore.isLoading()"
+                [sortField]="currentSortField()"
+                [sortOrder]="currentSortOrder()"
+                (onSort)="onSort($event)"
+                (onPage)="onPageChange($event)"
+                dataKey="id"
+                [tableStyle]="{ 'min-width': '50rem' }"
+                styleClass="p-datatable-sm"
+              >
+                <!-- Table Header -->
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th pSortableColumn="id" class="text-left">
+                      Order ID <p-sortIcon field="id" />
+                    </th>
+                    <th pSortableColumn="date" class="text-left">
+                      Order Date <p-sortIcon field="date" />
+                    </th>
+                    <th class="text-left">Items</th>
+                    <th pSortableColumn="totalAmount" class="text-right">
+                      Total Amount <p-sortIcon field="totalAmount" />
+                    </th>
+                    <th pSortableColumn="status" class="text-center">
+                      Status <p-sortIcon field="status" />
+                    </th>
+                    <th class="text-center">Actions</th>
+                  </tr>
+                </ng-template>
 
-                  <!-- Actions -->
-                  <td class="text-center">
-                    <div class="flex justify-center gap-2">
+                <!-- Table Body -->
+                <ng-template pTemplate="body" let-order>
+                  <tr class="hover:bg-slate-50">
+                    <!-- Order ID -->
+                    <td class="font-mono text-sm font-medium text-slate-900">
+                      #{{ order.id }}
+                    </td>
+
+                    <!-- Order Date -->
+                    <td class="text-slate-600">
+                      {{ order.date | date:'MMM d, y' }}<br>
+                      <span class="text-xs text-slate-400">{{ order.date | date:'HH:mm' }}</span>
+                    </td>
+
+                    <!-- Items Summary -->
+                    <td>
+                      <div class="space-y-1">
+                        <div class="text-sm font-medium text-slate-900">
+                          {{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }}
+                        </div>
+                        <div class="text-xs text-slate-500">
+                          {{ getTotalQuantity(order) }} pieces total
+                        </div>
+                        @if (order.items.length > 0) {
+                          <div class="text-xs text-slate-400 truncate max-w-48"
+                               [title]="getItemsSummary(order)">
+                            {{ getItemsPreview(order) }}
+                          </div>
+                        }
+                      </div>
+                    </td>
+
+                    <!-- Total Amount -->
+                    <td class="text-right">
+                      <div class="font-bold text-slate-900">
+                        {{ order.totalAmount | appCurrency }}
+                      </div>
+                    </td>
+
+                    <!-- Status -->
+                    <td class="text-center">
+                      <p-tag
+                        [value]="orderHistoryStore.getStatusLabel(order.status)"
+                        [severity]="orderHistoryStore.getStatusSeverity(order.status)"
+                      />
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="text-center">
+                      <div class="flex justify-center gap-2">
+                        <p-button
+                          icon="pi pi-eye"
+                          [text]="true"
+                          [rounded]="true"
+                          size="small"
+                          severity="secondary"
+                          (onClick)="viewOrderDetails(order.id)"
+                          pTooltip="View Details"
+                          tooltipPosition="top"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                </ng-template>
+
+                <!-- Loading Template -->
+                <ng-template pTemplate="loadingbody">
+                  <tr>
+                    <td colspan="7" class="text-center py-8">
+                      <p-progressSpinner styleClass="w-8 h-8" />
+                      <p class="text-slate-500 mt-2">Loading orders...</p>
+                    </td>
+                  </tr>
+                </ng-template>
+              </p-table>
+            </div>
+
+            <!-- Mobile Card View (visible on mobile only) -->
+            <div class="md:hidden">
+              <div class="divide-y divide-slate-200">
+                @for (order of orderHistoryStore.orders(); track order.id) {
+                  <div class="p-4 hover:bg-slate-50 transition-colors">
+                    <div class="flex items-start justify-between mb-3">
+                      <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-1">
+                          <h3 class="font-mono text-sm font-bold text-slate-900">#{{ order.id }}</h3>
+                          <p-tag
+                            [value]="orderHistoryStore.getStatusLabel(order.status)"
+                            [severity]="orderHistoryStore.getStatusSeverity(order.status)"
+                            styleClass="!text-xs"
+                          />
+                        </div>
+                        <p class="text-xs text-slate-500">
+                          {{ order.date | date:'MMM d, y' }} at {{ order.date | date:'HH:mm' }}
+                        </p>
+                      </div>
                       <p-button
                         icon="pi pi-eye"
                         [text]="true"
@@ -210,55 +286,69 @@ import { CurrencyPipe } from '../../shared/pipes';
                         size="small"
                         severity="secondary"
                         (onClick)="viewOrderDetails(order.id)"
+                        styleClass="!w-8 !h-8 flex-shrink-0"
                         pTooltip="View Details"
-                        tooltipPosition="top"
                       />
                     </div>
-                  </td>
-                </tr>
-              </ng-template>
 
-              <!-- Empty State -->
-              <ng-template pTemplate="emptymessage">
-                <tr>
-                  <td colspan="6" class="text-center py-12">
-                    <div class="space-y-4">
-                      <i class="pi pi-shopping-bag text-slate-300 text-4xl"></i>
-                      <div>
-                        <h3 class="text-lg font-medium text-slate-900 mb-2">No orders found</h3>
-                        @if (hasActiveFilters()) {
-                          <p class="text-slate-500 mb-4">Try adjusting your search criteria or filters.</p>
-                          <p-button
-                            label="Clear Filters"
-                            icon="pi pi-filter-slash"
-                            severity="secondary"
-                            [outlined]="true"
-                            (onClick)="clearFilters()"
-                          />
-                        } @else {
-                          <p class="text-slate-500 mb-4">You haven't placed any orders yet.</p>
-                          <p-button
-                            label="Start Shopping"
-                            icon="pi pi-shopping-cart"
-                            (onClick)="navigateToProducts()"
-                          />
-                        }
+                    <!-- Order Details -->
+                    <div class="space-y-2">
+                      <!-- Items Summary -->
+                      <div class="flex items-center justify-between text-sm">
+                        <span class="text-slate-600">Items:</span>
+                        <span class="font-medium text-slate-900">
+                          {{ order.items.length }} item{{ order.items.length !== 1 ? 's' : '' }} ({{ getTotalQuantity(order) }} pieces)
+                        </span>
+                      </div>
+
+                      <!-- Items Preview -->
+                      @if (order.items.length > 0) {
+                        <div class="text-xs text-slate-500">
+                          {{ getItemsPreview(order) }}
+                        </div>
+                      }
+
+                      <!-- Total Amount -->
+                      <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                        <span class="text-sm font-medium text-slate-600">Total:</span>
+                        <span class="text-lg font-bold text-slate-900">{{ order.totalAmount | appCurrency }}</span>
                       </div>
                     </div>
-                  </td>
-                </tr>
-              </ng-template>
+                  </div>
+                }
+              </div>
 
-              <!-- Loading Template -->
-              <ng-template pTemplate="loadingbody">
-                <tr>
-                  <td colspan="7" class="text-center py-8">
-                    <p-progressSpinner styleClass="w-8 h-8" />
-                    <p class="text-slate-500 mt-2">Loading orders...</p>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
+              <!-- Mobile Pagination -->
+              @if (orderHistoryStore.pagination().total > (orderHistoryStore.queryParams().pageSize || 10)) {
+                <div class="p-4 border-t border-slate-200 bg-slate-50">
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-slate-600">
+                      Showing {{ orderHistoryStore.orders().length }} of {{ orderHistoryStore.pagination().total }} orders
+                    </span>
+                    <div class="flex gap-2">
+                      @if ((orderHistoryStore.queryParams().page || 1) > 1) {
+                        <p-button
+                          icon="pi pi-chevron-left"
+                          [text]="true"
+                          size="small"
+                          (onClick)="goToPreviousPage()"
+                          styleClass="!w-8 !h-8"
+                        />
+                      }
+                      @if (((orderHistoryStore.queryParams().page || 1) * (orderHistoryStore.queryParams().pageSize || 10)) < orderHistoryStore.pagination().total) {
+                        <p-button
+                          icon="pi pi-chevron-right"
+                          [text]="true"
+                          size="small"
+                          (onClick)="goToNextPage()"
+                          styleClass="!w-8 !h-8"
+                        />
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
           }
         </div>
 
@@ -297,6 +387,29 @@ export class OrdersComponent implements OnInit {
   protected searchTerm = '';
   protected selectedStatus: OrderStatus | null = null;
 
+  // Computed properties for table sorting
+  protected readonly currentSortField = computed(() => {
+    const queryParams = this.orderHistoryStore.queryParams();
+    const backendField = queryParams.sortBy || 'date';
+
+    // Map backend field names back to PrimeNG table field names
+    switch (backendField) {
+      case 'id':
+        return 'id';
+      case 'date':
+        return 'date';
+      case 'status':
+        return 'status';
+      case 'totalAmount':
+        return 'totalAmount';
+      default:
+        return 'date';
+    }
+  });  protected readonly currentSortOrder = computed(() => {
+    const queryParams = this.orderHistoryStore.queryParams();
+    return queryParams.sortDirection === 'asc' ? 1 : -1;
+  });
+
   ngOnInit(): void {
     // Load initial orders
     this.orderHistoryStore.loadOrders();
@@ -321,7 +434,30 @@ export class OrdersComponent implements OnInit {
    */
   protected onSort(event: { field: string; order: number }): void {
     const sortDirection = event.order === 1 ? 'asc' : 'desc';
-    this.orderHistoryStore.sortOrders(event.field as 'date' | 'status' | 'totalAmount', sortDirection);
+
+    // Map field names to supported sort fields
+    let sortField: 'id' | 'date' | 'status' | 'totalAmount';
+
+    switch (event.field) {
+      case 'id':
+        sortField = 'id';
+        break;
+      case 'date':
+        sortField = 'date';
+        break;
+      case 'status':
+        sortField = 'status';
+        break;
+      case 'totalAmount':
+        sortField = 'totalAmount';
+        break;
+      default:
+        // Default to date sorting for unknown fields
+        sortField = 'date';
+        break;
+    }
+
+    this.orderHistoryStore.sortOrders(sortField, sortDirection);
   }
 
   /**
@@ -417,5 +553,28 @@ export class OrdersComponent implements OnInit {
    */
   protected getTotalOrderValue(): number {
     return this.orderHistoryStore.orders().reduce((total, order) => total + order.totalAmount, 0);
+  }
+
+  /**
+   * Navigate to previous page (mobile pagination)
+   */
+  protected goToPreviousPage(): void {
+    const currentPage = this.orderHistoryStore.queryParams().page || 1;
+    if (currentPage > 1) {
+      this.orderHistoryStore.goToPage(currentPage - 1);
+    }
+  }
+
+  /**
+   * Navigate to next page (mobile pagination)
+   */
+  protected goToNextPage(): void {
+    const currentPage = this.orderHistoryStore.queryParams().page || 1;
+    const pageSize = this.orderHistoryStore.queryParams().pageSize || 10;
+    const totalRecords = this.orderHistoryStore.pagination().total;
+
+    if ((currentPage * pageSize) < totalRecords) {
+      this.orderHistoryStore.goToPage(currentPage + 1);
+    }
   }
 }

@@ -38,9 +38,9 @@ interface DashboardStats {
     CurrencyPipe
   ],
   template: `
-    <div class="dashboard min-h-screen bg-slate-50">
+  <div class="dashboard min-h-screen bg-slate-50 md:py-4">
       <!-- Header Section -->
-      <div class="bg-white border-b border-slate-200 px-4 sm:px-6 lg:px-8 py-6">
+      <div class="px-4 sm:px-6 lg:px-8 py-4">
         <div class="max-w-7xl mx-auto">
           <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -74,63 +74,63 @@ interface DashboardStats {
       </div>
 
       <!-- Main Content -->
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
 
         <!-- Quick Stats Cards -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-6 mb-6 lg:mb-8">
           <!-- Total Orders -->
-          <div class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-              <div class="bg-blue-50 p-3 rounded-lg">
-                <i class="pi pi-shopping-bag text-blue-600 text-xl"></i>
+          <div class="bg-white rounded-xl border border-slate-200 p-3 lg:p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-2 lg:mb-4">
+              <div class="bg-blue-50 p-2 lg:p-3 rounded-lg">
+                <i class="pi pi-shopping-bag text-blue-600 text-base lg:text-xl"></i>
               </div>
-              <p-tag value="All Time" severity="info" styleClass="!text-xs"></p-tag>
+              <p-tag value="All Time" severity="info" styleClass="!text-xs hidden sm:block"></p-tag>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ stats().totalOrders }}</h3>
-            <p class="text-sm text-slate-600">Total Orders</p>
+            <h3 class="text-lg lg:text-2xl font-bold text-slate-900 mb-1">{{ stats().totalOrders }}</h3>
+            <p class="text-xs lg:text-sm text-slate-600">Total Orders</p>
           </div>
 
           <!-- Pending Orders -->
-          <div class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-              <div class="bg-orange-50 p-3 rounded-lg">
-                <i class="pi pi-clock text-orange-600 text-xl"></i>
+          <div class="bg-white rounded-xl border border-slate-200 p-3 lg:p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-2 lg:mb-4">
+              <div class="bg-orange-50 p-2 lg:p-3 rounded-lg">
+                <i class="pi pi-clock text-orange-600 text-base lg:text-xl"></i>
               </div>
               @if (stats().pendingOrders > 0) {
-                <p-tag value="Active" severity="warning" styleClass="!text-xs"></p-tag>
+                <p-tag value="Active" severity="warning" styleClass="!text-xs hidden sm:block"></p-tag>
               }
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ stats().pendingOrders }}</h3>
-            <p class="text-sm text-slate-600">Pending Orders</p>
+            <h3 class="text-lg lg:text-2xl font-bold text-slate-900 mb-1">{{ stats().pendingOrders }}</h3>
+            <p class="text-xs lg:text-sm text-slate-600">Pending Orders</p>
           </div>
 
           <!-- Cart Status -->
-          <div class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-              <div class="bg-green-50 p-3 rounded-lg">
-                <i class="pi pi-shopping-cart text-green-600 text-xl"></i>
+          <div class="bg-white rounded-xl border border-slate-200 p-3 lg:p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-2 lg:mb-4">
+              <div class="bg-green-50 p-2 lg:p-3 rounded-lg">
+                <i class="pi pi-shopping-cart text-green-600 text-base lg:text-xl"></i>
               </div>
               @if (cartItemCount() > 0) {
-                <p-tag value="Ready" severity="success" styleClass="!text-xs"></p-tag>
+                <p-tag value="Ready" severity="success" styleClass="!text-xs hidden sm:block"></p-tag>
               }
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ cartItemCount() }}</h3>
-            <p class="text-sm text-slate-600">Items in Cart</p>
+            <h3 class="text-lg lg:text-2xl font-bold text-slate-900 mb-1">{{ cartItemCount() }}</h3>
+            <p class="text-xs lg:text-sm text-slate-600">Items in Cart</p>
             @if (cartValue() > 0) {
               <p class="text-xs text-green-600 font-medium mt-1">{{ cartValue() | appCurrency }}</p>
             }
           </div>
 
           <!-- Total Spent -->
-          <div class="bg-white rounded-xl border border-slate-200 p-6 hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-              <div class="bg-purple-50 p-3 rounded-lg">
-                <i class="pi pi-wallet text-purple-600 text-xl"></i>
+          <div class="bg-white rounded-xl border border-slate-200 p-3 lg:p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center justify-between mb-2 lg:mb-4">
+              <div class="bg-purple-50 p-2 lg:p-3 rounded-lg">
+                <i class="pi pi-wallet text-purple-600 text-base lg:text-xl"></i>
               </div>
-              <p-tag value="B2B" severity="secondary" styleClass="!text-xs"></p-tag>
+              <p-tag value="B2B" severity="secondary" styleClass="!text-xs hidden sm:block"></p-tag>
             </div>
-            <h3 class="text-2xl font-bold text-slate-900 mb-1">{{ stats().totalSpent | appCurrency }}</h3>
-            <p class="text-sm text-slate-600">Total Spent</p>
+            <h3 class="text-lg lg:text-2xl font-bold text-slate-900 mb-1">{{ stats().totalSpent | appCurrency }}</h3>
+            <p class="text-xs lg:text-sm text-slate-600">Total Spent</p>
           </div>
         </div>
 
@@ -214,43 +214,43 @@ interface DashboardStats {
           <div class="space-y-6">
 
             <!-- Quick Actions -->
-            <div class="bg-white rounded-xl border border-slate-200 p-6">
-              <h2 class="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
-              <div class="space-y-3">
-                <p-button
-                  label="Browse Products"
-                  icon="pi pi-search"
-                  severity="primary"
-                  routerLink="/products"
-                  styleClass="w-full !justify-start !text-sm !px-4 !py-3">
-                </p-button>
-                @if (cartItemCount() > 0) {
+              <div class="bg-white rounded-xl border border-slate-200 p-6 quick-actions">
+                <h2 class="text-lg font-semibold text-slate-900 mb-4">Quick Actions</h2>
+                <div class="space-y-3 flex flex-col">
                   <p-button
-                    label="Complete Order"
-                    icon="pi pi-check"
-                    severity="success"
-                    routerLink="/cart"
-                    styleClass="w-full !justify-start !text-sm !px-4 !py-3">
+                    label="Browse Products"
+                    icon="pi pi-search"
+                    severity="primary"
+                    routerLink="/products"
+                    styleClass="w-full !text-sm !px-4 !py-3">
                   </p-button>
-                }
-                <p-button
-                  label="Order History"
-                  icon="pi pi-history"
-                  severity="secondary"
-                  [outlined]="true"
-                  routerLink="/orders"
-                  styleClass="w-full !justify-start !text-sm !px-4 !py-3">
-                </p-button>
-                <p-button
-                  label="Account Settings"
-                  icon="pi pi-cog"
-                  severity="secondary"
-                  [outlined]="true"
-                  routerLink="/profile"
-                  styleClass="w-full !justify-start !text-sm !px-4 !py-3">
-                </p-button>
+                  @if (cartItemCount() > 0) {
+                    <p-button
+                      label="Complete Order"
+                      icon="pi pi-check"
+                      severity="warn"
+                      routerLink="/cart"
+                      styleClass="w-full !text-sm !px-4 !py-3">
+                    </p-button>
+                  }
+                  <p-button
+                    label="Order History"
+                    icon="pi pi-history"
+                    severity="info"
+                    [outlined]="true"
+                    routerLink="/orders"
+                    styleClass="w-full !text-sm !px-4 !py-3">
+                  </p-button>
+                  <p-button
+                    label="Account Settings"
+                    icon="pi pi-cog"
+                    severity="info"
+                    [outlined]="true"
+                    routerLink="/profile"
+                    styleClass="w-full !text-sm !px-4 !py-3">
+                  </p-button>
+                </div>
               </div>
-            </div>
 
             <!-- Cart Summary -->
             @if (cartItemCount() > 0) {
@@ -265,10 +265,6 @@ interface DashboardStats {
                   <div class="flex justify-between text-sm">
                     <span class="text-slate-600">Subtotal:</span>
                     <span class="font-medium text-slate-900">{{ cartValue() | appCurrency }}</span>
-                  </div>
-                  <div class="flex justify-between text-sm">
-                    <span class="text-slate-600">VAT (included):</span>
-                    <span class="font-medium text-slate-900">{{ (cartValue() * 0.23) | appCurrency }}</span>
                   </div>
                 </div>
                 <p-button

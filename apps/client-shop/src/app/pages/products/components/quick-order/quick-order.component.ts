@@ -69,7 +69,7 @@ export interface OrderData {
       </div>
 
       <!-- Scrollable Content Area -->
-      <div class="flex-1 overflow-y-auto px-4 lg:px-6 py-3 lg:py-4 pb-20 lg:pb-4">
+      <div class="flex-1 overflow-y-auto px-4 lg:px-6 py-3 lg:py-4 pb-36 lg:pb-4">
         @if (isFormReady()) {
           <!-- Quick Fill All Sizes - Compact on Mobile -->
           <div class="mb-4 lg:mb-6 p-3 lg:p-4 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg lg:rounded-xl">
@@ -84,15 +84,38 @@ export interface OrderData {
               <div class="flex-1">
                 <div class="flex items-center gap-2">
                   <span class="text-xs font-medium text-slate-600 w-8 lg:w-12 flex-shrink-0">Qty:</span>
-                  <p-inputNumber
-                    [(ngModel)]="applyToAllQuantity"
-                    [showButtons]="true"
-                    [min]="0"
-                    [max]="100"
-                    [step]="1"
-                    styleClass="mobile-compact-input flex-1"
-                    placeholder="0">
-                  </p-inputNumber>
+                  <div class="quantity-control flex-1">
+                    <p-button
+                      type="button"
+                      icon="pi pi-minus"
+                      severity="secondary"
+                      size="small"
+                      (onClick)="decrementApplyToAll()"
+                      [disabled]="applyToAllQuantity() <= 0"
+                      styleClass="qty-btn">
+                    </p-button>
+
+                    <input
+                      type="number"
+                      [value]="applyToAllQuantity()"
+                      (input)="applyToAllQuantity.set($any($event.target).valueAsNumber || 0)"
+                      min="0"
+                      max="100"
+                      step="1"
+                      class="quantity-input"
+                      aria-label="Quantity for all sizes"
+                    />
+
+                    <p-button
+                      type="button"
+                      icon="pi pi-plus"
+                      severity="primary"
+                      size="small"
+                      (onClick)="incrementApplyToAll()"
+                      [disabled]="applyToAllQuantity() >= 100"
+                      styleClass="qty-btn">
+                    </p-button>
+                  </div>
                 </div>
               </div>
               <p-button
@@ -153,24 +176,45 @@ export interface OrderData {
                       <!-- Quantity Input -->
                       <div class="space-y-2">
                         <span class="text-xs font-medium text-slate-600 block">Quantity:</span>
-                        <p-inputNumber
-                          [formControlName]="$index"
-                          [showButtons]="true"
-                          [min]="0"
-                          [max]="getAvailableSizes()[$index].quantity"
-                          [step]="1"
-                          styleClass="grid-compact-input w-full"
-                          placeholder="0"
-                          [disabled]="getAvailableSizes()[$index].quantity === 0">
-                        </p-inputNumber>
+                        <div class="quantity-control">
+                          <p-button
+                            type="button"
+                            icon="pi pi-minus"
+                            severity="secondary"
+                            size="small"
+                            [disabled]="getAvailableSizes()[$index].quantity === 0"
+                            (onClick)="decrement($index)"
+                            styleClass="qty-btn">
+                          </p-button>
+
+                          <input
+                            type="number"
+                            [formControlName]="$index"
+                            [min]="0"
+                            [max]="getAvailableSizes()[$index].quantity"
+                            step="1"
+                            class="quantity-input"
+                            [disabled]="getAvailableSizes()[$index].quantity === 0"
+                          />
+
+                          <p-button
+                            type="button"
+                            icon="pi pi-plus"
+                            severity="primary"
+                            size="small"
+                            [disabled]="getAvailableSizes()[$index].quantity === 0"
+                            (onClick)="increment($index)"
+                            styleClass="qty-btn">
+                          </p-button>
+                        </div>
                       </div>
                     </div>
                   }
                 </div>
               </div>
 
-              <!-- Mobile Compact List Layout -->
-              <div class="lg:hidden space-y-2">
+              <!-- Mobile Compact List Layout with Scrolling -->
+              <div class="lg:hidden max-h-80 overflow-y-auto space-y-2 pr-1 mb-4">
                 @for (sizeControl of sizeFormControls(); track $index) {
                   <div class="flex items-center gap-2 py-2 px-3 bg-white border border-slate-200 rounded-lg hover:border-slate-300 transition-colors">
                     <!-- Size -->
@@ -212,17 +256,38 @@ export interface OrderData {
                     </div>
 
                     <!-- Quantity Input -->
-                    <div class="w-16 flex-shrink-0">
-                      <p-inputNumber
-                        [formControlName]="$index"
-                        [showButtons]="true"
-                        [min]="0"
-                        [max]="getAvailableSizes()[$index].quantity"
-                        [step]="1"
-                        styleClass="mobile-compact-input"
-                        placeholder="0"
-                        [disabled]="getAvailableSizes()[$index].quantity === 0">
-                      </p-inputNumber>
+                    <div class="w-32 flex-shrink-0">
+                      <div class="mobile-qty-control">
+                        <p-button
+                          type="button"
+                          icon="pi pi-minus"
+                          severity="secondary"
+                          size="small"
+                          [disabled]="getAvailableSizes()[$index].quantity === 0"
+                          (onClick)="decrement($index)"
+                          styleClass="qty-btn-mobile">
+                        </p-button>
+
+                        <input
+                          type="number"
+                          [formControlName]="$index"
+                          [min]="0"
+                          [max]="getAvailableSizes()[$index].quantity"
+                          step="1"
+                          class="mobile-quantity-input"
+                          [disabled]="getAvailableSizes()[$index].quantity === 0"
+                        />
+
+                        <p-button
+                          type="button"
+                          icon="pi pi-plus"
+                          severity="primary"
+                          size="small"
+                          [disabled]="getAvailableSizes()[$index].quantity === 0"
+                          (onClick)="increment($index)"
+                          styleClass="qty-btn-mobile">
+                        </p-button>
+                      </div>
                     </div>
                   </div>
                 }
@@ -258,44 +323,42 @@ export interface OrderData {
       </div>
 
       <!-- Mobile: Sticky Bottom Actions -->
-      <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 py-3 safe-area-bottom">
+      <div class="lg:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 px-4 py-2 safe-area-bottom">
         @if (isFormReady()) {
-          <!-- Mobile Order Summary -->
-          <div class="flex items-center justify-between mb-3 p-3 bg-slate-50 rounded-lg">
-            <div class="flex items-center gap-2">
-              <i class="pi pi-calculator text-blue-600 text-sm"></i>
-              <span class="text-sm font-semibold text-slate-800">Total</span>
+          <!-- Mobile Action Buttons with Integrated Total -->
+          <div class="flex gap-2 items-center justify-between">
+            <!-- Left: Action Buttons -->
+            <div class="flex gap-2 flex-1">
+              <!-- Cancel Button -->
+              <p-button
+                type="button"
+                label="Cancel"
+                severity="secondary"
+                [outlined]="true"
+                styleClass="!text-sm !py-2 !px-3 flex-1 !font-medium !h-10 !min-h-10"
+                (onClick)="onCancel()">
+              </p-button>
+
+              <!-- Add to Cart Button -->
+              <p-button
+                type="submit"
+                label="Add to Cart"
+                icon="pi pi-shopping-cart"
+                severity="primary"
+                [disabled]="!canSubmit() || isSubmitting()"
+                [loading]="isSubmitting()"
+                (onClick)="onSubmit()"
+                styleClass="!text-sm !py-2 !px-3 flex-1 !font-semibold !h-10 !min-h-10">
+              </p-button>
             </div>
-            <div class="text-right">
-              <div class="text-lg font-bold text-blue-700">{{ getTotalPrice() | appCurrency }}</div>
-              <div class="text-xs text-slate-600">
+
+            <!-- Right: Mobile Total Section -->
+            <div class="flex-shrink-0 ml-3 text-right">
+              <div class="text-base font-bold text-blue-700 leading-tight whitespace-nowrap">{{ getTotalPrice() | appCurrency }}</div>
+              <div class="text-xs text-slate-500 leading-tight whitespace-nowrap">
                 {{ getTotalQuantity() }} {{ getTotalQuantity() === 1 ? 'item' : 'items' }}
               </div>
             </div>
-          </div>
-
-          <!-- Mobile Action Buttons -->
-          <div class="flex gap-3">
-            <p-button
-              type="button"
-              label="Cancel"
-              severity="secondary"
-              [outlined]="true"
-              size="large"
-              styleClass="!text-sm !py-3 !px-4 flex-1 !font-medium"
-              (onClick)="onCancel()">
-            </p-button>
-            <p-button
-              type="submit"
-              label="Add to Cart"
-              icon="pi pi-shopping-cart"
-              severity="primary"
-              size="large"
-              [disabled]="!canSubmit() || isSubmitting()"
-              [loading]="isSubmitting()"
-              (onClick)="onSubmit()"
-              styleClass="!text-sm !py-3 !px-4 flex-2 !font-semibold">
-            </p-button>
           </div>
         }
       </div>
@@ -317,14 +380,19 @@ export interface OrderData {
                 </div>
               </div>
             </div>
-            @if (getTotalQuantity() > 0) {
-              <div class="mt-3 pt-3 border-t border-slate-200">
-                <div class="flex items-center gap-1 text-sm text-blue-600">
-                  <i class="pi pi-info-circle"></i>
-                  <span>Items will be added to your cart</span>
-                </div>
+            <div class="mt-3 pt-3 border-t border-slate-200">
+              <div class="h-6 flex items-center">
+                @if (getTotalQuantity() > 0) {
+                  <div class="flex items-center gap-1 text-sm text-blue-600">
+                    <i class="pi pi-info-circle"></i>
+                    <span>Items will be added to your cart</span>
+                  </div>
+                } @else {
+                  <!-- reserved slot to prevent layout shift -->
+                  <div class="w-full" aria-hidden="true"></div>
+                }
               </div>
-            }
+            </div>
           </div>
 
           <!-- Action Buttons -->
@@ -603,6 +671,59 @@ export interface OrderData {
       color: #64748b !important;
     }
 
+    /* New quantity control styling */
+    .quantity-control {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .quantity-input {
+      width: 56px;
+      text-align: center;
+      padding: 6px 8px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      font-weight: 600;
+    }
+
+    .qty-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 9999px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+
+    /* Mobile compact layout */
+    .mobile-qty-control {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .mobile-quantity-input {
+      width: 44px;
+      text-align: center;
+      padding: 6px 8px;
+      border-radius: 6px;
+      border: 1px solid #e2e8f0;
+      font-weight: 600;
+    }
+
+    .qty-btn-mobile {
+      width: 36px;
+      height: 36px;
+      border-radius: 9999px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
     /* Button hover enhancements */
     :host ::ng-deep .p-button:hover:not(:disabled) {
       transform: translateY(-1px);
@@ -822,5 +943,39 @@ export class QuickOrderComponent {
 
   protected onCancel(): void {
     this.cancelOrder.emit();
+  }
+
+  // Increment/decrement helpers for quantity controls
+  protected increment(index: number): void {
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
+    if (!sizesArray || !sizesArray.at(index)) return;
+    const control = sizesArray.at(index);
+    const sizes = this.availableSizes();
+    const max = sizes[index]?.quantity ?? Number.MAX_SAFE_INTEGER;
+    const current = Number(control.value) || 0;
+    const next = Math.min(current + 1, max);
+    control.setValue(next);
+    control.markAsDirty();
+  }
+
+  protected decrement(index: number): void {
+    const sizesArray = this.orderForm.get('sizes') as FormArray;
+    if (!sizesArray || !sizesArray.at(index)) return;
+    const control = sizesArray.at(index);
+    const current = Number(control.value) || 0;
+    const next = Math.max(current - 1, 0);
+    control.setValue(next);
+    control.markAsDirty();
+  }
+
+  // Apply-to-all helpers
+  protected incrementApplyToAll(): void {
+    const current = Number(this.applyToAllQuantity()) || 0;
+    this.applyToAllQuantity.set(Math.min(current + 1, 100));
+  }
+
+  protected decrementApplyToAll(): void {
+    const current = Number(this.applyToAllQuantity()) || 0;
+    this.applyToAllQuantity.set(Math.max(current - 1, 0));
   }
 }

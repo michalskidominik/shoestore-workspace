@@ -42,8 +42,6 @@ export class ClientPanelLayoutComponent {
 
     if (url === '/products' || url.startsWith('/products/')) {
       return 'p-6 max-w-none'; // Products page - full width content with integrated sidebar
-    } else if (url === '/dashboard') {
-      return 'p-8 max-w-7xl mx-auto'; // Dashboard - centered with max width
     } else {
       return 'p-6 max-w-6xl mx-auto'; // Other pages - centered with moderate width
     }

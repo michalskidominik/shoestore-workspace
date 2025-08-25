@@ -360,7 +360,8 @@ export class ProductCardComponent {
         productName: product.name,
         size: item.size,
         quantity: item.quantity,
-        unitPrice: item.unitPrice
+        unitPrice: item.unitPrice,
+        suppressToast: true // Suppress individual toasts, we'll show a consolidated one
       };
       this.cartStore.addToCart(itemRequest);
     });

@@ -139,7 +139,7 @@ export const OrderHistoryStore = signalStore(
     updateQueryParams(params: Partial<OrderQueryParams>): void {
       const newParams = { ...store.queryParams(), ...params };
       patchState(store, { queryParams: newParams });
-      this.loadOrders(newParams);
+      this.loadOrders(); // Call without parameters to use the updated state
     },
 
     // Go to specific page
@@ -163,7 +163,7 @@ export const OrderHistoryStore = signalStore(
     },
 
     // Sort orders
-    sortOrders(sortBy: 'date' | 'status' | 'totalAmount', sortDirection: 'asc' | 'desc' = 'desc'): void {
+    sortOrders(sortBy: 'id' | 'date' | 'status' | 'totalAmount', sortDirection: 'asc' | 'desc' = 'desc'): void {
       this.updateQueryParams({ sortBy, sortDirection });
     },
 

@@ -240,7 +240,8 @@ export class ProductsComponent implements OnInit {
         productName: selectedProduct.name,
         size: item.size,
         quantity: item.quantity,
-        unitPrice: item.unitPrice
+        unitPrice: item.unitPrice,
+        suppressToast: true // Suppress individual toasts, we'll show a consolidated one
       };
       this.cartStore.addToCart(itemRequest);
     });
