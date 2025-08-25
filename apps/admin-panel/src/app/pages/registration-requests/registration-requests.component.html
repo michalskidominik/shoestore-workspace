@@ -1,0 +1,267 @@
+<div class="registration-requests-container">
+  <!-- Header -->
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-900">Registration Requests</h1>
+      <p class="text-gray-600 mt-2">Manage B2B access requests from companies</p>
+    </div>
+    <p-button 
+      icon="pi pi-refresh" 
+      label="Refresh"
+      (onClick)="refreshRequests()"
+      [loading]="isLoading()">
+    </p-button>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+    <p-card>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-blue-600">{{ requestCounts().total }}</div>
+        <div class="text-sm text-gray-600">Total Requests</div>
+      </div>
+    </p-card>
+    
+    <p-card>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-orange-600">{{ requestCounts().pending }}</div>
+        <div class="text-sm text-gray-600">Pending</div>
+      </div>
+    </p-card>
+    
+    <p-card>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-green-600">{{ requestCounts().approved }}</div>
+        <div class="text-sm text-gray-600">Approved</div>
+      </div>
+    </p-card>
+    
+    <p-card>
+      <div class="text-center">
+        <div class="text-2xl font-bold text-red-600">{{ requestCounts().rejected }}</div>
+        <div class="text-sm text-gray-600">Rejected</div>
+      </div>
+    </p-card>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error()" class="mb-4">
+    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+      <strong>Error:</strong> {{ error() }}
+    </div>
+  </div>
+
+  <!-- Requests Table -->
+  <p-card>
+    <p-table 
+      [value]="requests()" 
+      [loading]="isLoading()"
+      [paginator]="true" 
+      [rows]="10"
+      [responsive]="true"
+      styleClass="p-datatable-gridlines">
+      
+      <ng-template pTemplate="header">
+        <tr>
+          <th>Company</th>
+          <th>Email</th>
+          <th>Submitted</th>
+          <th>Status</th>
+          <th>Reviewed By</th>
+          <th>Actions</th>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="body" let-request>
+        <tr>
+          <td>
+            <div class="font-medium">{{ request.companyName }}</div>
+            <div class="text-sm text-gray-500">VAT: {{ request.vatId }}</div>
+          </td>
+          <td>
+            <div>{{ request.email }}</div>
+            <div class="text-sm text-gray-500">{{ request.phoneNumber }}</div>
+          </td>
+          <td>{{ formatDate(request.submittedAt) }}</td>
+          <td>
+            <p-tag 
+              [value]="request.status" 
+              [severity]="getStatusSeverity(request.status)">
+            </p-tag>
+          </td>
+          <td>
+            <div *ngIf="request.reviewedBy; else notReviewed">
+              <div class="text-sm">{{ request.reviewedBy }}</div>
+              <div class="text-xs text-gray-500">{{ formatDate(request.reviewedAt) }}</div>
+            </div>
+            <ng-template #notReviewed>
+              <span class="text-gray-400">-</span>
+            </ng-template>
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <p-button 
+                *ngIf="request.status === 'pending'"
+                icon="pi pi-check"
+                severity="success"
+                size="small"
+                (onClick)="approveRequest(request)"
+                pTooltip="Approve Request">
+              </p-button>
+              
+              <p-button 
+                *ngIf="request.status === 'pending'"
+                icon="pi pi-times"
+                severity="danger"
+                size="small"
+                (onClick)="startRejectRequest(request)"
+                pTooltip="Reject Request">
+              </p-button>
+              
+              <p-button 
+                icon="pi pi-eye"
+                severity="info"
+                size="small"
+                (onClick)="viewRequestDetails(request)"
+                pTooltip="View Details">
+              </p-button>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="6" class="text-center py-8">
+            <div class="text-gray-500">
+              <i class="pi pi-inbox text-4xl mb-4"></i>
+              <div>No registration requests found</div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </p-card>
+</div>
+
+<!-- Reject Request Dialog -->
+<p-dialog 
+  header="Reject Registration Request" 
+  [modal]="true" 
+  [visible]="showRejectDialog()"
+  (onHide)="showRejectDialog.set(false)"
+  [style]="{ width: '500px' }">
+  
+  <div *ngIf="selectedRequest()" class="mb-4">
+    <p>You are about to reject the registration request for:</p>
+    <div class="font-medium">{{ selectedRequest()?.companyName }}</div>
+    <div class="text-sm text-gray-600">{{ selectedRequest()?.email }}</div>
+  </div>
+
+  <form [formGroup]="rejectForm" (ngSubmit)="submitRejection()">
+    <div class="field mb-4">
+      <label for="rejectionReason" class="block text-sm font-medium mb-2">
+        Rejection Reason *
+      </label>
+      <textarea
+        pInputTextarea
+        id="rejectionReason"
+        formControlName="rejectionReason"
+        rows="3"
+        placeholder="Please provide a clear reason for rejection..."
+        class="w-full">
+      </textarea>
+      <small 
+        *ngIf="rejectForm.get('rejectionReason')?.invalid && rejectForm.get('rejectionReason')?.touched"
+        class="text-red-500">
+        Rejection reason is required (minimum 10 characters)
+      </small>
+    </div>
+
+    <div class="field mb-4">
+      <label for="notes" class="block text-sm font-medium mb-2">
+        Internal Notes
+      </label>
+      <textarea
+        pInputTextarea
+        id="notes"
+        formControlName="notes"
+        rows="2"
+        placeholder="Optional internal notes..."
+        class="w-full">
+      </textarea>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <p-button 
+        label="Cancel" 
+        severity="secondary"
+        (onClick)="showRejectDialog.set(false)">
+      </p-button>
+      <p-button 
+        label="Reject Request" 
+        severity="danger"
+        type="submit"
+        [disabled]="rejectForm.invalid">
+      </p-button>
+    </div>
+  </form>
+</p-dialog>
+
+<!-- Credentials Display Dialog -->
+<p-dialog 
+  header="User Account Created" 
+  [modal]="true" 
+  [visible]="showCredentialsDialog()"
+  (onHide)="closeCredentialsDialog()"
+  [style]="{ width: '500px' }"
+  [closable]="false">
+  
+  <div class="text-center mb-4">
+    <i class="pi pi-check-circle text-6xl text-green-500 mb-4"></i>
+    <h3 class="text-xl font-bold mb-2">Registration Approved!</h3>
+    <p class="text-gray-600">A user account has been created. Please provide these credentials to the user:</p>
+  </div>
+
+  <div *ngIf="generatedCredentials()" class="bg-gray-50 p-4 rounded border mb-4">
+    <div class="mb-2">
+      <strong>Email:</strong> {{ generatedCredentials()?.email }}
+    </div>
+    <div class="mb-4">
+      <strong>Temporary Password:</strong> 
+      <code class="bg-gray-200 px-2 py-1 rounded">{{ generatedCredentials()?.temporaryPassword }}</code>
+    </div>
+    
+    <p-button 
+      label="Copy Credentials" 
+      icon="pi pi-copy"
+      severity="info"
+      size="small"
+      (onClick)="copyCredentials()"
+      class="w-full">
+    </p-button>
+  </div>
+
+  <div class="bg-yellow-50 border border-yellow-200 p-3 rounded mb-4">
+    <div class="flex items-start gap-2">
+      <i class="pi pi-exclamation-triangle text-yellow-600 mt-1"></i>
+      <div class="text-sm text-yellow-700">
+        <strong>Important:</strong> These credentials will only be shown once. 
+        Make sure to copy them and send them to the user securely.
+      </div>
+    </div>
+  </div>
+
+  <div class="flex justify-end">
+    <p-button 
+      label="Done" 
+      (onClick)="closeCredentialsDialog()">
+    </p-button>
+  </div>
+</p-dialog>
+
+<!-- Toast Messages -->
+<p-toast></p-toast>
+
+<!-- Confirmation Dialog -->
+<p-confirmDialog></p-confirmDialog>

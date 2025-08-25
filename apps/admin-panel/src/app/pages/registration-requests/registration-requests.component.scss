@@ -1,0 +1,121 @@
+.registration-requests-container {
+  padding: 1.5rem;
+  min-height: 100vh;
+  background-color: #f8fafc;
+}
+
+/* Custom table styling */
+:host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+  background-color: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #475569;
+  font-weight: 600;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+  border-color: #e2e8f0;
+  padding: 1rem 0.75rem;
+}
+
+:host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
+  background-color: #f8fafc;
+}
+
+/* Button group styling */
+.flex.gap-2 p-button {
+  margin-right: 0.25rem;
+}
+
+.flex.gap-2 p-button:last-child {
+  margin-right: 0;
+}
+
+/* Card hover effects */
+p-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+p-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Status tag custom styling */
+:host ::ng-deep .p-tag {
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.025em;
+}
+
+/* Dialog content styling */
+:host ::ng-deep .p-dialog .p-dialog-content {
+  padding: 1.5rem;
+}
+
+:host ::ng-deep .p-dialog .p-dialog-header {
+  padding: 1rem 1.5rem;
+  background-color: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+/* Form styling */
+.field label {
+  color: #374151;
+  font-weight: 500;
+}
+
+.field textarea {
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.75rem;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.field textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Credentials display styling */
+code {
+  font-family: 'Courier New', monospace;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .registration-requests-container {
+    padding: 1rem;
+  }
+  
+  .grid.grid-cols-1.md\\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .flex.justify-between.items-center {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .grid.grid-cols-1.md\\:grid-cols-4 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Loading state */
+:host ::ng-deep .p-datatable .p-datatable-loading-overlay {
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Empty state styling */
+:host ::ng-deep .p-datatable .p-datatable-emptymessage td {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #6b7280;
+}
