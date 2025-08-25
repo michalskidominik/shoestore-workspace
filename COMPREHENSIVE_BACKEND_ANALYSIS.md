@@ -12,7 +12,8 @@ This document provides the **definitive analysis** of all models, interfaces, an
 4. [NestJS Services Architecture](#4-nestjs-services-architecture)
 5. [Authentication & Authorization Strategy](#5-authentication--authorization-strategy)
 6. [Migration Strategy & Implementation Plan](#6-migration-strategy--implementation-plan)
-7. [Performance Optimization & Best Practices](#7-performance-optimization--best-practices)
+7. [Render Deployment & Infrastructure](#7-render-deployment--infrastructure)
+8. [Performance Optimization & Best Practices](#8-performance-optimization--best-practices)
 
 ---
 
@@ -1145,9 +1146,350 @@ async function migrateProductsWithCategories() {
 
 ---
 
-## 7. Performance Optimization & Best Practices
+## 7. Render Deployment & Infrastructure
 
-### 7.1 Query Optimization Patterns
+### 7.1 Render Web Service Configuration
+
+**Service Type:** Web Service (for persistent NestJS application)
+
+#### 7.1.1 Basic Service Configuration
+```yaml
+# render.yaml
+services:
+  - type: web
+    name: shoestore-api
+    env: node
+    region: oregon # or your preferred region
+    plan: starter # or standard/pro based on needs
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start:prod
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: FIREBASE_PROJECT_ID
+        sync: false # Set via Render dashboard
+      - key: FIREBASE_CLIENT_EMAIL
+        sync: false # Set via Render dashboard
+      - key: FIREBASE_PRIVATE_KEY
+        sync: false # Set via Render dashboard
+      - key: JWT_SECRET
+        generateValue: true # Auto-generated secret
+      - key: CORS_ORIGIN
+        value: https://your-frontend-domain.com
+```
+
+#### 7.1.2 Environment Variables Setup
+```bash
+# Essential environment variables for Render
+NODE_ENV=production
+PORT=10000  # Render's default port
+
+# Firebase Configuration
+FIREBASE_PROJECT_ID=your-project-id
+FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+
+# Authentication
+JWT_SECRET=your-generated-jwt-secret
+JWT_EXPIRES_IN=24h
+
+# Application Configuration
+CORS_ORIGIN=https://your-frontend-domain.com
+API_PREFIX=api/v1
+```
+
+### 7.2 NestJS Render Optimization
+
+#### 7.2.1 Health Check Implementation
+```typescript
+// src/health/health.controller.ts
+import { Controller, Get } from '@nestjs/common';
+import { HealthCheck, HealthCheckService, HealthCheckResult } from '@nestjs/terminus';
+
+@Controller('health')
+export class HealthController {
+  constructor(private health: HealthCheckService) {}
+
+  @Get()
+  @HealthCheck()
+  check(): Promise<HealthCheckResult> {
+    return this.health.check([
+      // Add Firebase connectivity check
+      () => this.checkFirebaseConnection(),
+    ]);
+  }
+
+  private async checkFirebaseConnection(): Promise<any> {
+    // Simple Firebase connectivity test
+    try {
+      const firestore = getFirestore();
+      await firestore.collection('health').limit(1).get();
+      return { firestore: { status: 'up' } };
+    } catch (error) {
+      throw new Error(`Firebase connection failed: ${error.message}`);
+    }
+  }
+}
+```
+
+#### 7.2.2 Graceful Shutdown Handling
+```typescript
+// src/main.ts
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  
+  // Enable graceful shutdown hooks
+  app.enableShutdownHooks();
+  
+  // Configure for Render
+  const port = process.env.PORT || 3000;
+  await app.listen(port, '0.0.0.0');
+  
+  console.log(`Application is running on: ${await app.getUrl()}`);
+}
+
+bootstrap();
+```
+
+### 7.3 Firestore Configuration for Render
+
+#### 7.3.1 Firebase Admin SDK Setup
+```typescript
+// src/config/firebase.config.ts
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as admin from 'firebase-admin';
+
+@Injectable()
+export class FirebaseConfigService {
+  constructor(private configService: ConfigService) {
+    this.initializeFirebase();
+  }
+
+  private initializeFirebase() {
+    const projectId = this.configService.get<string>('FIREBASE_PROJECT_ID');
+    const clientEmail = this.configService.get<string>('FIREBASE_CLIENT_EMAIL');
+    const privateKey = this.configService.get<string>('FIREBASE_PRIVATE_KEY')
+      ?.replace(/\\n/g, '\n'); // Handle newlines in environment variables
+
+    if (!admin.apps.length) {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId,
+          clientEmail,
+          privateKey,
+        }),
+        projectId,
+      });
+    }
+  }
+
+  getFirestore() {
+    return admin.firestore();
+  }
+}
+```
+
+#### 7.3.2 Connection Pool Optimization
+```typescript
+// src/database/firestore.service.ts
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { Firestore } from 'firebase-admin/firestore';
+
+@Injectable()
+export class FirestoreService implements OnModuleInit, OnModuleDestroy {
+  private firestore: Firestore;
+
+  async onModuleInit() {
+    this.firestore = admin.firestore();
+    
+    // Configure Firestore settings for production
+    this.firestore.settings({
+      ignoreUndefinedProperties: true,
+      maxIdleChannels: 10, // Optimize for Render's container limits
+    });
+  }
+
+  async onModuleDestroy() {
+    // Graceful shutdown
+    await admin.app().delete();
+  }
+
+  getFirestore(): Firestore {
+    return this.firestore;
+  }
+}
+```
+
+### 7.4 CI/CD Pipeline for Render
+
+#### 7.4.1 GitHub Actions Integration
+```yaml
+# .github/workflows/deploy-render.yml
+name: Deploy to Render
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Run tests
+      run: npm run test
+    
+    - name: Run e2e tests
+      run: npm run test:e2e
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Deploy to Render
+      uses: render-deploy/github-action@v1
+      with:
+        service-id: ${{ secrets.RENDER_SERVICE_ID }}
+        api-key: ${{ secrets.RENDER_API_KEY }}
+```
+
+### 7.5 Performance Considerations for Render
+
+#### 7.5.1 Memory Management
+```typescript
+// Configure heap size for Render containers
+// package.json scripts
+{
+  "scripts": {
+    "start:prod": "node --max-old-space-size=512 dist/main"
+  }
+}
+```
+
+#### 7.5.2 Logging Configuration
+```typescript
+// src/config/logger.config.ts
+import { WinstonModule } from 'nest-winston';
+import * as winston from 'winston';
+
+export const loggerConfig = WinstonModule.createLogger({
+  transports: [
+    new winston.transports.Console({
+      format: winston.format.combine(
+        winston.format.timestamp(),
+        winston.format.json(),
+        winston.format.colorize({ all: true }),
+      ),
+    }),
+    // Render automatically captures console logs
+  ],
+  level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+});
+```
+
+### 7.6 Security Best Practices for Render
+
+#### 7.6.1 Environment Variable Security
+- **Never commit secrets** to repository
+- Use Render's **Environment Variables** dashboard for sensitive data
+- Enable **Auto-Deploy** only for non-production branches during development
+- Use **Preview Deployments** for testing changes
+
+#### 7.6.2 CORS Configuration
+```typescript
+// src/main.ts - Production CORS setup
+app.enableCors({
+  origin: process.env.CORS_ORIGIN?.split(',') || 'http://localhost:3000',
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+});
+```
+
+### 7.7 Monitoring & Observability
+
+#### 7.7.1 Application Metrics
+```typescript
+// src/metrics/metrics.service.ts
+import { Injectable } from '@nestjs/common';
+import { Logger } from '@nestjs/common';
+
+@Injectable()
+export class MetricsService {
+  private readonly logger = new Logger(MetricsService.name);
+
+  logDatabaseQuery(collection: string, operation: string, duration: number) {
+    this.logger.log({
+      type: 'database_query',
+      collection,
+      operation,
+      duration,
+      timestamp: new Date().toISOString(),
+    });
+  }
+
+  logApiRequest(endpoint: string, method: string, statusCode: number, duration: number) {
+    this.logger.log({
+      type: 'api_request',
+      endpoint,
+      method,
+      statusCode,
+      duration,
+      timestamp: new Date().toISOString(),
+    });
+  }
+}
+```
+
+### 7.8 Render-Specific Deployment Checklist
+
+**Pre-Deployment:**
+- ✅ Environment variables configured in Render dashboard
+- ✅ Firebase service account key properly formatted
+- ✅ Health check endpoint implemented (`/health`)
+- ✅ Graceful shutdown handlers configured
+- ✅ Build and start commands defined in `render.yaml`
+
+**Post-Deployment:**
+- ✅ Health check returns 200 OK
+- ✅ Application logs show successful Firebase connection
+- ✅ API endpoints respond correctly
+- ✅ CORS configuration allows frontend access
+- ✅ Monitor resource usage and adjust plan if needed
+
+**Scaling Considerations:**
+- Start with **Starter** plan for development/testing
+- Upgrade to **Standard** for production with moderate traffic
+- Use **Pro** plan for high-traffic scenarios with auto-scaling
+- Monitor CPU and memory usage through Render dashboard
+
+---
+
+## 8. Performance Optimization & Best Practices
+
+### 8.1 Query Optimization Patterns
 ```typescript
 // Efficient pagination with cursor-based pagination
 async function getOrdersWithCursor(
@@ -1178,7 +1520,7 @@ async function getOrdersWithCursor(
 }
 ```
 
-### 7.2 Caching Strategy
+### 8.2 Caching Strategy
 ```typescript
 @Injectable()
 export class CacheService {
@@ -1224,14 +1566,15 @@ async function getProductCategories(): Promise<ProductCategory[]> {
 ### Architecture Benefits
 - **100% Model Coverage** - Every interface and type has corresponding database structure
 - **Production-Ready Security** - Complete authentication and authorization workflows
-- **Scalable Design** - Optimized for Vercel serverless and Firebase performance
+- **Scalable Design** - Optimized for Render Web Services with Firestore integration
 - **Enterprise Features** - B2B workflows, audit trails, and advanced analytics
 - **Future-Proof** - Extensible architecture for international expansion
 
 ### Immediate Next Steps
 1. **Initialize Firebase project** with security rules and indexes
 2. **Set up NestJS foundation** with authentication middleware
-3. **Begin Phase 1 implementation** focusing on user management
-4. **Establish CI/CD pipeline** for automated testing and deployment
+3. **Configure Render Web Service** with environment variables and health checks
+4. **Begin Phase 1 implementation** focusing on user management
+5. **Establish CI/CD pipeline** for automated testing and Render deployment
 
 This comprehensive analysis provides complete technical specifications for immediate development start with confidence in architectural decisions for both current requirements and future business growth.
