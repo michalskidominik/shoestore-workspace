@@ -35,4 +35,16 @@ export default () => ({
     enableHelmet: process.env.ENABLE_HELMET !== 'false',
     logLevel: process.env.LOG_LEVEL || (process.env.NODE_ENV === 'production' ? 'error' : 'debug'),
   },
+
+  // Firebase configuration
+  firebase: {
+    projectId: process.env.FIREBASE_PROJECT_ID || 'shoestore-d2e97',
+    databaseURL: process.env.FIREBASE_DATABASE_URL || 'https://shoestore-d2e97-default-rtdb.firebaseio.com',
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET || 'shoestore-d2e97.appspot.com',
+    // Firebase config JSON - recommended for Render.com deployment
+    configJson: process.env.FIREBASE_CONFIG,
+    // Individual environment variables (fallback)
+    privateKey: process.env.FIREBASE_PRIVATE_KEY,
+    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+  },
 });

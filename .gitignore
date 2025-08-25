@@ -47,3 +47,12 @@ Thumbs.db
 .github/instructions/nx.instructions.md
 
 .angular
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Firebase service account keys
+firebase-*.json
+*-firebase-adminsdk-*.json

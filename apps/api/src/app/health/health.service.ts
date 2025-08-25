@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { FirebaseAdminService } from '../firebase';
 
 export interface HealthCheck {
   status: 'ok' | 'error' | 'warning';
@@ -28,7 +29,10 @@ export interface HealthStatus {
 
 @Injectable()
 export class HealthService {
-  constructor(private configService: ConfigService) {}
+  constructor(
+    private configService: ConfigService,
+    private firebaseAdminService: FirebaseAdminService
+  ) {}
 
   async getHealth(): Promise<HealthStatus> {
     const checks: Record<string, HealthCheck> = {};
@@ -36,8 +40,8 @@ export class HealthService {
     // Memory check
     checks.memory = this.checkMemory();
 
-    // Database check (placeholder - implement when DB is added)
-    checks.database = await this.checkDatabase();
+    // Firebase health check
+    checks.firebase = await this.checkFirebase();
 
     // External services check (placeholder)
     checks.externalServices = await this.checkExternalServices();
@@ -97,13 +101,61 @@ export class HealthService {
     };
   }
 
-  private async checkDatabase(): Promise<HealthCheck> {
-    // TODO: Implement actual database health check when database is configured
-    // For now, return healthy status
-    return {
-      status: 'ok',
-      message: 'Database connection not configured yet',
-    };
+  private async checkFirebase(): Promise<HealthCheck> {
+    try {
+      const firebaseHealth = await this.firebaseAdminService.healthCheck();
+      
+      // Filter out services that are not enabled (like auth)
+      const enabledServices = Object.entries(firebaseHealth)
+        .filter(([key]) => {
+          if (key === 'timestamp') return false;
+          if (key === 'authEnabled') return false;
+          if (key === 'auth' && !firebaseHealth.authEnabled) return false; // Skip auth if not enabled
+          return true;
+        });
+
+      const servicesDown = enabledServices
+        .filter(([, value]) => !value)
+        .map(([key]) => key);
+
+      const enabledServiceNames = enabledServices.map(([key]) => key);
+      
+      // Special handling for auth not being enabled
+      let message = '';
+      if (!firebaseHealth.authEnabled) {
+        message = 'Firebase services are healthy (Authentication not enabled)';
+      } else {
+        message = 'All Firebase services are healthy';
+      }
+
+      if (servicesDown.length === 0) {
+        return {
+          status: 'ok',
+          message,
+          details: firebaseHealth,
+        };
+      } else if (servicesDown.length < enabledServiceNames.length) {
+        return {
+          status: 'warning',
+          message: `Some Firebase services are unavailable: ${servicesDown.join(', ')}`,
+          details: firebaseHealth,
+        };
+      } else {
+        return {
+          status: 'error',
+          message: `Most Firebase services are unavailable: ${servicesDown.join(', ')}`,
+          details: firebaseHealth,
+        };
+      }
+    } catch (error) {
+      return {
+        status: 'error',
+        message: 'Firebase health check failed',
+        details: {
+          error: error instanceof Error ? error.message : 'Unknown error',
+        },
+      };
+    }
   }
 
   private async checkExternalServices(): Promise<HealthCheck> {
