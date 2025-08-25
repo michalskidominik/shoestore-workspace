@@ -1,10 +1,105 @@
-# ShoestoreWorkspace
+# 🛍️ Shoestore NX Workspace
 
-<a alt="Nx logo" href="https://nx.dev" target="_blank" rel="noreferrer"><img src="https://raw.githubusercontent.com/nrwl/nx/master/images/nx-logo.png" width="45"></a>
+A modern e-commerce platform built with NX monorepo, Angular, and NestJS, optimized for deployment on Render.com.
 
-✨ Your new, shiny [Nx workspace](https://nx.dev) is ready ✨.
+## 🏗️ Architecture
 
-[Learn more about this workspace setup and its capabilities](https://nx.dev/getting-started/intro#learn-nx?utm_source=nx_project&amp;utm_medium=readme&amp;utm_campaign=nx_projects) or run `npx nx graph` to visually explore what was created. Now, let's get you up to speed!
+- **client-shop**: Customer-facing Angular SPA
+- **admin-panel**: Administrative Angular SPA  
+- **api**: NestJS REST API backend
+- **shared/shared-models**: Shared TypeScript models
+- **shared/shared-utils**: Shared utilities
+
+## 🚀 Deployment Status
+
+**Platform**: Render.com  
+
+### Live Services
+- 🛍️ **Client Shop**: [Production URL](https://shoestore-client-shop.onrender.com)
+- ⚙️ **Admin Panel**: [Production URL](https://shoestore-admin-panel.onrender.com)
+- 🚀 **API**: [Production URL](https://shoestore-api.onrender.com)
+
+## 📋 Quick Start
+
+### Development
+```bash
+# Install dependencies
+npm install
+
+# Start development servers
+npx nx serve client-shop    # Port 4200
+npx nx serve admin-panel    # Port 4201  
+npx nx serve api           # Port 3000
+
+# Run tests
+npx nx test client-shop
+npx nx test admin-panel
+npx nx test api
+```
+
+### Production Builds
+```bash
+# Build all applications
+npx nx build client-shop --configuration=production
+npx nx build admin-panel --configuration=production
+npx nx build api --configuration=production
+
+# Or use Render-optimized scripts
+npm run build:render:client-shop
+npm run build:render:admin-panel
+npm run build:render:api
+```
+
+## 🌐 Deployment
+
+### Automatic Deployment (Recommended)
+
+1. **Push to GitHub**: Changes automatically trigger deployment
+2. **Blueprint Configuration**: Uses `render.yaml` for infrastructure as code
+3. **Build Optimization**: Only affected services rebuild (monorepo support)
+
+### Manual Deployment
+
+Follow the comprehensive guide: [RENDER_DEPLOYMENT_GUIDE.md](./RENDER_DEPLOYMENT_GUIDE.md)
+
+## 🛠️ Development Tools
+
+- **NX**: Monorepo management and build optimization
+- **Angular**: Frontend frameworks (v19+)
+- **NestJS**: Backend API framework
+- **TypeScript**: Type-safe development
+- **Jest**: Testing framework
+- **ESLint**: Code linting
+- **TailwindCSS**: Utility-first CSS framework
+
+## 📊 Build Configuration
+
+### Static Sites (Angular SPAs)
+- **Build Command**: `npm ci --ignore-scripts && npx nx build [app] --configuration=production`
+- **Output**: `dist/apps/[app]/browser`
+- **Routing**: SPA routing configured for client-side navigation
+- **Caching**: Optimized cache headers for static assets
+
+### Web Service (NestJS API)
+- **Build Command**: `npm ci --ignore-scripts && npx nx build api --configuration=production`
+- **Start Command**: `node dist/apps/api/main.js`
+- **Health Check**: `/api/health`
+- **Port**: Automatically configured by Render
+
+## 🔧 Environment Variables
+
+### Production (Set in Render Dashboard)
+```bash
+NODE_ENV=production
+NX_SKIP_NX_CACHE=true
+PORT=3000  # For API service (auto-set by Render)
+```
+
+### Development (.env.local)
+```bash
+NODE_ENV=development
+API_URL=http://localhost:3000
+```
 
 ## Run tasks
 

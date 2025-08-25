@@ -7,7 +7,6 @@ out-tsc
 temp-deploy
 temp-admin-panel-deploy
 temp-client-shop-deploy
-dist-vercel
 
 # dependencies
 node_modules
@@ -48,5 +47,3 @@ Thumbs.db
 .github/instructions/nx.instructions.md
 
 .angular
-
-.vercel

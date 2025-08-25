@@ -1,0 +1,146 @@
+# Render Blueprint Configuration for Shoestore NX Workspace
+# Modern 2025 configuration for Angular SPAs and NestJS API
+services:
+  # Client Shop - Angular SPA as Static Site
+  - name: shoestore-client-shop
+    type: web
+    runtime: static
+    buildCommand: |
+      echo "Installing dependencies..."
+      npm ci --ignore-scripts
+      echo "Building client-shop..."
+      npx nx build client-shop --configuration=production
+    staticPublishPath: ./dist/apps/client-shop/browser
+    buildFilter:
+      paths:
+        - apps/client-shop/**
+        - shared/**
+        - package.json
+        - nx.json
+      ignoredPaths:
+        - apps/client-shop/**/*.spec.ts
+        - apps/client-shop/**/*.test.ts
+        - "**/*.md"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NX_SKIP_NX_CACHE
+        value: "true"
+    routes:
+      # SPA routing - serve index.html for all routes
+      - type: rewrite
+        source: "/*"
+        destination: "/index.html"
+    headers:
+      # Security headers
+      - path: "/*"
+        name: X-Frame-Options
+        value: DENY
+      - path: "/*"
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: "/*"
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      # Cache static assets
+      - path: "/assets/*"
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: "/*.js"
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: "/*.css"
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+
+  # Admin Panel - Angular SPA as Static Site
+  - name: shoestore-admin-panel
+    type: web
+    runtime: static
+    buildCommand: |
+      echo "Installing dependencies..."
+      npm ci --ignore-scripts
+      echo "Building admin-panel..."
+      npx nx build admin-panel --configuration=production
+    staticPublishPath: ./dist/apps/admin-panel/browser
+    buildFilter:
+      paths:
+        - apps/admin-panel/**
+        - shared/**
+        - package.json
+        - nx.json
+      ignoredPaths:
+        - apps/admin-panel/**/*.spec.ts
+        - apps/admin-panel/**/*.test.ts
+        - "**/*.md"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NX_SKIP_NX_CACHE
+        value: "true"
+    routes:
+      # SPA routing - serve index.html for all routes
+      - type: rewrite
+        source: "/*"
+        destination: "/index.html"
+    headers:
+      # Security headers
+      - path: "/*"
+        name: X-Frame-Options
+        value: DENY
+      - path: "/*"
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: "/*"
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      # Cache static assets
+      - path: "/assets/*"
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: "/*.js"
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+      - path: "/*.css"
+        name: Cache-Control
+        value: public, max-age=31536000, immutable
+
+  # API - NestJS Web Service
+  - name: shoestore-api
+    type: web
+    runtime: node
+    buildCommand: |
+      echo "Installing dependencies..."
+      npm ci --ignore-scripts
+      echo "Building API..."
+      npx nx build api --configuration=production
+    startCommand: node dist/apps/api/main.js
+    buildFilter:
+      paths:
+        - apps/api/**
+        - shared/**
+        - package.json
+        - nx.json
+      ignoredPaths:
+        - apps/api/**/*.spec.ts
+        - apps/api/**/*.test.ts
+        - "**/*.md"
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: NX_SKIP_NX_CACHE
+        value: "true"
+    healthCheckPath: /api/health
+    # Auto-deploy on every commit to develop branch
+    autoDeployTrigger: commit
+
+# Optional: Environment groups for shared configuration
+envVarGroups:
+  - name: common-config
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NX_SKIP_NX_CACHE
+        value: "true"

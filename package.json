@@ -3,12 +3,11 @@
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
-    "build:vercel": "node scripts/vercel-build.js",
-    "vercel:dev": "vercel dev --listen 4300",
-    "vercel:login": "vercel login",
-    "vercel:link": "vercel link",
-    "vercel:deploy": "vercel --prod",
-    "vercel:preview": "vercel"
+    "build:render": "node scripts/render-build.js",
+    "build:render:client-shop": "node scripts/render-client-shop.js",
+    "build:render:admin-panel": "node scripts/render-admin-panel.js",
+    "build:render:api": "node scripts/render-api.js",
+    "validate:migration": "node scripts/validate-migration.js"
   },
   "private": true,
   "devDependencies": {
@@ -58,7 +57,6 @@
     "tslib": "^2.3.0",
     "typescript": "~5.7.2",
     "typescript-eslint": "^8.19.0",
-    "vercel": "^46.0.2",
     "webpack-cli": "^5.1.4"
   },
   "dependencies": {
