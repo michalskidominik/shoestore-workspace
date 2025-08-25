@@ -117,14 +117,15 @@ services:
     buildCommand: |
       echo "Installing dependencies..."
       npm ci
-      echo "Current working directory:"
+      echo "Setting up environment for NX..."
+      export NODE_PATH="./node_modules:$NODE_PATH"
+      export NX_BASE_BRANCH="develop"
+      echo "Working directory:"
       pwd
-      echo "Listing files:"
-      ls -la
-      echo "Checking NX workspace..."
-      npx nx show projects
-      echo "Building API..."
-      npx nx build api --configuration=production
+      echo "Node modules path:"
+      echo $NODE_PATH
+      echo "Building API with proper environment..."
+      NODE_PATH="./node_modules" npx nx build api --configuration=production
     startCommand: node dist/apps/api/main.js
     buildFilter:
       paths:
