@@ -109,6 +109,7 @@
                     <label for="shippingCountry">Country *</label>
                     <p-select
                       formControlName="shippingCountry"
+                      inputId="shippingCountry"
                       [options]="countries"
                       optionLabel="label"
                       optionValue="value"
@@ -188,6 +189,7 @@
                     <label for="billingCountry">Country *</label>
                     <p-select
                       formControlName="billingCountry"
+                      inputId="billingCountry"
                       [options]="countries"
                       optionLabel="label"
                       optionValue="value"
@@ -310,7 +312,7 @@
 
             <!-- Current Email Display -->
             <div class="current-email-section">
-              <label class="text-sm font-medium text-slate-700">Current Email</label>
+              <p class="text-sm font-medium text-slate-700">Current Email</p>
               <div class="current-email-display">
                 <span class="text-lg font-medium text-slate-900">{{ currentUser()?.email }}</span>
                 <span class="text-sm text-green-600 ml-2">
