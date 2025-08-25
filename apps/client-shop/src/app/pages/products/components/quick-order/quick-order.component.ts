@@ -6,6 +6,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { Shoe, SizeAvailability } from '@shoestore/shared-models';
+import { UserSettingsStore } from '../../../../shared/stores/user-settings.store';
 import { CurrencyPipe } from '../../../../shared/pipes';
 
 export interface OrderData {
@@ -744,7 +745,6 @@ export interface OrderData {
 export class QuickOrderComponent {
   // Inputs
   readonly product = input.required<Shoe>();
-  readonly sizeSystem = input<'eu' | 'us'>('eu');
   readonly isSubmitting = input<boolean>(false);
 
   // Outputs
@@ -753,8 +753,12 @@ export class QuickOrderComponent {
 
   // Form and state management
   private readonly fb = inject(FormBuilder);
+  private readonly userSettingsStore = inject(UserSettingsStore);
   protected readonly orderForm: FormGroup;
   protected readonly applyToAllQuantity = signal<number>(0);
+
+  // Size system from UserSettingsStore
+  protected readonly sizeSystem = this.userSettingsStore.sizeSystem;
 
   // Computed values
   protected readonly availableSizes = computed(() => {
@@ -836,7 +840,13 @@ export class QuickOrderComponent {
   }
 
   protected getSizeDisplay(size: SizeAvailability): string {
-    // For now, just show EU size. Can be enhanced with US conversion later
+    // Use the current size system preference
+    const currentSizeSystem = this.sizeSystem();
+    if (currentSizeSystem === 'us') {
+      // TODO: Add US size conversion when sizeTemplates are available
+      // For now, fall back to EU
+      return `${size.size} EU`;
+    }
     return `${size.size} EU`;
   }
 

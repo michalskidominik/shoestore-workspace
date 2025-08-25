@@ -9,7 +9,6 @@ export interface ProductFilters {
   selectedCategories: string[];
   selectedAvailability: string[];
   sortBy: string;
-  sizeSystem: 'eu' | 'us';
 }
 
 // Product category enumeration

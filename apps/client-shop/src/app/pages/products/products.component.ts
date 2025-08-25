@@ -23,6 +23,7 @@ import { CartStore, AddToCartRequest } from '../../features/cart/stores/cart.sto
 import { ToastStore } from '../../shared/stores/toast.store';
 import { AuthStore } from '../../core/stores/auth.store';
 import { CurrencyStore } from '../../shared/stores/currency.store';
+import { UserSettingsStore } from '../../shared/stores/user-settings.store';
 // Import order component
 import { QuickOrderComponent, OrderData } from './components/quick-order/quick-order.component';
 // Import new components
@@ -93,6 +94,7 @@ export class ProductsComponent implements OnInit {
   private readonly toastStore = inject(ToastStore);
   private readonly authStore = inject(AuthStore);
   private readonly currencyStore = inject(CurrencyStore);
+  private readonly userSettingsStore = inject(UserSettingsStore);
   private readonly router = inject(Router);
 
   // Authentication
@@ -111,7 +113,7 @@ export class ProductsComponent implements OnInit {
   protected readonly searchTerm = computed(() => this.productStore.filters().searchTerm);
   protected readonly selectedBrands = computed(() => this.productStore.filters().selectedBrands);
   protected readonly selectedSort = computed(() => this.productStore.filters().sortBy);
-  protected readonly sizeSystem = computed(() => this.productStore.filters().sizeSystem);
+  protected readonly sizeSystem = this.userSettingsStore.sizeSystem;
 
   // Mobile dialog state
   protected readonly showMobileOrderDialog = signal(false);
@@ -169,6 +171,9 @@ export class ProductsComponent implements OnInit {
   ngOnInit(): void {
     this.loadInitialData();
     this.checkIsMobile();
+    
+    // Initialize user settings
+    this.userSettingsStore.initializeSettings();
   }
 
   private loadInitialData(): void {
@@ -427,15 +432,15 @@ export class ProductsComponent implements OnInit {
   protected onSizeSystemChange(newSizeSystem: 'eu' | 'us'): void {
     // Ensure size system is always valid - prevent deselection
     if (newSizeSystem && (newSizeSystem === 'eu' || newSizeSystem === 'us')) {
-      this.productStore.updateFilter('sizeSystem', newSizeSystem);
+      this.userSettingsStore.setSizeSystem(newSizeSystem);
     } else {
       // Fallback to current value or default if invalid
       const current = this.sizeSystem();
       if (!current || (current !== 'eu' && current !== 'us')) {
-        this.productStore.updateFilter('sizeSystem', 'eu'); // Default fallback
+        this.userSettingsStore.setSizeSystem('eu'); // Default fallback
       }
     }
-    this.productStore.refreshFilteredProducts();
+    // No need to refresh filtered products since size system is not a filter anymore
   }
 
   // ============================================

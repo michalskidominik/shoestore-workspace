@@ -10,6 +10,12 @@ export interface InvoiceInfo {
   vatNumber: string;
 }
 
+export interface UserPreferences {
+  sizeSystem: 'eu' | 'us';
+  currency: string;
+  language: string;
+}
+
 export interface User {
   id: number;
   email: string;
@@ -18,4 +24,5 @@ export interface User {
   shippingAddress: Address;
   billingAddress: Address;
   invoiceInfo: InvoiceInfo;
+  preferences?: UserPreferences;
 }
